@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-7">
+        <h1 class="mb-3">Welcome to AI-Powered Gym Management System</h1>
+        <p>Simple Gym Management System build using Python, Django, HTML, CSS, Sqlite</p>
+        <p>Manage members, equipment, attendance and more..</p>
+    </div>
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                Contact/ Enquiries
+            </div>
+            <div class="card-body">
+                <form action="post">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="text" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="mobile" class="form-label">Mobile no:</label>
+                        <input type="number" class="form-control" id="mobile" name="mobile" maxlength="10" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea type="text" class="form-control" id="message" rows="3" name="message" required>
+                        </textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Submit Enquiry</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
