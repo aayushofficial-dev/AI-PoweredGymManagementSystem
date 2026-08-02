@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-3">
+    {% if mode == 'add' %} Add Plan {% else %} Edit Plan {% endif %}
+</h2> 
+
+<form method="post" class="row g-3 w-75">
+    {% csrf_token %}
+    <div class="col-md-6">
+        <label for="name" class="form-label">Plan Name</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ plan.name|default:'' }}" required>
+    </div>
+    <div class="col-md-3">
+        <label for="duration_months" class="form-label">Duration (in months)</label>
+        <input type="number" class="form-control" id="duration" name="duration_months" value="{{ plan.duration_months|default:'' }}" required>
+    </div>
+    <div class="col-md-3">
+        <label for="fee" class="form-label">Fee</label>
+        <input type="number" class="form-control" id="fee" name="fee" value="{{ plan.fee|default:'' }}" required>
+    </div>
+
+    <div class="col-md-12">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="3">{{ plan.description|default:'' }}</textarea>
+    </div>
+    <div class="col-md-12">
+        <button type="submit" class="btn btn-primary">
+            {% if mode == 'add' %} Add Plan {% else %} Update Plan {% endif %}
+        </button>
+        <a href="{% url 'admin_plans_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}
