@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-3">
+    {% if mode == 'add' %} Add Trainer {% else %} Edit Trainer {% endif %}
+</h2> 
+
+<form method="post" class="row g-3 w-75">
+    {% csrf_token %}
+    <div class="col-md-6">
+        <label for="name" class="form-label">Trainer Name</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ trainer.name|default:'' }}" required>
+    </div>
+    <div class="col-md-6">
+        <label for="mobile" class="form-label">Mobile</label>
+        <input type="number" class="form-control" id="mobile" name="mobile" value="{{ trainer.mobile|default:'' }}" maxlength="10" required>
+    </div>
+    <div class="col-md-6">
+        <label for="specialization" class="form-label">Specialization</label>
+        <input type="text" class="form-control" id="specialization" name="specialization" value="{{ trainer.specialization|default:'' }}" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="shift_timing" class="form-label">Shift Timing</label>
+        <input type="text" class="form-control" id="shift_timing" name="shift_timing" value="{{ trainer.shift_timing|default:'' }}" required
+        placeholder="e.g., 6 AM - 10 AM">
+    </div>
+    <div class="col-md-12">
+        <button type="submit" class="btn btn-primary">
+            {% if mode == 'add' %} Add Trainer {% else %} Update Trainer {% endif %}
+        </button>
+        <a href="{% url 'admin_trainers_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

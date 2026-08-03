@@ -127,3 +127,63 @@ def admin_plan_delete(request, plan_id):
         return redirect('admin_plans_list')  # Redirect to the plans list after successful deletion
     return redirect('admin_plans_list')  # Render a confirmation page before deletion
 
+
+
+@admin_required
+def admin_trainers_list(request):
+    trainers = Trainer.objects.all().order_by('name')  # Fetch all trainers from the database and order them by name
+    return render(request, 'admin_trainers_list.html', {'trainers': trainers})
+
+@admin_required
+def admin_trainer_add(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        mobile = request.POST.get('mobile')
+        specialization = request.POST.get('specialization')
+        shift_timing = request.POST.get('shift_timing')
+
+        if name and mobile and specialization and shift_timing:
+            Trainer.objects.create(
+                name=name,
+                mobile=mobile,
+                specialization=specialization,
+                shift_timing=shift_timing
+            )
+            messages.success(request, 'Trainer added successfully!')
+            return redirect('admin_trainers_list')  # Redirect to the trainers list after successful addition
+        else:
+            messages.error(request, 'Please fill in all the required fields.')
+
+    return render(request, 'admin_trainer_form.html', {'mode': 'add'})  # Pass mode to the template to indicate it's an add operation
+
+@admin_required
+def admin_trainer_edit(request, trainer_id):
+    trainer = Trainer.objects.get(id=trainer_id)  # Fetch the specific trainer based on the provided ID
+
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        mobile = request.POST.get('mobile')
+        specialization = request.POST.get('specialization')
+        shift_timing = request.POST.get('shift_timing')
+
+        if name and mobile and specialization and shift_timing:
+            trainer.name = name
+            trainer.mobile = mobile
+            trainer.specialization = specialization
+            trainer.shift_timing = shift_timing
+            trainer.save()  # Save the updated trainer details to the database
+            messages.success(request, 'Trainer updated successfully!')
+            return redirect('admin_trainers_list')  # Redirect to the trainers list after successful update
+        else:
+            messages.error(request, 'Please fill in all the required fields.')
+
+    return render(request, 'admin_trainer_form.html', {'trainer': trainer, 'mode': 'edit'})  # Pass mode to the template to indicate it's an edit operation
+
+@admin_required
+def admin_trainer_delete(request, trainer_id):
+    trainer = Trainer.objects.get(id=trainer_id)  # Fetch the specific trainer based on the provided ID
+    if request.method == 'POST':
+        trainer.delete()  # Delete the trainer from the database
+        messages.success(request, 'Trainer deleted successfully!')
+        return redirect('admin_trainers_list')  # Redirect to the trainers list after successful deletion
+    return redirect('admin_trainers_list')  # Render a confirmation page before deletion
