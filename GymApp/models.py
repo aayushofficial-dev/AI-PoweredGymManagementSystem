@@ -38,11 +38,11 @@ class Trainer(models.Model):
     
 # 11 fields
 class MemberProfile(models.Model):
-    GENDER_CHOICES = [
+    GENDER_CHOICES = (
         ('MALE', 'Male'),
         ('FEMALE', 'Female'),
         ('OTHER', 'Other'),
-    ]
+    )
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='member_profile')
 

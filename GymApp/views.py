@@ -187,3 +187,95 @@ def admin_trainer_delete(request, trainer_id):
         messages.success(request, 'Trainer deleted successfully!')
         return redirect('admin_trainers_list')  # Redirect to the trainers list after successful deletion
     return redirect('admin_trainers_list')  # Render a confirmation page before deletion
+
+@admin_required
+def admin_members_list(request):
+    members = MemberProfile.objects.all().select_related('user', 'plan') 
+    return render(request, 'admin_members_list.html', {'members': members}) 
+
+@admin_required
+def admin_member_add(request):
+    plans = MembershipPlan.objects.all().order_by('duration_months')  # Fetch all membership plans to display in the form
+    trainers = Trainer.objects.all().order_by('name')  # Fetch all trainers to display in the form
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        full_name = request.POST.get('full_name')
+        mobile = request.POST.get('mobile')
+        age = request.POST.get('age')
+        gender = request.POST.get('gender')
+        address = request.POST.get('address')
+        join_date = request.POST.get('join_date') or timezone.now().date()  # Default to today's date if not provided
+        plan_id = request.POST.get('plan_id')
+        trainer_id = request.POST.get('trainer_id')    
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists. Please choose a different username.')
+            return redirect('admin_member_add')
+
+        user = User.objects.create_user(username=username, password=password, role='MEMBER')  # Create a new user with the role of MEMBER
+        
+        plan = MembershipPlan.objects.get(id=plan_id) if plan_id else None
+        trainer = Trainer.objects.get(id=trainer_id) if trainer_id else None
+
+        MemberProfile.objects.create(
+            user=user,
+            full_name=full_name,
+            mobile=mobile,
+            age=age,
+            gender=gender,
+            address=address,    
+            join_date=join_date,
+            plan=plan,
+            trainer=trainer,
+            # membership_start=join_date  # Set membership_start to the join_date
+        )
+        messages.success(request, 'Member added successfully!')
+        return redirect('admin_members_list')
+    return render(request, 'admin_member_form.html', {'plans': plans, 'trainers': trainers, 'mode': 'add'})  # Pass mode to the template to indicate it's an add operation
+
+@admin_required
+def admin_member_edit(request, member_id):
+    member = MemberProfile.objects.get(id=member_id)
+    plans = MembershipPlan.objects.all().order_by('duration_months')
+    trainers = Trainer.objects.all().order_by('name')
+
+    if request.method == 'POST':
+        full_name = request.POST.get('full_name')
+        mobile = request.POST.get('mobile')
+        age = request.POST.get('age')
+        gender = request.POST.get('gender')
+        address = request.POST.get('address')
+        join_date = request.POST.get('join_date') or member.join_date  # Default to existing join_date if not provided
+        plan_id = request.POST.get('plan_id')
+        trainer_id = request.POST.get('trainer_id')     
+
+        plan = MembershipPlan.objects.get(id=plan_id) if plan_id else None
+        trainer = Trainer.objects.get(id=trainer_id) if trainer_id else None
+
+        if full_name and mobile and age and gender and address and join_date and plan and trainer:
+            member.full_name = full_name
+            member.mobile = mobile
+            member.age = age
+            member.gender = gender
+            member.address = address
+            member.join_date = join_date
+            member.plan = plan
+            member.trainer = trainer
+            member.save()
+            messages.success(request, 'Member updated successfully!')
+            return redirect('admin_members_list')
+        else:
+            messages.error(request, 'Please fill in all the required fields.')
+
+    return render(request, 'admin_member_form.html', {'member': member, 'plans': plans, 'trainers': trainers, 'mode': 'edit'})
+
+@admin_required
+def admin_member_delete(request, member_id):
+    member = MemberProfile.objects.get(id=member_id)
+    if request.method == 'POST':
+        member.delete()
+        messages.success(request, 'Member deleted successfully!')
+        return redirect('admin_members_list')
+    return render(request, 'admin_member_confirm_delete.html', {'member': member})

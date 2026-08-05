@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin-login/', admin_login_view, name='admin_login'),
     path('admin-dashboard/', admin_dashboard_view, name='admin_dashboard'),
     path('logout/', logout_view, name='logout'),
+
     
     path('admin_plans/', admin_plans_list, name='admin_plans_list'),
     path('admin_plans_add/', admin_plan_add, name='admin_plan_add'),
@@ -18,5 +19,10 @@ urlpatterns = [
     path('admin_trainers_add/', admin_trainer_add, name='admin_trainer_add'),
     path('admin_trainers_edit/<int:trainer_id>/', admin_trainer_edit, name='admin_trainer_edit'),
     path('admin_trainers_delete/<int:trainer_id>/', admin_trainer_delete, name='admin_trainer_delete'),
+
+    path('admin_members/', admin_members_list, name='admin_members_list'),
+    path('admin_members_add/', admin_member_add, name='admin_member_add'),
+    path('admin_members_edit/<int:member_id>/', admin_member_edit, name='admin_member_edit'),
+    path('admin_members_delete/<int:member_id>/', admin_member_delete, name='admin_member_delete'),
 
 ]
