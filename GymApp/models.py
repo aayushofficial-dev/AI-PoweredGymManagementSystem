@@ -20,7 +20,7 @@ class User(AbstractUser):
 class MembershipPlan(models.Model):
     name = models.CharField(max_length=100)
     duration_months = models.PositiveIntegerField()
-    fee = models.DecimalField(max_digits=6, decimal_places=2)
+    fee = models.PositiveIntegerField()
     description = models.TextField(blank=True)
 
     def __str__(self):
