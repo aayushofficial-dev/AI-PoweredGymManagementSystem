@@ -190,7 +190,12 @@ def admin_trainer_delete(request, trainer_id):
 
 @admin_required
 def admin_members_list(request):
+    search = request.GET.get('search', '')
+
     members = MemberProfile.objects.all().select_related('user', 'plan') 
+
+    if search:
+        members = members.filter(full_name__icontains=search)
     return render(request, 'admin_members_list.html', {'members': members}) 
 
 @admin_required
@@ -275,7 +280,9 @@ def admin_member_edit(request, member_id):
 def admin_member_delete(request, member_id):
     member = MemberProfile.objects.get(id=member_id)
     if request.method == 'POST':
-        member.delete()
+        user = member.user  # Get the associated user
+        user.delete()  # Delete the user, which will also delete the associated MemberProfile due
+        member.delete()  # Delete the member profile from the database
         messages.success(request, 'Member deleted successfully!')
         return redirect('admin_members_list')
     return render(request, 'admin_member_confirm_delete.html', {'member': member})

@@ -14,6 +14,7 @@
             <th>Name</th>
             <th>Duration (in months)</th>
             <th>Fee</th>
+            <th>Description</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -24,6 +25,7 @@
             <td>{{ plan.name }}</td>
             <td>{{ plan.duration_months}}</td>
             <td>{{ plan.fee }}</td>
+            <td>{{ plan.description|default:"No Description" }}</td>
             <td>
                 <a href="{% url 'admin_plan_edit' plan.id %}" class="btn btn-sm btn-warning">Edit</a>
                 <form method="post" action="{% url 'admin_plan_delete' plan.id %}" style="display:inline;">
