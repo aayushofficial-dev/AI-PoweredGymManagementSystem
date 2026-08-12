@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-3">
+    Add Attendance
+</h2> 
+
+<form method="post" class="row g-3 w-75">
+    {% csrf_token %}
+
+   <div class="col-md-6">
+    <label for="member_id" class="form-label">Members</label>
+   <select name="member_id" class="form-select" required>
+    <option value="">Select Member</option>
+    {% for member in members %}
+        <option value="{{ member.id }}">
+            {{ member.full_name }} ({{ member.user.username }})
+        </option>
+    {% endfor %}
+   </select>
+   </div>
+
+   <div class="col-md-3">
+    <label for="date" class="form-label">Date</label>
+    <input type="date" class="form-control" id="date" name="date" required>
+   </div>
+   
+   <div class="col-md-3">
+    <label for="time_in" class="form-label">Time In</label>
+    <input type="time" name="time_in" class="form-control" required>
+   </div>
+
+   <div class="col-md-12">
+    <button type="submit" class="btn btn-primary">
+        Add Attendance
+    </button>
+    <a href="{% url 'admin_attendance_list' %}" class="btn btn-secondary">Cancel</a>
+   </div>
+
+</form>
+{% endblock %}

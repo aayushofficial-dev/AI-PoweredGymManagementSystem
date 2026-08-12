@@ -196,7 +196,7 @@ def admin_members_list(request):
 
     if search:
         members = members.filter(full_name__icontains=search)
-    return render(request, 'admin_members_list.html', {'members': members}) 
+    return render(request, 'admin_members_list.html', {'members': members, 'search' : search}) 
 
 @admin_required
 def admin_member_add(request):
@@ -286,3 +286,35 @@ def admin_member_delete(request, member_id):
         messages.success(request, 'Member deleted successfully!')
         return redirect('admin_members_list')
     return render(request, 'admin_member_confirm_delete.html', {'member': member})
+
+@admin_required
+def admin_attendance_list(request):
+    attendances = Attendance.objects.all().select_related('member')
+    members = MemberProfile.objects.all().order_by('full_name')
+    return render(request, 'admin_attendance_list.html', {'attendances' : attendances})
+
+@admin_required
+def admin_attendance_add(request):
+    members = MemberProfile.objects.all().order_by('full_name')
+
+    if request.method == 'POST':
+        member_id = request.POST.get('member_id')
+        date = request.POST.get('date')
+        time_in = request.POST.get('time_in')
+
+        if not member_id:
+            messages.error(request, 'Please select a member.')
+            return redirect('admin_attendance_add')
+
+        member = MemberProfile.objects.get(id=member_id)
+
+        attendance, created = Attendance.objects.get_or_create(
+            member=member, date=date, time_in=time_in
+        )
+
+        if not created:
+            attendance.time_in = time_in
+            attendance.save()
+            messages.info(request, "Attendance updated successfully.")
+        messages.success(request, 'Attendance recorded succesfully.')
+    return render(request, 'admin_attendance_form.html', {'members' : members})
