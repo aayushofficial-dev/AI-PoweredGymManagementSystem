@@ -289,9 +289,22 @@ def admin_member_delete(request, member_id):
 
 @admin_required
 def admin_attendance_list(request):
-    attendances = Attendance.objects.all().select_related('member')
+    today = timezone.now().date()
+
+    date = request.GET.get('date', today)
+
+    attendances = Attendance.objects.all().select_related('member').filter(date=date)
     members = MemberProfile.objects.all().order_by('full_name')
-    return render(request, 'admin_attendance_list.html', {'attendances' : attendances})
+    member_id = request.GET.get('member_id')
+
+    if member_id:
+        attendances = attendances.filter(member_id=member_id)
+    return render(request, 'admin_attendance_list.html', {'attendances' : attendances, 
+                                                          'members': members,
+                                                          'today' : today,
+                                                          'selected_member_id' : member_id,
+                                                          'selected_date': date,
+                                                          })
 
 @admin_required
 def admin_attendance_add(request):

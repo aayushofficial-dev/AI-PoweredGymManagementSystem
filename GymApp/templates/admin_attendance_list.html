@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Attendance</h2>
+    <h2>Attendance ({{ selected_date }})</h2>
     <a href="{% url 'admin_attendance_add' %}" class="btn btn-primary">Mark Attendance</a>
 </div>
 
@@ -15,11 +15,11 @@
 
     <div class="col-md-4">
     <label for="member_id" class="form-label">Members</label>
-   <select name="member_id" class="form-select" required>
-    <option value="">All Member</option>
+   <select name="member_id" class="form-select">
+    <option value="">All Members</option>
     {% for member in members %}
-        <option value="{{ member.id }}">
-            {{ member.full_name }}
+        <option value="{{ member.id }}" {% if member.id|stringformat:"s" == selected_member_id %}selected{% endif %} >
+            {{ member.full_name }} ({{ member.user.username }})
         </option>
     {% endfor %}
    </select>
@@ -54,4 +54,5 @@
         {% endfor %}
     </tbody>
 </table>
+
 {% endblock %}
