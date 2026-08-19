@@ -6,7 +6,7 @@ urlpatterns = [
     path('', home, name='home'), #include gymapp URLs
     path('about/', about, name='about'),
     path('admin-login/', admin_login_view, name='admin_login'),
-    path('admin-dashboard/', admin_dashboard_view, name='admin_dashboard'),
+    path('admin_dashboard/', admin_dashboard_view, name='admin_dashboard'),
     path('logout/', logout_view, name='logout'),
 
     path('admin_plans/', admin_plans_list, name='admin_plans_list'),
@@ -25,5 +25,11 @@ urlpatterns = [
     path('admin_members_delete/<int:member_id>/', admin_member_delete, name='admin_member_delete'),
 
     path('admin_attendance/', admin_attendance_list, name='admin_attendance_list'),
-    path('admin_attendance_add/', admin_attendance_add, name='admin_attendance_add')
+    path('admin_attendance_add/', admin_attendance_add, name='admin_attendance_add'),
+
+    path('admin_equipment/', admin_equipment_list, name='admin_equipment_list'),
+    path('admin_equipment_add/', admin_equipment_add, name='admin_equipment_add'),
+    path('admin_equipment_edit/<int:equipment_id>/', admin_equipment_edit, name='admin_equipment_edit'),
+    path('admin_equipment_delete/<int:equipment_id>/', admin_equipment_delete, name='admin_equipment_delete'),
+
 ]

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-3">
+    {% if mode == 'add' %} Add Equipment {% else %} Edit Equipment {% endif %}
+</h2> 
+
+<form method="post" class="row g-3 w-75">
+    {% csrf_token %}
+    <div class="col-md-4">
+        <label for="name" class="form-label">Equipment Name</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ equipment.name|default:'' }}" required>
+    </div>
+    <div class="col-md-2">
+        <label for="units" class="form-label">Units</label>
+        <input type="number" class="form-control" id="units" name="units" value="{{ equipment.units|default:'' }}" required>
+    </div>
+    <div class="col-md-3">
+        <label for="price" class="form-label">Price</label>
+        <input type="number" class="form-control" id="price" name="price" value="{{ equipment.price|default:'' }}" required>
+    </div>
+
+    <div class="col-md-3">
+        <label for="purchase_date" class="form-label">Purchase Date</label>
+        <input type="date" class="form-control" id="purchase_date" name="purchase_date" value="{{ equipment.purchase_date|date:'Y-m-d' }}">
+    </div>
+    <div class="col-md-12">
+        <button type="submit" class="btn btn-primary">
+            {% if mode == 'add' %} Add Equipment {% else %} Update Equipment {% endif %}
+        </button>
+        <a href="{% url 'admin_equipment_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

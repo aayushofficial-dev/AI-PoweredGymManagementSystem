@@ -331,3 +331,66 @@ def admin_attendance_add(request):
             messages.info(request, "Attendance updated successfully.")
         messages.success(request, 'Attendance recorded succesfully.')
     return render(request, 'admin_attendance_form.html', {'members' : members})
+
+@admin_required
+def admin_equipment_list(request):
+    search = request.GET.get('search', '')
+
+    equipments = Equipment.objects.all().order_by('name') # order equipment by name
+
+    if search:
+        equipments = equipments.filter(name__icontains=search)
+    return render(request, 'admin_equipment_list.html', {'equipments' : equipments, 'search':search})
+
+@admin_required
+def admin_equipment_add(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        units = request.POST.get('units')
+        price = request.POST.get('price')
+        purchase_date = request.POST.get('purchase_date') or timezone.now().date()
+
+        if name and units and price:
+            Equipment.objects.create(
+                name=name,
+                units=units,
+                price=price,
+                purchase_date=purchase_date
+            )
+            messages.success(request, 'Equipment added successfully!')
+            return redirect('admin_equipment_list')
+        else:
+            messages.error(request, 'Please fill in all required fields.')
+    return render(request, 'admin_equipment_form.html', {'mode':'add'})
+
+@admin_required
+def admin_equipment_edit(request, equipment_id):
+    equipment = Equipment.objects.get(id=equipment_id)
+
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        units = request.POST.get('units')
+        price = request.POST.get('price')
+        purchase_date = request.POST.get('purchase_date') or equipment.purchase_date
+
+        if name and units and price and purchase_date:
+            equipment.name = name
+            equipment.units =units
+            equipment.price = price
+            equipment.purchase_date = purchase_date
+            equipment.save()  # Save the updated equipment details to the database
+            messages.success(request, 'Equipment updated successfully!')
+            return redirect('admin_equipment_list')  # Redirect to the euipment list after successful update
+        else:
+            messages.error(request, 'Please fill in all the required fields.')
+
+    return render(request, 'admin_equipment_form.html', {'equipment': equipment, 'mode': 'edit'})  # Pass mode to the template to indicate it's an edit operation
+
+@admin_required
+def admin_equipment_delete(request, equipment_id):
+    equipment = Equipment.objects.get(id=equipment_id)  # Fetch the specific equipment based on the provided ID
+    if request.method == 'POST':
+        equipment.delete()  # Delete the trainer from the database
+        messages.success(request, 'Equipment deleted successfully!')
+        return redirect('admin_equipment_list')  # Redirect to the equipment list after successful deletion
+    return redirect('admin_equipment_list', {'equipment': equipment})  # Render a confirmation page before deletion
