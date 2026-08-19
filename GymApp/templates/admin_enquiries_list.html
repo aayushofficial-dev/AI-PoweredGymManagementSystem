@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-3">Enquiries</h2>
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Contact no.</th>
+            <th>Message</th>
+            <th>Create At</th>
+            <th>Status</th>
+            <th>Update</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for enquiry in enquiries %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ enquiry.name }}</td>
+            <td>{{ enquiry.email }}</td>
+            <td>{{ enquiry.mobile }}</td>
+            <td style="max-width: 250px;">{{ enquiry.message }}</td>
+            <td>{{ enquiry.created_at }}</td>
+            <td>{{ enquiry.status }}</td>
+            <td>
+                <form method="post" action="{% url 'admin_enquiry_update_status' enquiry.id %}">
+                   {% csrf_token %}
+                    <select name="status" id="status" class="form-select form-select-sm mb-2">
+                        <option value="NEW" {% if enquiry.status == 'PENDING' %}selected{% endif %}>NEW</option>
+                        <option value="SEEN" {% if enquiry.status == 'RESOLVED' %}selected{% endif %}>SEEN</option>
+                        <option value="RESOLVED" {% if enquiry.status == 'RESOLVED' %}selected{% endif %}>RESOLVED</option>
+                    </select> 
+                    <button type="submit" class="btn btn-sm btn-primary w-100">Update</button>
+                </form>
+                    
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-center">No Enquiry Available..</td>
+        </tr>
+        {% endfor %}
+</table>
+{% endblock %}

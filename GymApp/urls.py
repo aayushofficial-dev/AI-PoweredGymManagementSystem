@@ -32,4 +32,6 @@ urlpatterns = [
     path('admin_equipment_edit/<int:equipment_id>/', admin_equipment_edit, name='admin_equipment_edit'),
     path('admin_equipment_delete/<int:equipment_id>/', admin_equipment_delete, name='admin_equipment_delete'),
 
+    path('admin_enquiries_list/', admin_enquiries_list, name='admin_enquiries_list'),
+    path('admin_enquiries_update/<int:enquiry_id>/', admin_enquiry_update_status, name='admin_enquiry_update_status'),
 ]
