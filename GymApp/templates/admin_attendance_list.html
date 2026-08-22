@@ -9,22 +9,20 @@
 
 <form method="get" class="row g-2 mb-3">
     <div class="col-md-4">
-        <label class="form-lable">Date</label>
-        <input type="date" class="form-control" name="date" value="{{ selected_date }}">
+        <label for="date" class="form-label">Date</label>
+        <input type="date" class="form-control" id="date" name="date" value="{{ selected_date }}">
     </div>
-
     <div class="col-md-4">
-    <label for="member_id" class="form-label">Members</label>
-   <select name="member_id" class="form-select">
-    <option value="">All Members</option>
-    {% for member in members %}
-        <option value="{{ member.id }}" {% if member.id|stringformat:"s" == selected_member_id %}selected{% endif %} >
-            {{ member.full_name }} ({{ member.user.username }})
-        </option>
-    {% endfor %}
-   </select>
-   </div>
-
+        <label for="member_id" class="form-label">Members</label>
+        <select name="member_id" id="member_id" class="form-select">
+            <option value="">All Members</option>
+            {% for member in members %}
+            <option value="{{member.id}}" {% if member.id|stringformat:"s" == selected_member_id %}selected{% endif %} >
+                {{ member.full_name}} ({{ member.user.username }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
     <div class="col-md-2 d-flex align-items-end">
         <button type="submit" class="btn btn-secondary">Filter</button>
     </div>

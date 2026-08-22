@@ -34,4 +34,23 @@ urlpatterns = [
 
     path('admin_enquiries_list/', admin_enquiries_list, name='admin_enquiries_list'),
     path('admin_enquiries_update/<int:enquiry_id>/', admin_enquiry_update_status, name='admin_enquiry_update_status'),
+
+    # workout
+
+    # payment
+    path('admin_payments/', admin_payments_list, name='admin_payments_list'),
+    path('admin_payment_add/', admin_payment_add, name='admin_payment_add'),
+
+    # Members
+    path('member-login/', member_login_view, name='member_login'),
+    path('member_dashboard/', member_dashboard_view, name='member_dashboard'),
+
+    path('member_attendance/', member_attendance, name='member_attendance'),
+
+    path("ai-workout/", ai_workout_plan, name="ai_workout"),
+    path("generate-workout/", generate_workout_plan,name="generate_workout"),
+    path("ai-workout/", generate_workout_plan, name="generate_workout_plan"),
+    path('my_workout_plans/', my_workout_plans, name='my_workout_plans'),
+    path("my-workout-plans/<int:plan_id>/", workout_plan_detail, name="workout_plan_detail"),
+
 ]

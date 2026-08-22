@@ -2,11 +2,52 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="col-md-7">
-        <h1 class="mb-3">Admin Dashboard</h1>
-        <p>Welcome to the admin dashboard! Here you can manage the gym's operations.</p>
+<h2 class="mb-4">Admin Dashboard</h2>
+
+<div class="row g-3">
+    <div class="col-md-3">
+        <div class="card text-bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Total Members</h5>
+                <p class="fs-3">{{ total_members }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Active Memberships</h5>
+                <p class="fs-3">{{ active_memberships }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Today Registrations</h5>
+                <p class="fs-3">{{ today_registrations }}</p>
+            </div>
+        </div>
+    </div>
+
+      <div class="col-md-3">
+        <div class="card text-bg-danger">
+            <div class="card-body">
+                <h5 class="card-title">Pending Payments</h5>
+                <p class="fs-3">{{ pending_payments }}</p>
+            </div>
+        </div>
+    </div>
+    <hr class="my-4">
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{%url 'admin_members_list' %}" class="btn btn-outline-primary">Manage Members</a>
+        <a href="{%url 'admin_plans_list' %}" class="btn btn-outline-secondary">Manage Plans</a>
+        <a href="{%url 'admin_trainers_list' %}" class="btn btn-outline-info">Manage Trainers</a>
+        <a href="{%url 'admin_enquiries_list' %}" class="btn btn-outline-primary">Manage Enquiry</a>
     </div>
 </div>
+
 
 {% endblock %}

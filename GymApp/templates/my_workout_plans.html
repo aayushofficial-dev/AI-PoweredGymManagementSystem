@@ -1,0 +1,89 @@
+{% extends 'base.html'  %}
+{% block content  %}
+<body class="bg-light">
+
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1 class="fw-bold">My Workout Plans</h1>
+
+            <p class="text-muted mb-0">
+                Your AI-generated workout plans
+            </p>
+        </div>
+
+        <a href="{% url 'generate_workout_plan' %}"
+           class="btn btn-primary">
+            + Generate New Plan
+        </a>
+
+    </div>
+
+
+    {% if workout_plans %}
+
+        <div class="row g-4">
+
+            {% for plan in workout_plans %}
+
+                <div class="col-md-6 col-lg-4">
+
+                    <div class="card shadow-sm h-100">
+
+                        <div class="card-body">
+
+                            <h4 class="card-title">
+                                {{ plan.title }}
+                            </h4>
+
+                            <p class="text-muted small">
+                                Created:
+                                {{ plan.created_at|date:"M d, Y" }}
+                            </p>
+
+                            <hr>
+
+                            <p class="card-text">
+                                {{ plan.description|truncatewords:30 }}
+                            </p>
+
+                            <a href="{% url 'workout_plan_detail' plan.id %}"
+                               class="btn btn-outline-primary">
+                                View Plan
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="card shadow-sm text-center p-5">
+
+            <h3>No workout plans yet</h3>
+
+            <p class="text-muted">
+                Generate your first personalized AI workout plan.
+            </p>
+
+            <div>
+                <a href="{% url 'generate_workout_plan' %}"
+                   class="btn btn-primary">
+                    Generate Workout Plan
+                </a>
+            </div>
+
+        </div>
+
+    {% endif %}
+
+</div>
+{% endblock  %}

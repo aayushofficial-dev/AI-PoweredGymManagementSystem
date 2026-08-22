@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-3">My Attendance</h2>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Id</th>
+            <th>Date</th>
+            <th>Time In</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for attendance in attendances %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ attendance.date }}</td>
+            <td>{{ attendance.time_in }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" class="text-center">No attendance records found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

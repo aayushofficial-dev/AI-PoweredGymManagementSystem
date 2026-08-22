@@ -1,0 +1,393 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow">
+
+                <div class="card-body p-4">
+
+                    <h2 class="text-center mb-4">
+                        AI Workout Planner
+                    </h2>
+
+                    <p class="text-center text-muted">
+                        Create a personalized workout plan using AI
+                    </p>
+
+                    <form id="workoutForm">
+
+                        <!-- Goal -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Workout Goal
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="goal"
+                                required>
+
+                                <option value="">
+                                    Select your goal
+                                </option>
+
+                                <option value="Muscle Gain">
+                                    Muscle Gain
+                                </option>
+
+                                <option value="Weight Loss">
+                                    Weight Loss
+                                </option>
+
+                                <option value="Strength">
+                                    Strength
+                                </option>
+
+                                <option value="General Fitness">
+                                    General Fitness
+                                </option>
+
+                                <option value="Endurance">
+                                    Endurance
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Experience -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Experience Level
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="experience"
+                                required>
+
+                                <option value="">
+                                    Select experience
+                                </option>
+
+                                <option value="Beginner">
+                                    Beginner
+                                </option>
+
+                                <option value="Intermediate">
+                                    Intermediate
+                                </option>
+
+                                <option value="Advanced">
+                                    Advanced
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Days -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Workout Days Per Week
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="days"
+                                required>
+
+                                <option value="2">2 days</option>
+                                <option value="3">3 days</option>
+                                <option value="4">4 days</option>
+                                <option value="5">5 days</option>
+                                <option value="6">6 days</option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Duration -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Workout Duration
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="duration"
+                                required>
+
+                                <option value="30">
+                                    30 minutes
+                                </option>
+
+                                <option value="45">
+                                    45 minutes
+                                </option>
+
+                                <option value="60">
+                                    60 minutes
+                                </option>
+
+                                <option value="90">
+                                    90 minutes
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Equipment -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Available Equipment
+                            </label>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="equipment"
+                                placeholder="Example: Dumbbells, Barbell, Machines">
+
+                        </div>
+
+
+                        <!-- Button -->
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary w-100"
+                            id="generateBtn">
+
+                            Generate Workout Plan
+
+                        </button>
+
+                    </form>
+
+
+                    <!-- Loading -->
+
+                    <div
+                        id="loading"
+                        class="text-center mt-4 d-none">
+
+                        <div
+                            class="spinner-border text-primary"
+                            role="status">
+                        </div>
+
+                        <p class="mt-2">
+                            AI is creating your workout plan...
+                        </p>
+
+                    </div>
+
+
+                    <!-- Error -->
+
+                    <div
+                        id="error"
+                        class="alert alert-danger mt-4 d-none">
+                    </div>
+
+
+                    <!-- Result -->
+
+                    <div
+                        id="result"
+                        class="mt-4 d-none">
+
+                        <h4>
+                            Your AI Workout Plan
+                        </h4>
+
+                        <div
+                            id="workoutContent"
+                            class="border rounded p-4 bg-light">
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function getCookie(name) {
+
+    let cookieValue = null;
+
+    if (document.cookie && document.cookie !== '') {
+
+        const cookies = document.cookie.split(';');
+
+        for (let cookie of cookies) {
+
+            cookie = cookie.trim();
+
+            if (cookie.substring(0, name.length + 1)
+                === (name + '=')) {
+
+                cookieValue = decodeURIComponent(
+                    cookie.substring(name.length + 1)
+                );
+
+                break;
+            }
+        }
+    }
+
+    return cookieValue;
+}
+
+
+document
+    .getElementById("workoutForm")
+    .addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        const goal =
+            document.getElementById("goal").value;
+
+        const experience =
+            document.getElementById("experience").value;
+
+        const days =
+            document.getElementById("days").value;
+
+        const duration =
+            document.getElementById("duration").value;
+
+        const equipment =
+            document.getElementById("equipment").value;
+
+
+        const loading =
+            document.getElementById("loading");
+
+        const result =
+            document.getElementById("result");
+
+        const error =
+            document.getElementById("error");
+
+        const button =
+            document.getElementById("generateBtn");
+
+
+        loading.classList.remove("d-none");
+
+        result.classList.add("d-none");
+
+        error.classList.add("d-none");
+
+        button.disabled = true;
+
+
+        try {
+
+            const response = await fetch(
+                "{% url 'generate_workout' %}",
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "X-CSRFToken":
+                            getCookie("csrftoken")
+
+                    },
+
+                    body: JSON.stringify({
+
+                        goal: goal,
+
+                        experience: experience,
+
+                        days: days,
+
+                        duration: duration,
+
+                        equipment: equipment
+
+                    })
+
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (!data.success) {
+
+                throw new Error(
+                    data.error ||
+                    "Failed to generate workout."
+                );
+
+            }
+
+
+            document.getElementById("workoutContent").innerHTML = data.workout.replace(/\n/g, "<br>");
+
+
+            result.classList.remove("d-none");
+
+        }
+
+        catch (errorMessage) {
+
+            error.textContent =
+                errorMessage.message;
+
+            error.classList.remove("d-none");
+
+        }
+
+        finally {
+
+            loading.classList.add("d-none");
+
+            button.disabled = false;
+
+        }
+
+    });
+
+</script>
+
+{% endblock %}

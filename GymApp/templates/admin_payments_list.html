@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Payments</h2>
+    <a href="{% url 'admin_payment_add' %}" class="btn btn-primary">Record Payment</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <select name="member_id" id="member_id" class="form-select">
+            <option value="">All Members</option>
+            {% for member in members %}
+            <option value="{{member.id}}" {% if member.id|stringformat:"s" == selected_member_id %}selected{% endif %} >
+                {{ member.full_name}} ({{ member.user.username }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <select name="status" class="form-select">
+            <option value="">All Status</option>
+            <option value="PAID" {% if selected_status == 'PAID' %}selected{% endif %}>Paid</option>
+            <option value="PENDING" {% if selected_status == 'PENDING' %}selected{% endif %}>Pending</option>         
+            </option>
+        </select>
+    </div>
+
+    <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-secondary">Filter</button>
+    </div>
+</form>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Id</th>
+            <th>Member</th>
+            <th>Plan</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Mode</th>
+            <th>Status</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for payment in payments %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ payment.member.full_name }}</td>
+            <td>{{ payment.plan.name }}</td>
+            <td>{{ payment.amount|floatformat:2 }}</td>
+            <td>{{ payment.payment_date }}</td>
+            <td>{{ payment.mode }}</td>
+            <td>
+                {% if payment.status == 'PAID' %}
+                    <span class="badge bg-success">Paid</span>
+                {% elif payment.status == 'PENDING' %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                {% else %}
+                    <span class="badge bg-secondary">Unknown</span>
+                {% endif %}
+            </td>
+            <td>{{ payment.notes }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="8" class="text-center">No payment records found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

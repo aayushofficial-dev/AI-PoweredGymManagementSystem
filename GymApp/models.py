@@ -169,4 +169,24 @@ class Feedback(models.Model):
     def __str__ (self):
         return f"Feedback from {self.member.full_name} - Created at: {self.created_at}"
 
+class WorkoutPlan(models.Model):
+    member = models.ForeignKey(
+        MemberProfile,
+        on_delete=models.CASCADE,
+        related_name='workout_plans'
+    )
 
+    title = models.CharField(max_length=100)
+
+    goal = models.CharField(max_length=100, blank=True)
+    experience_level = models.CharField(max_length=50, blank=True)
+    days_per_week = models.PositiveIntegerField(default=3)
+    workout_duration = models.PositiveIntegerField(default=60)
+    equipment = models.CharField(max_length=255, blank=True)
+
+    description = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.member}"

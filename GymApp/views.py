@@ -1,9 +1,13 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 
 from GymApp.models import *
 
 from django.contrib import messages
-
+from datetime import timedelta
+import json
+from django.conf import settings
+from django.http import JsonResponse
+from openai import OpenAI
 # Create your views here.
 def home(request):
     '''
@@ -59,9 +63,45 @@ def admin_required(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
+def member_required(view_func):
+    '''
+    Decorator to ensure that the user is a member.
+    ''' 
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated or getattr(request.user, 'role', None) != 'MEMBER':
+            messages.error(request, 'You must be a member to access this page.')
+            return redirect('member_login')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+def member_login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None and getattr(user, 'role', None) == 'MEMBER':  # Check if the user is a member
+            login(request, user) # log the user in using Django's built-in login function
+            messages.success(request, 'Logged in successfully!.')
+            return redirect('member_dashboard')  # Redirect to the admin dashboard
+        else:
+            messages.error(request, 'Invalid credentials or not a member')
+    return render(request, 'member_login.html')
+
+@member_required
+def member_dashboard_view(request):
+    return render(request, 'member_dashboard.html')
 @admin_required
 def admin_dashboard_view(request):
-    return render(request, 'admin_dashboard.html')
+    total_members = MemberProfile.objects.all().count()
+    active_memberships = MemberProfile.objects.filter(membership_end__gte=timezone.now().date()).count()
+    today_registrations = MemberProfile.objects.filter(join_date=timezone.now().date()).count()
+    pending_payments = Payment.objects.filter(status='PENDING').count()
+    return render(request, 'admin_dashboard.html', {
+        'total_members':total_members,
+        'active_memberships': active_memberships,
+        'today_registrations':today_registrations,
+        'pending_payments':pending_payments,
+    })
 
 def logout_view(request):
     logout(request) #log the user out using Django's built-in logout function
@@ -285,7 +325,7 @@ def admin_member_delete(request, member_id):
         member.delete()  # Delete the member profile from the database
         messages.success(request, 'Member deleted successfully!')
         return redirect('admin_members_list')
-    return render(request, 'admin_member_confirm_delete.html', {'member': member})
+    return redirect('admin_members_list')
 
 @admin_required
 def admin_attendance_list(request):
@@ -390,7 +430,7 @@ def admin_equipment_edit(request, equipment_id):
 def admin_equipment_delete(request, equipment_id):
     equipment = Equipment.objects.get(id=equipment_id)  # Fetch the specific equipment based on the provided ID
     if request.method == 'POST':
-        equipment.delete()  # Delete the trainer from the database
+        equipment.delete()  # Delete the equipment from the database
         messages.success(request, 'Equipment deleted successfully!')
         return redirect('admin_equipment_list')  # Redirect to the equipment list after successful deletion
     return redirect('admin_equipment_list', {'equipment': equipment})  # Render a confirmation page before deletion
@@ -411,3 +451,275 @@ def admin_enquiry_update_status(request, enquiry_id):
             messages.success(request, 'Enquiry status updated!')
     return redirect('admin_enquiries_list')
 
+# @admin_required
+# def admin_workout_plans_list(request):
+#     member_id = request.GET.get('member_id')
+#     workout_plans = WorkoutPlan.objects.select_related('member').all().order_by('-created_at')
+#     if member_id:
+#         workout_plans = workout_plans.filter(member__id=member_id)
+#     return render(request, 'admin_workout_plans_list.html', {'workout_plans': workout_plans, })
+
+@admin_required
+def admin_payments_list(request):
+    member_id = request.GET.get('member_id')
+    status = request.GET.get('status')
+    payments = Payment.objects.select_related('member', 'plan').all().order_by('-payment_date')
+    if member_id:
+        payments = payments.filter(member__id=member_id)
+    if status in ['PENDING', 'PAID']:
+        payments = payments.filter(status=status)
+
+    members = MemberProfile.objects.all().order_by('full_name')
+    return render(request, 'admin_payments_list.html', {'payments':payments, 
+                                                        'members':members, 
+                                                        'selected_member_id': member_id, 
+                                                        'selected_status': status
+                                                        })
+
+@admin_required
+def admin_payment_add(request):
+    members = MemberProfile.objects.all().order_by('full_name')
+    plans = MembershipPlan.objects.all().order_by('duration_months')
+    if request.method == 'POST':
+        member_id = request.POST.get('member_id')
+        plan_id = request.POST.get('plan_id')
+        amount = request.POST.get('amount')
+        payment_date = request.POST.get('payment_date') or timezone.now().date()
+        mode = request.POST.get('mode')
+        status = request.POST.get('status')
+        notes = request.POST.get('notes')
+
+        set_membership = request.POST.get('set_membership') 
+        membership_start = request.POST.get('membership_start')
+
+        if not member_id or not plan_id or not amount or not payment_date or not mode or not status:
+            messages.error(request, 'Please fill in all required fields.')
+            return redirect('admin_payment_add')
+
+        member = MemberProfile.objects.get(id=member_id)
+        plan = MembershipPlan.objects.get(id=plan_id)
+
+        # overpayment check
+        if plan and plan.fee:
+            total_paid = Payment.objects.filter(
+                member=member, plan=plan, status='PAID'
+            ).aggregate(total=models.Sum('amount'))['total'] or 0
+            if float(total_paid) + float(amount) > plan.fee:
+                remaining_amount = plan.fee - total_paid
+                messages.error(request, f'Total paid amount exceeds the plan fee of {plan.fee}. Remaining amount: {remaining_amount}. Please check the amount.')
+                return redirect('admin_payment_add')
+
+        Payment.objects.create(
+            member=member,
+            plan=plan,
+            amount=amount,
+            status=status,
+            payment_date=payment_date,
+            mode=mode,
+            notes=notes,
+        )
+        if set_membership == 'on' and plan and membership_start:
+            try:
+                membership_start = timezone.datetime.strptime(membership_start, '%Y-%m-%d').date()
+            except ValueError:
+                messages.error(request, 'Invalid membersip start date format. Please use YYYY-MM-DD')
+                return redirect('admin_payment_add')
+            member.plan = plan
+            member.membership_start = membership_start
+            member.membership_end = member.membership_start + timedelta(days=plan.duration_months*30)
+            member.save()
+
+        messages.success(request, 'Payment recorded successfully!')
+        return redirect('admin_payments_list')
+    return render(request, 'admin_payment_form.html', {'members': members, 'plans':plans})
+
+@member_required
+def member_attendance(request):
+    member_profile = MemberProfile.objects.get(user=request.user)
+    attendances = Attendance.objects.filter(member=member_profile).order_by('-date')
+    return render(request, 'member_attendance.html', {'attendances':attendances})
+
+
+@member_required
+def ai_workout_plan(request):
+    return render(request, "ai_workout.html")
+
+@member_required
+def generate_workout_plan(request):
+
+    if request.method != "POST":
+        return JsonResponse({
+            "error": "Only POST requests are allowed."
+        }, status=405)
+
+    try:
+        print("API KEY EXISTS:", bool(settings.OPENROUTER_API_KEY))
+        data = json.loads(request.body)
+
+        goal = data.get("goal")
+        experience = data.get("experience")
+        days = data.get("days")
+        duration = data.get("duration")
+        equipment = data.get("equipment")
+
+        if not goal:
+            return JsonResponse({
+                "error": "Please select your workout goal."
+            }, status=400)
+
+        if not experience:
+            return JsonResponse({
+                "error": "Please select your experience level."
+            }, status=400)
+
+        if not days:
+            return JsonResponse({
+                "error": "Please select workout days."
+            }, status=400)
+
+        if not duration:
+            return JsonResponse({
+                "error": "Please select workout duration."
+            }, status=400)
+
+        prompt = f"""
+Create a simple and easy-to-follow workout plan.
+
+User information:
+- Goal: {goal}
+- Experience: {experience}
+- Workout days per week: {days}
+- Workout duration: {duration} minutes
+- Equipment: {equipment}
+
+Create exactly a {days}-day workout plan.
+
+For each day provide:
+
+Day name
+Muscle groups
+4 to 6 exercises only
+
+For every exercise show:
+- Exercise name
+- Sets
+- Reps
+- Rest
+
+Also include a short warm-up and cool-down.
+
+IMPORTANT:
+- Keep the answer short and simple.
+- Do not write long explanations.
+- Do not include an overview section.
+- Do not include unnecessary fitness theory.
+- Do not use "---".
+- Do not use Markdown headings such as ## or ###.
+- Do not use bold text.
+- Use simple plain text.
+- Make the plan easy for a gym member to read.
+
+Example format:
+
+DAY 1 - FULL BODY
+
+Muscle Groups:
+Chest, Back, Legs
+
+1. Dumbbell Squat
+   Sets: 3
+   Reps: 10
+   Rest: 60 sec
+
+2. Dumbbell Bench Press
+   Sets: 3
+   Reps: 10
+   Rest: 60 sec
+
+3. Dumbbell Row
+   Sets: 3
+   Reps: 10
+   Rest: 60 sec
+
+WARM-UP:
+5 minutes light cardio and dynamic stretching.
+
+COOL-DOWN:
+5 minutes light stretching.
+
+Repeat the same simple format for all workout days.
+
+Do not provide medical diagnosis or treatment.
+"""
+
+        client = OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=settings.OPENROUTER_API_KEY,
+        )
+
+        response = client.chat.completions.create(
+            model="openai/gpt-5.1",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful fitness workout planning assistant."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.7,
+            max_tokens=2000,
+        )
+
+        workout_text = response.choices[0].message.content
+        member = MemberProfile.objects.get(user=request.user)
+
+        WorkoutPlan.objects.create(
+            member=member,
+            title=f"{goal} Workout Plan",
+            description=workout_text
+        )
+        return JsonResponse({
+            "success": True,
+            "workout": workout_text
+        })
+
+    except Exception as e:
+        print("====================================")
+        print("AI ERROR:", repr(e))
+        print("====================================")
+
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)
+
+@member_required
+def my_workout_plans(request):
+    member = MemberProfile.objects.get(user=request.user)
+    workout_plans = WorkoutPlan.objects.filter(
+        member=member
+    ).order_by('-created_at')
+
+    return render(request, 'my_workout_plans.html', {'workout_plans':workout_plans})
+
+@member_required
+def workout_plan_detail(request, plan_id):
+
+    member = MemberProfile.objects.get(user=request.user)
+
+    workout_plan = get_object_or_404(
+        WorkoutPlan,
+        id=plan_id,
+        member=member
+    )
+
+    return render(
+        request,
+        "workout_plan_detail.html",
+        {
+            "workout_plan": workout_plan
+        }
+    )
