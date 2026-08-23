@@ -144,18 +144,18 @@ class Enquiry(models.Model):
         return f"Enquiry from {self.name} - {self.email} - Status: {self.status}"
 
 # 4 fields 
-class WorkoutPlan(models.Model):
-    member = models.ForeignKey(
-        MemberProfile,
-        on_delete=models.CASCADE,
-        related_name='workout_plans'
-    )
-    title = models.CharField(max_length=100) # title of the workout plans
-    description = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+# class WorkoutPlan(models.Model):
+#     member = models.ForeignKey(
+#         MemberProfile,
+#         on_delete=models.CASCADE,
+#         related_name='workout_plans'
+#     )
+#     title = models.CharField(max_length=100) # title of the workout plans
+#     description = models.TextField(blank=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"{self.title} - Create at: {self.created_at}"
+#     def __str__(self):
+#         return f"{self.title} - Create at: {self.created_at}"
 
 class Feedback(models.Model):
     member = models.ForeignKey(

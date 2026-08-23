@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-3">My Payment</h2>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Id</th>
+            <th>Plan</th>
+            <th>Amount</th>
+            <th>Payment Date</th>
+            <th>Mode</th>
+            <th>Status</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for payment in payments %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ payment.plan.name }}</td>
+            <td>{{ payment.amount }}</td>
+            <td>{{ payment.payment_date }}</td>
+            <td>{{ payment.mode }}</td>
+            <td>
+                {% if payment.status == 'PAID' %}
+                    <span class="badge bg-success">{{ payment.status }}</span>
+                {% elif payment.status == 'PENDING' %}
+                    <span class="badge bg-warning text-dark">{{ payment.status }}</span>
+                {% else %}
+                    <span class="badge bg-danger">{{ payment.status }}</span>
+                {% endif %}
+            </td>
+            <td>{{ payment.notes }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" class="text-center">No Payment records found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

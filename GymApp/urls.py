@@ -53,4 +53,7 @@ urlpatterns = [
     path('my_workout_plans/', my_workout_plans, name='my_workout_plans'),
     path("my-workout-plans/<int:plan_id>/", workout_plan_detail, name="workout_plan_detail"),
 
+    path('member_membership/', member_membership, name='member_membership'),
+    path('member_payments/', member_payments, name='member_payments')
+
 ]

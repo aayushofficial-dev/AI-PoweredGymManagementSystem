@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-3">My Membership</h2>
+
+{% if member.plan %}
+<table class="table table-bordered table-striped w-75">
+    <tr>
+        <th>Plan Name</th>
+        <td>{{ member.plan.name }}</td>
+    </tr>
+    <tr>
+        <th>Duration(months)</th>
+        <td>{{ member.plan.duration_months }}</td>
+    </tr>
+    <tr>
+        <th>Plan Fee</th>
+        <td>रु. {{ member.plan.fee|floatformat:2 }}</td>
+    </tr>
+    <tr>
+        <th>Total </th>
+        <td>रु. {{ total_paid|floatformat:2 }}</td>
+    </tr>
+    <tr>
+        <th>Remaining Amount</th>
+        <td>
+            {% if remaining is not None %}
+                रु. {{ remaining|floatformat:2 }}
+            {% else %}
+               -
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <th>Membership Start Date</th>
+        <td>{{ member.membership_start|default:"-" }}</td>
+    </tr>
+    <tr>
+        <th>Membership End days</th>
+        <td>{{ member.membership_end|default:'-' }}</td>
+    </tr>
+    <tr>
+        <th>Remaining Days</th>
+        <td>
+            {% if days_remaining is not None %}
+                {{ days_remaining }} days(s)
+                    {% if membership_status == 'Membership Ended' %}
+                        <span class="text-danger">Membership Ended</span>
+                    {% elif membership_status == 'Active' %}
+                        <span class="text-success">Active</span>
+                    {% endif %}
+            {% else %}
+                -
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <th>Trainer</th>
+        <td>{{ member.trainer.name|default:"Not Assigned" }}</td>
+    </tr>
+    <tr>
+        <th>Plan details</th>
+        <td>{{ member.plan.description|default:"No details available." }}</td>
+    </tr>
+</table>
+
+{% else %}
+<div class="alert alert-warning">
+    You do not have an active membership plan assigned yet.
+</div>
+{% endif %}
+
+{% endblock %}

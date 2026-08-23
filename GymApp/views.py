@@ -4,6 +4,7 @@ from GymApp.models import *
 
 from django.contrib import messages
 from datetime import timedelta
+from django.utils import timezone
 import json
 from django.conf import settings
 from django.http import JsonResponse
@@ -723,3 +724,51 @@ def workout_plan_detail(request, plan_id):
             "workout_plan": workout_plan
         }
     )
+from django.db.models import Sum
+@member_required
+def member_membership(request):
+    member = request.user.member_profile
+
+    days_remaining = None
+    total_paid = 0
+    remaining = None
+
+    membership_status = "No Active Membership"
+
+    if member.membership_end:
+        days_remaining = (
+            member.membership_end - timezone.now().date()
+        ).days
+
+        if days_remaining < 0:
+            days_remaining = 0
+            membership_status = "Membership Ended"
+        else:
+            membership_status = 'Active'
+
+    if member.plan:
+        agg = Payment.objects.filter(
+            member=member,
+            plan = member.plan,
+            status = 'PAID',
+        ).aggregate(total=Sum('amount'))
+
+        total_paid = agg['total'] or 0
+
+        if member.plan.fee:
+            remaining = float(member.plan.fee) - float(total_paid)
+
+    context = {
+        'member': member,
+        'membership_status': membership_status,
+        'days_remaining': days_remaining,
+        'total_paid' : total_paid,
+        'remaining': remaining,
+    }
+    return render(request, 'member_membership.html', context)
+
+@member_required
+def member_payments(request):
+    member_profile = MemberProfile.objects.get(user=request.user)
+    payments = Payment.objects.filter(member=member_profile).select_related('plan')
+    return render(request, 'member_payments.html', {'payments':payments})
