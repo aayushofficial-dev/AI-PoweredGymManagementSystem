@@ -1,0 +1,232 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="container py-5">
+  <!-- Header -->
+  <div class="text-center mb-5">
+    <div
+      class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+      style="
+        width: 75px;
+        height: 75px;
+        background: rgba(0, 209, 178, 0.12);
+        color: #00a88f;
+      "
+    >
+      <i class="fa-solid fa-chart-pie fa-2x"></i>
+    </div>
+
+    <h1 class="fw-bold mb-2">Nutrition Result</h1>
+
+    <p class="text-muted mb-0">
+      Here's the estimated nutritional information detected from your food
+      image.
+    </p>
+  </div>
+
+  <!-- Result Card -->
+
+  <div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-9">
+      <div class="card border-0 shadow-lg" style="border-radius: 20px">
+        <div class="card-body p-4 p-md-5">
+          <!-- Food Name -->
+
+          <div class="text-center mb-4">
+            <div
+              class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+              style="
+                width: 55px;
+                height: 55px;
+                background: #f0fdfa;
+                color: #00a88f;
+              "
+            >
+              <i class="fa-solid fa-utensils"></i>
+            </div>
+
+            <h2 class="fw-bold mb-1">{{ nutrition.food_name }}</h2>
+
+            <p class="text-muted mb-0">Estimated nutritional values</p>
+          </div>
+
+          <hr class="mb-4" />
+
+          <!-- Nutrition Cards -->
+
+          <div class="row g-3">
+            <!-- Calories -->
+
+            <div class="col-12 col-md-6">
+              <div
+                class="p-4 h-100 rounded-4"
+                style="background: #fff7ed; border: 1px solid #fed7aa"
+              >
+                <div class="d-flex align-items-center gap-3">
+                  <div
+                    class="d-flex align-items-center justify-content-center rounded-circle"
+                    style="
+                      width: 50px;
+                      height: 50px;
+                      background: #ffedd5;
+                      color: #ea580c;
+                    "
+                  >
+                    <i class="fa-solid fa-fire"></i>
+                  </div>
+
+                  <div>
+                    <div class="text-muted small">Calories</div>
+
+                    <h3 class="fw-bold mb-0">
+                      {{ nutrition.calories }}
+
+                      <small class="fs-6 text-muted"> kcal </small>
+                    </h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Protein -->
+
+            <div class="col-12 col-md-6">
+              <div
+                class="p-4 h-100 rounded-4"
+                style="background: #eff6ff; border: 1px solid #bfdbfe"
+              >
+                <div class="d-flex align-items-center gap-3">
+                  <div
+                    class="d-flex align-items-center justify-content-center rounded-circle"
+                    style="
+                      width: 50px;
+                      height: 50px;
+                      background: #dbeafe;
+                      color: #2563eb;
+                    "
+                  >
+                    <i class="fa-solid fa-dumbbell"></i>
+                  </div>
+
+                  <div>
+                    <div class="text-muted small">Protein</div>
+
+                    <h3 class="fw-bold mb-0">{{ nutrition.protein }}g</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Carbohydrates -->
+
+            <div class="col-12 col-md-6">
+              <div
+                class="p-4 h-100 rounded-4"
+                style="background: #fefce8; border: 1px solid #fde68a"
+              >
+                <div class="d-flex align-items-center gap-3">
+                  <div
+                    class="d-flex align-items-center justify-content-center rounded-circle"
+                    style="
+                      width: 50px;
+                      height: 50px;
+                      background: #fef9c3;
+                      color: #ca8a04;
+                    "
+                  >
+                    <i class="fa-solid fa-wheat-awn"></i>
+                  </div>
+
+                  <div>
+                    <div class="text-muted small">Carbohydrates</div>
+
+                    <h3 class="fw-bold mb-0">{{ nutrition.carbohydrates }}g</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fat -->
+
+            <div class="col-12 col-md-6">
+              <div
+                class="p-4 h-100 rounded-4"
+                style="background: #fdf2f8; border: 1px solid #fbcfe8"
+              >
+                <div class="d-flex align-items-center gap-3">
+                  <div
+                    class="d-flex align-items-center justify-content-center rounded-circle"
+                    style="
+                      width: 50px;
+                      height: 50px;
+                      background: #fce7f3;
+                      color: #db2777;
+                    "
+                  >
+                    <i class="fa-solid fa-droplet"></i>
+                  </div>
+
+                  <div>
+                    <div class="text-muted small">Fat</div>
+
+                    <h3 class="fw-bold mb-0">{{ nutrition.fat }}g</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Notice -->
+
+          <div
+            class="alert border-0 mt-4 mb-4"
+            style="background: #f8fafc; border-radius: 14px"
+          >
+            <div class="d-flex gap-3">
+              <div>
+                <i class="fa-solid fa-circle-info" style="color: #00a88f"></i>
+              </div>
+
+              <div>
+                <strong> AI-generated estimate </strong>
+
+                <p class="text-muted small mb-0 mt-1">
+                  Nutrition values are estimates based on the uploaded image.
+                  Actual values may vary depending on ingredients, preparation
+                  method, and portion size.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+
+          <div
+            class="d-flex flex-column flex-sm-row justify-content-center gap-2"
+          >
+            <a
+              href="{% url 'food_analyzer' %}"
+              class="btn btn-success px-4 py-2"
+              style="border-radius: 10px"
+            >
+              <i class="fa-solid fa-camera me-2"></i>
+
+              Analyze Another Food
+            </a>
+
+            <a
+              href="{% url 'member_dashboard' %}"
+              class="btn btn-outline-secondary px-4 py-2"
+              style="border-radius: 10px"
+            >
+              <i class="fa-solid fa-house me-2"></i>
+
+              Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

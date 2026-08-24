@@ -10,12 +10,16 @@
     <title>{% block title %}Gym Management System{% endblock %}</title>
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"/>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+    />
 
     <!-- Font Awesome -->
-    <link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.0/css/all.min.css"/>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.0/css/all.min.css"
+    />
 
     <style>
       :root {
@@ -64,6 +68,8 @@
         white-space: nowrap;
       }
 
+      /* Navbar links */
+
       .navbar-nav {
         display: flex;
 
@@ -96,6 +102,8 @@
 
         opacity: 1;
       }
+
+      /* Navbar buttons */
 
       .btn-nav {
         border-radius: 12px;
@@ -132,6 +140,41 @@
 
         border-color: rgba(239, 68, 68, 0.4);
       }
+      
+      .dropdown-menu {
+        border: 0;
+
+        border-radius: 12px;
+
+        padding: 8px;
+
+        background: #0f172a;
+
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+      }
+
+      .dropdown-item {
+        color: #e5e7eb;
+
+        border-radius: 8px;
+
+        padding: 0.65rem 0.8rem;
+
+        font-weight: 600;
+      }
+
+      .dropdown-item:hover,
+      .dropdown-item:focus {
+        color: #ffffff;
+
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .dropdown-item i {
+        width: 22px;
+
+        text-align: center;
+      }
 
       .container-wrapper {
         width: 100%;
@@ -161,33 +204,25 @@
         box-shadow: 0 10px 25px rgba(17, 24, 39, 0.06);
       }
 
-      .role-admin .navbar-nav {
-        flex-wrap: nowrap;
-      }
-
-      .role-admin .navbar-nav .nav-item {
-        flex: 0 0 auto;
-      }
-
-      .role-admin .navbar-nav .nav-link {
-        white-space: nowrap;
-      }
-
       @media (min-width: 992px) {
-        .role-admin .navbar-nav {
-          overflow-x: auto;
-
-          scrollbar-width: none;
+        .navbar-nav {
+          flex-wrap: nowrap;
         }
 
-        .role-admin .navbar-nav::-webkit-scrollbar {
-          display: none;
+        .navbar-nav .nav-item {
+          flex: 0 0 auto;
         }
       }
 
       @media (max-width: 991.98px) {
         .navbar {
           min-height: 68px;
+        }
+
+        .navbar-collapse {
+          margin-top: 10px;
+
+          padding-bottom: 10px;
         }
 
         .navbar-nav {
@@ -203,15 +238,19 @@
         .nav-link {
           margin: 0 !important;
 
-          padding: 0.6rem 0.75rem !important;
+          padding: 0.65rem 0.75rem !important;
+        }
+
+        .dropdown-menu {
+          margin-left: 10px;
+
+          margin-right: 10px;
+
+          background: rgba(15, 23, 42, 0.98);
         }
 
         .container-wrapper {
           padding-top: 85px;
-        }
-
-        .role-admin .navbar-nav {
-          overflow-x: visible;
         }
       }
 
@@ -223,26 +262,33 @@
 
           padding-right: 8px;
         }
+
+        .navbar-brand span {
+          font-size: 1rem;
+        }
       }
     </style>
   </head>
 
-  <body class="{% if user.is_authenticated and user.role == 'ADMIN' %} 
-                  role-admin 
-                {% elif user.is_authenticated and user.role == 'MEMBER' %} 
-                  role-member 
-                {% else %} 
-                  role-guest 
-                {% endif %}
-                ">
-  
+  <body
+    class="{% if user.is_authenticated and user.role == 'ADMIN' %} role-admin {% elif user.is_authenticated and user.role == 'MEMBER' %} role-member {% else %} role-guest {% endif %}"
+  >
+   
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <div class="container-fluid px-3 px-lg-4">
-    
-        <a class="navbar-brand d-flex align-items-center gap-1" href="{% url 'home' %}">
+        <!-- Logo -->
+
+        <a
+          class="navbar-brand d-flex align-items-center gap-1"
+          href="{% url 'home' %}"
+        >
           <i class="fa-solid fa-dumbbell"></i>
+
           <span>MeroGym</span>
         </a>
+
+        <!-- Mobile Toggle -->
+
         <button
           class="navbar-toggler"
           type="button"
@@ -255,6 +301,8 @@
           <span class="navbar-toggler-icon"></span>
         </button>
 
+        <!-- Navbar Content -->
+
         <div class="collapse navbar-collapse" id="mainNavbar">
           <ul class="navbar-nav ms-auto">
             {% if user.is_authenticated %}
@@ -266,6 +314,7 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'admin_dashboard' %}">
                 <i class="fa-solid fa-chart-line me-2"></i>
+
                 Dashboard
               </a>
             </li>
@@ -275,6 +324,7 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'admin_members_list' %}">
                 <i class="fa-solid fa-users me-2"></i>
+
                 Members
               </a>
             </li>
@@ -284,6 +334,7 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'admin_plans_list' %}">
                 <i class="fa-solid fa-clipboard-list me-2"></i>
+
                 Plans
               </a>
             </li>
@@ -293,6 +344,7 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'admin_trainers_list' %}">
                 <i class="fa-solid fa-user-tie me-2"></i>
+
                 Trainers
               </a>
             </li>
@@ -302,6 +354,7 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'admin_payments_list' %}">
                 <i class="fa-solid fa-credit-card me-2"></i>
+
                 Payments
               </a>
             </li>
@@ -311,6 +364,7 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'admin_attendance_list' %}">
                 <i class="fa-solid fa-calendar-check me-2"></i>
+
                 Attendance
               </a>
             </li>
@@ -320,6 +374,7 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'admin_equipment_list' %}">
                 <i class="fa-solid fa-screwdriver-wrench me-2"></i>
+
                 Equipment
               </a>
             </li>
@@ -329,6 +384,7 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'admin_enquiries_list' %}">
                 <i class="fa-solid fa-circle-question me-2"></i>
+
                 Enquiries
               </a>
             </li>
@@ -338,6 +394,7 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'admin_feedbacks_list' %}">
                 <i class="fa-solid fa-star me-2"></i>
+
                 Feedback
               </a>
             </li>
@@ -349,13 +406,17 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'member_dashboard' %}">
                 <i class="fa-solid fa-gauge-high me-2"></i>
+
                 Dashboard
               </a>
             </li>
+
             <!-- Profile -->
+
             <li class="nav-item">
               <a class="nav-link" href="{% url 'member_profile' %}">
                 <i class="fa-solid fa-id-card me-2"></i>
+
                 Profile
               </a>
             </li>
@@ -365,6 +426,7 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'member_membership' %}">
                 <i class="fa-solid fa-crown me-2"></i>
+
                 Membership
               </a>
             </li>
@@ -374,6 +436,7 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'member_attendance' %}">
                 <i class="fa-solid fa-calendar-day me-2"></i>
+
                 Attendance
               </a>
             </li>
@@ -383,26 +446,59 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'member_payments' %}">
                 <i class="fa-solid fa-wallet me-2"></i>
+
                 Payments
               </a>
             </li>
 
-            <!-- AI Workout -->
-
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'ai_workout' %}">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="aiFitnessDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
                 <i class="fa-solid fa-robot me-2"></i>
-                AI Workout Planner
-              </a>
-            </li>
 
-            <!-- My Workout Plans -->
-
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'my_workout_plans' %}">
-                <i class="fa-solid fa-dumbbell me-2"></i>
-                My Workout Plans
+                AI Fitness
               </a>
+
+              <ul
+                class="dropdown-menu dropdown-menu-dark"
+                aria-labelledby="aiFitnessDropdown"
+              >
+                <!-- AI Workout Planner -->
+
+                <li>
+                  <a class="dropdown-item" href="{% url 'ai_workout' %}">
+                    <i class="fa-solid fa-robot me-2"></i>
+
+                    AI Workout Planner
+                  </a>
+                </li>
+
+                <!-- My Workout Plans -->
+
+                <li>
+                  <a class="dropdown-item" href="{% url 'my_workout_plans' %}">
+                    <i class="fa-solid fa-dumbbell me-2"></i>
+
+                    My Workout Plans
+                  </a>
+                </li>
+
+                <!-- AI Food Analyzer -->
+
+                <li>
+                  <a class="dropdown-item" href="{% url 'food_analyzer' %}">
+                    <i class="fa-solid fa-utensils me-2"></i>
+
+                    AI Food Analyzer
+                  </a>
+                </li>
+              </ul>
             </li>
 
             <!-- Feedback -->
@@ -410,25 +506,26 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'member_feedback' %}">
                 <i class="fa-solid fa-star me-2"></i>
+
                 Feedback
               </a>
             </li>
 
             {% endif %}
-
+<!-- common logout -->
             <li class="nav-item">
               <a
                 class="nav-link btn-nav btn-nav-danger"
                 href="{% url 'logout' %}"
               >
                 <i class="fa-solid fa-right-from-bracket me-2"></i>
+
                 Logout
               </a>
             </li>
 
             {% else %}
-
-    
+<!-- guest navbar -->
             <!-- Admin Login -->
 
             <li class="nav-item">
@@ -437,6 +534,7 @@
                 href="{% url 'admin_login' %}"
               >
                 <i class="fa-solid fa-user-shield me-2"></i>
+
                 Admin Login
               </a>
             </li>
@@ -449,6 +547,7 @@
                 href="{% url 'member_login' %}"
               >
                 <i class="fa-solid fa-user me-2"></i>
+
                 Member Login
               </a>
             </li>
@@ -458,11 +557,11 @@
         </div>
       </div>
     </nav>
-
-
+<!-- main content -->
     <div class="container-wrapper">
       <div class="container">
-     
+        <!-- Django Messages -->
+
         {% if messages %}
 
         <div class="mb-3">
@@ -491,10 +590,13 @@
 
         {% endif %}
 
-      
+        <!-- Page Content -->
+
         <div class="page-shell">{% block content %} {% endblock %}</div>
       </div>
     </div>
+
+    <!-- Bootstrap JS -->
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"

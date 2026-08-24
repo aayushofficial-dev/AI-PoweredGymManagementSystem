@@ -190,3 +190,19 @@ class WorkoutPlan(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.member}"
+
+class FoodAnalysis(models.Model):
+    member = models.ForeignKey(
+        MemberProfile,
+        on_delete=models.CASCADE
+    )
+    image = models.ImageField(upload_to="food_analysis/")
+    food_name = models.CharField(max_length=255)
+    calories = models.FloatField()
+    protein = models.FloatField()
+    carbohydrates = models.FloatField()
+    fat = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.food_name} - {self.member}"

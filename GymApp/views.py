@@ -9,6 +9,8 @@ import json
 from django.conf import settings
 from django.http import JsonResponse
 from openai import OpenAI
+import base64
+
 # Create your views here.
 def home(request):
     '''
@@ -689,7 +691,7 @@ Do not provide medical diagnosis or treatment.
                 }
             ],
             temperature=0.7,
-            max_tokens=2000,
+            max_tokens=1200,
         )
 
         workout_text = response.choices[0].message.content
@@ -845,3 +847,107 @@ def admin_feedbacks_list(request):
         'selected_members': int(member_id) if member_id else None,
     }
     return render(request, 'admin_feedbacks_list.html', context)
+
+@member_required
+def food_analyzer(request):
+
+    if request.method == "POST":
+
+        image = request.FILES.get("food_image")
+
+        if not image:
+            return render(request, "food_analyzer.html", {
+                "error": "Please upload a food image."
+            })
+
+        # Convert image to Base64
+        image_data = base64.b64encode(
+            image.read()
+        ).decode("utf-8")
+
+        client = OpenAI(
+            api_key=settings.OPENROUTER_API_KEY,
+            base_url="https://openrouter.ai/api/v1"
+        )
+
+        prompt = """
+        Analyze the food in this image.
+
+        Give an ESTIMATED nutritional analysis.
+
+        Identify:
+        1. Food name
+        2. Estimated calories
+        3. Protein in grams
+        4. Carbohydrates in grams
+        5. Fat in grams
+
+        Return ONLY valid JSON in this format:
+
+        {
+            "food_name": "food name",
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0
+        }
+
+        Do not include markdown.
+        """
+
+        response = client.chat.completions.create(
+
+            # Replace this with your OpenRouter
+            # vision-capable model
+            model="google/gemini-2.5-flash",
+
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": prompt
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": (
+                                    f"data:{image.content_type};"
+                                    f"base64,{image_data}"
+                                )
+                            }
+                        }
+                    ]
+                }
+            ],
+            max_tokens=1000
+        )
+
+        result = response.choices[0].message.content
+
+        try:
+
+            result = result.replace(
+                "```json", ""
+            ).replace(
+                "```", ""
+            ).strip()
+
+            nutrition = json.loads(result)
+
+        except json.JSONDecodeError:
+
+            return render(request, "food_analyzer.html", {
+                "error": "AI returned an invalid result. Please try again."
+            })
+
+        return render(
+            request,
+            "food_result.html",
+            {
+                "nutrition": nutrition
+            }
+        )
+
+    return render(request, "food_analyzer.html")

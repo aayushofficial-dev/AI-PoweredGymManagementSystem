@@ -1,0 +1,180 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="container py-5">
+  <!-- Header -->
+  <div class="text-center mb-5">
+    <div
+      class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+      style="
+        width: 75px;
+        height: 75px;
+        background: rgba(0, 209, 178, 0.12);
+        color: #00a88f;
+      "
+    >
+      <i class="fa-solid fa-utensils fa-2x"></i>
+    </div>
+
+    <h1 class="fw-bold">AI Food & Nutrition Analyzer</h1>
+
+    <p class="text-muted">
+      Upload a photo of your meal and let AI estimate its nutritional value.
+    </p>
+  </div>
+
+  <!-- Main Card -->
+
+  <div class="row justify-content-center">
+    <div class="col-lg-7 col-md-9">
+      <div class="card border-0 shadow-lg" style="border-radius: 20px">
+        <div class="card-body p-4 p-md-5">
+          <form method="POST" enctype="multipart/form-data" id="foodForm">
+            {% csrf_token %}
+
+            <!-- Upload Area -->
+
+            <label
+              for="foodImage"
+              id="uploadArea"
+              class="w-100 text-center p-5 mb-4"
+              style="
+                border: 2px dashed #d1d5db;
+                border-radius: 16px;
+                background: #f8fafc;
+                cursor: pointer;
+                display: block;
+              "
+            >
+              <i
+                class="fa-solid fa-cloud-arrow-up fa-3x mb-3"
+                style="color: #00a88f"
+              ></i>
+
+              <h5 class="fw-bold">Upload your food photo</h5>
+
+              <p class="text-muted mb-3">Click to select an image</p>
+
+              <span class="badge bg-light text-dark border">
+                JPG, JPEG or PNG
+              </span>
+
+              <input
+                type="file"
+                name="food_image"
+                id="foodImage"
+                accept="image/*"
+                class="d-none"
+                required
+              />
+            </label>
+
+            <!-- Preview -->
+
+            <div
+              id="previewContainer"
+              class="text-center mb-4"
+              style="display: none"
+            >
+              <h6 class="fw-semibold mb-3">Selected Food</h6>
+
+              <img
+                id="imagePreview"
+                src="#"
+                alt="Food Preview"
+                class="img-fluid rounded-4 shadow-sm"
+                style="max-height: 300px; object-fit: cover"
+              />
+            </div>
+
+            <!-- Analyze Button -->
+
+            <button
+              type="submit"
+              id="analyzeButton"
+              class="btn btn-success w-100 py-3 fw-semibold"
+              style="border-radius: 12px"
+            >
+              <i class="fa-solid fa-wand-magic-sparkles me-2"></i>
+
+              Analyze Food
+            </button>
+          </form>
+
+          <!-- Disclaimer -->
+
+          <div
+            class="alert alert-light border mt-4 mb-0"
+            style="border-radius: 12px"
+          >
+            <div class="d-flex gap-2">
+              <i
+                class="fa-solid fa-circle-info mt-1"
+                style="color: #00a88f"
+              ></i>
+
+              <small class="text-muted">
+                Nutrition values are AI-generated estimates. Actual values may
+                vary based on ingredients and portion size.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const foodImage = document.getElementById("foodImage");
+
+  const previewContainer = document.getElementById("previewContainer");
+
+  const imagePreview = document.getElementById("imagePreview");
+
+  const foodForm = document.getElementById("foodForm");
+
+  const analyzeButton = document.getElementById("analyzeButton");
+
+  /*
+   * Show image preview
+   */
+
+  foodImage.addEventListener("change", function () {
+    const file = this.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+      imagePreview.src = event.target.result;
+
+      previewContainer.style.display = "block";
+    };
+
+    reader.readAsDataURL(file);
+  });
+
+  /*
+   * Loading state
+   */
+
+  foodForm.addEventListener("submit", function () {
+    analyzeButton.disabled = true;
+
+    analyzeButton.innerHTML = `
+
+            <span
+                class="spinner-border spinner-border-sm me-2"
+                role="status"
+            ></span>
+
+            Analyzing Food...
+
+        `;
+  });
+</script>
+
+{% endblock %}

@@ -60,6 +60,8 @@ urlpatterns = [
     path('member_change_password/', member_change_password, name='member_change_password'),
 
     path('member_feedback/', member_feedback, name='member_feedback'),
-    path('admin_feedbacks_list/', admin_feedbacks_list, name='admin_feedbacks_list')
+    path('admin_feedbacks_list/', admin_feedbacks_list, name='admin_feedbacks_list'),
+
+    path("food-analyzer/", food_analyzer, name="food_analyzer"),
 
 ]
