@@ -1,36 +1,107 @@
 {% extends 'base.html' %}
 
+{% block title %}
+    {% if mode == 'add' %}Add Trainer{% else %}Edit Trainer{% endif %}
+{% endblock %}
+
 {% block content %}
 
-<h2 class="mb-3">
-    {% if mode == 'add' %} Add Trainer {% else %} Edit Trainer {% endif %}
-</h2> 
-
-<form method="post" class="row g-3 w-75">
-    {% csrf_token %}
-    <div class="col-md-6">
-        <label for="name" class="form-label">Trainer Name</label>
-        <input type="text" class="form-control" id="name" name="name" value="{{ trainer.name|default:'' }}" required>
-    </div>
-    <div class="col-md-6">
-        <label for="mobile" class="form-label">Mobile</label>
-        <input type="number" class="form-control" id="mobile" name="mobile" value="{{ trainer.mobile|default:'' }}" maxlength="10" required>
-    </div>
-    <div class="col-md-6">
-        <label for="specialization" class="form-label">Specialization</label>
-        <input type="text" class="form-control" id="specialization" name="specialization" value="{{ trainer.specialization|default:'' }}" required>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h3 class="mb-0 fw-bold">
+            {% if mode == 'add' %}
+                <i class="fa-solid fa-user-plus me-2 text-secondary"></i>Add Trainer
+            {% else %}
+                <i class="fa-solid fa-user-pen me-2 text-secondary"></i>Edit Trainer
+            {% endif %}
+        </h3>
+        <div class="text-muted small">Add or update trainer details, specialization and shift timing.</div>
     </div>
 
-    <div class="col-md-6">
-        <label for="shift_timing" class="form-label">Shift Timing</label>
-        <input type="text" class="form-control" id="shift_timing" name="shift_timing" value="{{ trainer.shift_timing|default:'' }}" required
-        placeholder="e.g., 6 AM - 10 AM">
+    <a href="{% url 'admin_trainers_list' %}" class="btn btn-outline-dark" style="border-radius:14px;">
+        <i class="fa-solid fa-arrow-left me-2"></i>Back to Trainers
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius:18px;">
+    <div class="card-body p-4">
+
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-user text-secondary"></i>
+                    </span>
+                    <input type="text" name="name" class="form-control"
+                           placeholder="e.g. Amit Verma"
+                           value="{{ trainer.name|default:'' }}" required>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Mobile</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-phone text-secondary"></i>
+                    </span>
+                    <input type="text" name="mobile" class="form-control"
+                           placeholder="e.g. 4324******"
+                           value="{{ trainer.mobile|default:'' }}">
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Specialization</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-bullseye text-secondary"></i>
+                    </span>
+                    <input type="text" name="specialization" class="form-control"
+                           placeholder="e.g. Strength Training, Yoga, Cardio"
+                           value="{{ trainer.specialization|default:'' }}">
+                </div>
+                <div class="form-text">Optional, but helps members select the right trainer.</div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Shift Timing</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-regular fa-clock text-secondary"></i>
+                    </span>
+                    <input type="text" name="shift_timing" class="form-control"
+                           placeholder="e.g. 6 AM - 10 AM"
+                           value="{{ trainer.shift_timing|default:'' }}">
+                </div>
+                <div class="form-text">Example: 6 AM - 10 AM / 5 PM - 9 PM</div>
+            </div>
+
+            <div class="col-12 mt-2">
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-dark fw-bold" style="border-radius:14px;">
+                        {% if mode == 'add' %}
+                            <i class="fa-solid fa-floppy-disk me-2"></i>Save Trainer
+                        {% else %}
+                            <i class="fa-solid fa-circle-check me-2"></i>Update Trainer
+                        {% endif %}
+                    </button>
+
+                    <a href="{% url 'admin_trainers_list' %}" class="btn btn-outline-secondary" style="border-radius:14px;">
+                        <i class="fa-solid fa-xmark me-2"></i>Cancel
+                    </a>
+                </div>
+
+                <div class="small text-muted mt-2">
+                    Fields marked with <span class="text-danger">*</span> are mandatory.
+                </div>
+            </div>
+
+        </form>
+
     </div>
-    <div class="col-md-12">
-        <button type="submit" class="btn btn-primary">
-            {% if mode == 'add' %} Add Trainer {% else %} Update Trainer {% endif %}
-        </button>
-        <a href="{% url 'admin_trainers_list' %}" class="btn btn-secondary">Cancel</a>
-    </div>
-</form>
+</div>
+
 {% endblock %}

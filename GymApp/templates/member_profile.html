@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h3 class="mb-0 fw-bold">
+            <i class="fa-solid fa-id-card me-2 text-secondary"></i>My Profile
+        </h3>
+        <div class="text-muted small">View and manage your personal details.</div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'member_profile_edit' %}" class="btn btn-dark" style="border-radius:14px;">
+            <i class="fa-solid fa-user-pen me-2"></i>Edit Profile
+        </a>
+        <a href="{% url 'member_change_password' %}" class="btn btn-outline-dark" style="border-radius:14px;">
+            <i class="fa-solid fa-key me-2"></i>Change Password
+        </a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Profile Summary -->
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm h-100" style="border-radius:18px;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-inline-flex align-items-center justify-content-center"
+                         style="width:64px;height:64px;border-radius:22px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.22);">
+                        <i class="fa-solid fa-user text-secondary fa-lg"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-5 mb-0">{{ member.full_name }}</div>
+                        <div class="text-muted small">
+                            <i class="fa-solid fa-id-badge me-1"></i>{{ member.user.username }}
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-3">
+
+                <div class="small text-muted mb-2">
+                    <i class="fa-solid fa-circle-info me-1"></i>Quick Info
+                </div>
+
+                <div class="d-grid gap-2">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted"><i class="fa-solid fa-phone me-2"></i>Mobile</span>
+                        <span class="fw-semibold">{{ member.mobile|default:"-" }}</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted"><i class="fa-solid fa-hashtag me-2"></i>Age</span>
+                        <span class="fw-semibold">{{ member.age|default:"-" }}</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted"><i class="fa-solid fa-venus-mars me-2"></i>Gender</span>
+                        <span class="fw-semibold">{{ member.get_gender_display|default:"-" }}</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted"><i class="fa-regular fa-calendar me-2"></i>Join Date</span>
+                        <span class="fw-semibold">
+                            {% if member.join_date %}
+                                {{ member.join_date|date:"d M Y" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <hr class="my-3">
+
+                <div class="small text-muted">
+                    <i class="fa-solid fa-shield-halved me-1"></i>
+                    Keep your profile updated for smooth membership tracking.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Table -->
+    <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm" style="border-radius:18px;">
+            <div class="card-header" style="background: rgba(15,23,42,.98); color:#fff;">
+                <div class="fw-bold">
+                    <i class="fa-solid fa-list-check me-2"></i>Profile Details
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0 align-middle">
+                        <tbody>
+                            <tr>
+                                <th class="ps-3" style="width:220px;">Full Name</th>
+                                <td class="pe-3">{{ member.full_name }}</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Username</th>
+                                <td class="pe-3">{{ member.user.username }}</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Mobile</th>
+                                <td class="pe-3">{{ member.mobile|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Age</th>
+                                <td class="pe-3">{{ member.age|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Gender</th>
+                                <td class="pe-3">{{ member.get_gender_display|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Address</th>
+                                <td class="pe-3">
+                                    {% if member.address %}
+                                        <div style="white-space:pre-line;">{{ member.address }}</div>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-3">Join Date</th>
+                                <td class="pe-3">
+                                    {% if member.join_date %}
+                                        {{ member.join_date|date:"d M Y" }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

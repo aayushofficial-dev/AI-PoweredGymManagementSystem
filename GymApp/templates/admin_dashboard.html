@@ -1,53 +1,309 @@
 {% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
 
-<h2 class="mb-4">Admin Dashboard</h2>
-
-<div class="row g-3">
-    <div class="col-md-3">
-        <div class="card text-bg-primary">
-            <div class="card-body">
-                <h5 class="card-title">Total Members</h5>
-                <p class="fs-3">{{ total_members }}</p>
+<!-- Hero Header -->
+<div class="p-4 p-md-5 mb-4 text-white shadow-sm"
+     style="border-radius:22px; background: linear-gradient(135deg, #0ea5e9 0%, #7c3aed 55%, #ef4444 100%);">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <div class="small opacity-75 mb-1">
+                <i class="fa-solid fa-sparkles me-2"></i>Admin Dashboard
+            </div>
+            <h2 class="mb-1 fw-bold">
+                <i class="fa-solid fa-chart-line me-2"></i>Overview & Controls
+            </h2>
+            <div class="opacity-75">
+                Manage members, memberships, registrations, payments, attendance and more.
             </div>
         </div>
-    </div>
 
-    <div class="col-md-3">
-        <div class="card text-bg-success">
-            <div class="card-body">
-                <h5 class="card-title">Active Memberships</h5>
-                <p class="fs-3">{{ active_memberships }}</p>
-            </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'admin_member_add' %}" class="btn btn-light fw-semibold" style="border-radius:14px;">
+                <i class="fa-solid fa-user-plus me-2"></i>Add Member
+            </a>
+            <a href="{% url 'admin_payment_add' %}" class="btn btn-outline-light fw-semibold" style="border-radius:14px;">
+                <i class="fa-solid fa-credit-card me-2"></i>Record Payment
+            </a>
         </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card text-bg-info">
-            <div class="card-body">
-                <h5 class="card-title">Today Registrations</h5>
-                <p class="fs-3">{{ today_registrations }}</p>
-            </div>
-        </div>
-    </div>
-
-      <div class="col-md-3">
-        <div class="card text-bg-danger">
-            <div class="card-body">
-                <h5 class="card-title">Pending Payments</h5>
-                <p class="fs-3">{{ pending_payments }}</p>
-            </div>
-        </div>
-    </div>
-    <hr class="my-4">
-    <div class="d-flex flex-wrap gap-2">
-        <a href="{%url 'admin_members_list' %}" class="btn btn-outline-primary">Manage Members</a>
-        <a href="{%url 'admin_plans_list' %}" class="btn btn-outline-secondary">Manage Plans</a>
-        <a href="{%url 'admin_trainers_list' %}" class="btn btn-outline-info">Manage Trainers</a>
-        <a href="{%url 'admin_enquiries_list' %}" class="btn btn-outline-primary">Manage Enquiry</a>
     </div>
 </div>
 
+<!-- KPI Cards (Colorful) -->
+<div class="row g-3">
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100 text-white" style="border-radius:18px;
+             background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="small opacity-75">Total Members</div>
+                        <div class="display-6 fw-bold mb-0">{{ total_members }}</div>
+                        <div class="small opacity-75 mt-1">
+                            <i class="fa-solid fa-users me-1"></i>All registered members
+                        </div>
+                    </div>
+                    <div class="d-inline-flex align-items-center justify-content-center"
+                         style="width:52px;height:52px;border-radius:16px;background: rgba(255,255,255,.18);">
+                        <i class="fa-solid fa-users fa-lg"></i>
+                    </div>
+                </div>
+                <a href="{% url 'admin_members_list' %}" class="btn btn-light btn-sm mt-3 fw-semibold"
+                   style="border-radius:12px;">
+                    <i class="fa-solid fa-arrow-right me-1"></i>Manage
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100 text-white" style="border-radius:18px;
+             background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="small opacity-75">Active Memberships</div>
+                        <div class="display-6 fw-bold mb-0">{{ active_memberships }}</div>
+                        <div class="small opacity-75 mt-1">
+                            <i class="fa-solid fa-crown me-1"></i>Currently active plans
+                        </div>
+                    </div>
+                    <div class="d-inline-flex align-items-center justify-content-center"
+                         style="width:52px;height:52px;border-radius:16px;background: rgba(255,255,255,.18);">
+                        <i class="fa-solid fa-crown fa-lg"></i>
+                    </div>
+                </div>
+                <a href="{% url 'admin_plans_list' %}" class="btn btn-light btn-sm mt-3 fw-semibold"
+                   style="border-radius:12px;">
+                    <i class="fa-solid fa-arrow-right me-1"></i>Plans
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100 text-white" style="border-radius:18px;
+             background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="small opacity-75">Today Registrations</div>
+                        <div class="display-6 fw-bold mb-0">{{ today_registrations }}</div>
+                        <div class="small opacity-75 mt-1">
+                            <i class="fa-solid fa-calendar-day me-1"></i>New signups today
+                        </div>
+                    </div>
+                    <div class="d-inline-flex align-items-center justify-content-center"
+                         style="width:52px;height:52px;border-radius:16px;background: rgba(255,255,255,.18);">
+                        <i class="fa-solid fa-calendar-day fa-lg"></i>
+                    </div>
+                </div>
+                <a href="{% url 'admin_members_list' %}" class="btn btn-light btn-sm mt-3 fw-semibold"
+                   style="border-radius:12px;">
+                    <i class="fa-solid fa-arrow-right me-1"></i>View
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100 text-white" style="border-radius:18px;
+             background: linear-gradient(135deg, #ef4444 0%, #f59e0b 100%);">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="small opacity-75">Pending Payments</div>
+                        <div class="display-6 fw-bold mb-0">{{ pending_payments }}</div>
+                        <div class="small opacity-75 mt-1">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i>Require follow-up
+                        </div>
+                    </div>
+                    <div class="d-inline-flex align-items-center justify-content-center"
+                         style="width:52px;height:52px;border-radius:16px;background: rgba(255,255,255,.18);">
+                        <i class="fa-solid fa-clock fa-lg"></i>
+                    </div>
+                </div>
+                <a href="{% url 'admin_payments_list' %}" class="btn btn-light btn-sm mt-3 fw-semibold"
+                   style="border-radius:12px;">
+                    <i class="fa-solid fa-arrow-right me-1"></i>Payments
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Access -->
+<div class="mt-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+        <h5 class="mb-0 fw-bold">
+            <i class="fa-solid fa-bolt me-2 text-secondary"></i>Quick Access
+        </h5>
+        <div class="text-muted small">Jump to frequently used modules.</div>
+    </div>
+
+    <div class="row g-3">
+
+        <!-- Members -->
+        <div class="col-12 col-md-6 col-xl-3">
+            <a href="{% url 'admin_members_list' %}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100" style="border-radius:18px;
+                     background: linear-gradient(135deg, rgba(59,130,246,.12) 0%, rgba(6,182,212,.10) 100%);">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <div class="d-inline-flex align-items-center justify-content-center"
+                             style="width:44px;height:44px;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,.06);">
+                            <i class="fa-solid fa-users text-secondary"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark">Manage Members</div>
+                            <div class="small text-muted">Add, edit, search</div>
+                        </div>
+                        <div class="ms-auto text-muted"><i class="fa-solid fa-chevron-right"></i></div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Plans -->
+        <div class="col-12 col-md-6 col-xl-3">
+            <a href="{% url 'admin_plans_list' %}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100" style="border-radius:18px;
+                     background: linear-gradient(135deg, rgba(34,197,94,.10) 0%, rgba(16,185,129,.10) 100%);">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <div class="d-inline-flex align-items-center justify-content-center"
+                             style="width:44px;height:44px;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,.06);">
+                            <i class="fa-solid fa-crown text-secondary"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark">Membership Plans</div>
+                            <div class="small text-muted">Fee, duration</div>
+                        </div>
+                        <div class="ms-auto text-muted"><i class="fa-solid fa-chevron-right"></i></div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Trainers -->
+        <div class="col-12 col-md-6 col-xl-3">
+            <a href="{% url 'admin_trainers_list' %}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100" style="border-radius:18px;
+                     background: linear-gradient(135deg, rgba(168,85,247,.10) 0%, rgba(99,102,241,.10) 100%);">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <div class="d-inline-flex align-items-center justify-content-center"
+                             style="width:44px;height:44px;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,.06);">
+                            <i class="fa-solid fa-user-tie text-secondary"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark">Trainers</div>
+                            <div class="small text-muted">Profiles, shifts</div>
+                        </div>
+                        <div class="ms-auto text-muted"><i class="fa-solid fa-chevron-right"></i></div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Payments -->
+        <div class="col-12 col-md-6 col-xl-3">
+            <a href="{% url 'admin_payments_list' %}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100" style="border-radius:18px;
+                     background: linear-gradient(135deg, rgba(239,68,68,.10) 0%, rgba(245,158,11,.12) 100%);">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <div class="d-inline-flex align-items-center justify-content-center"
+                             style="width:44px;height:44px;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,.06);">
+                            <i class="fa-solid fa-credit-card text-secondary"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark">Payments</div>
+                            <div class="small text-muted">Paid/Pending</div>
+                        </div>
+                        <div class="ms-auto text-muted"><i class="fa-solid fa-chevron-right"></i></div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Attendance -->
+        <div class="col-12 col-md-6 col-xl-3">
+            <a href="{% url 'admin_attendance_list' %}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100" style="border-radius:18px;
+                     background: linear-gradient(135deg, rgba(14,165,233,.10) 0%, rgba(59,130,246,.10) 100%);">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <div class="d-inline-flex align-items-center justify-content-center"
+                             style="width:44px;height:44px;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,.06);">
+                            <i class="fa-solid fa-calendar-check text-secondary"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark">Attendance</div>
+                            <div class="small text-muted">Daily check-ins</div>
+                        </div>
+                        <div class="ms-auto text-muted"><i class="fa-solid fa-chevron-right"></i></div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Equipment -->
+        <div class="col-12 col-md-6 col-xl-3">
+            <a href="{% url 'admin_equipment_list' %}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100" style="border-radius:18px;
+                     background: linear-gradient(135deg, rgba(34,197,94,.10) 0%, rgba(6,182,212,.10) 100%);">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <div class="d-inline-flex align-items-center justify-content-center"
+                             style="width:44px;height:44px;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,.06);">
+                            <i class="fa-solid fa-screwdriver-wrench text-secondary"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark">Equipment</div>
+                            <div class="small text-muted">Inventory</div>
+                        </div>
+                        <div class="ms-auto text-muted"><i class="fa-solid fa-chevron-right"></i></div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Enquiries -->
+        <div class="col-12 col-md-6 col-xl-3">
+            <a href="{% url 'admin_enquiries_list' %}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100" style="border-radius:18px;
+                     background: linear-gradient(135deg, rgba(168,85,247,.10) 0%, rgba(236,72,153,.10) 100%);">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <div class="d-inline-flex align-items-center justify-content-center"
+                             style="width:44px;height:44px;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,.06);">
+                            <i class="fa-solid fa-circle-question text-secondary"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark">Enquiries</div>
+                            <div class="small text-muted">New/Seen/Resolved</div>
+                        </div>
+                        <div class="ms-auto text-muted"><i class="fa-solid fa-chevron-right"></i></div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Feedbacks -->
+        <!-- <div class="col-12 col-md-6 col-xl-3">
+            <a href="{% url 'admin_feedbacks_list' %}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100" style="border-radius:18px;
+                     background: linear-gradient(135deg, rgba(59,130,246,.12) 0%, rgba(14,165,233,.10) 100%);">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <div class="d-inline-flex align-items-center justify-content-center"
+                             style="width:44px;height:44px;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,.06);">
+                            <i class="fa-solid fa-star text-secondary"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark">Feedbacks</div>
+                            <div class="small text-muted">Member feedback list</div>
+                        </div>
+                        <div class="ms-auto text-muted"><i class="fa-solid fa-chevron-right"></i></div>
+                    </div>
+                </div>
+            </a>
+        </div> -->
+
+    </div>
+</div>
 
 {% endblock %}

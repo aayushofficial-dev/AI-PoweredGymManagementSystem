@@ -1,46 +1,111 @@
 {% extends 'base.html' %}
+{% block title %}My Payments{% endblock %}
 
 {% block content %}
 
-<h2 class="mb-3">My Payment</h2>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h3 class="mb-0 fw-bold">
+            <i class="fa-solid fa-credit-card me-2 text-secondary"></i>My Payments
+        </h3>
+        <div class="text-muted small">Your payment history, modes, and status.</div>
+    </div>
+</div>
 
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>Id</th>
-            <th>Plan</th>
-            <th>Amount</th>
-            <th>Payment Date</th>
-            <th>Mode</th>
-            <th>Status</th>
-            <th>Notes</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for payment in payments %}
-        <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ payment.plan.name }}</td>
-            <td>{{ payment.amount }}</td>
-            <td>{{ payment.payment_date }}</td>
-            <td>{{ payment.mode }}</td>
-            <td>
-                {% if payment.status == 'PAID' %}
-                    <span class="badge bg-success">{{ payment.status }}</span>
-                {% elif payment.status == 'PENDING' %}
-                    <span class="badge bg-warning text-dark">{{ payment.status }}</span>
-                {% else %}
-                    <span class="badge bg-danger">{{ payment.status }}</span>
-                {% endif %}
-            </td>
-            <td>{{ payment.notes }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4" class="text-center">No Payment records found.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="card border-0 shadow-sm" style="border-radius:18px;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: rgba(15,23,42,.98); color:#fff;">
+                <tr>
+                    <th class="ps-3" style="width:60px;">#</th>
+                    <th style="min-width:180px;">Plan</th>
+                    <th style="min-width:130px;">Amount</th>
+                    <th style="min-width:160px;">Payment Date</th>
+                    <th style="min-width:130px;">Mode</th>
+                    <th style="min-width:120px;">Status</th>
+                    <th style="min-width:280px;">Notes</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for p in payments %}
+                    <tr>
+                        <td class="ps-3 fw-semibold">{{ forloop.counter }}</td>
+
+                        <td>
+                            {% if p.plan %}
+                                <span class="badge text-bg-light border">
+                                    <i class="fa-solid fa-crown me-1 text-secondary"></i>{{ p.plan.name }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-nowrap fw-bold">
+                            <i class="fa-solid fa-indian-rupee-sign me-1 text-secondary"></i>{{ p.amount }}
+                        </td>
+
+                        <td class="text-nowrap">
+                            {% if p.payment_date %}
+                                <i class="fa-regular fa-calendar me-1 text-secondary"></i>
+                                {{ p.payment_date|date:"d M Y" }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-nowrap">
+                            {% if p.mode == 'ONLINE' %}
+                                <span class="badge text-bg-info">
+                                    <i class="fa-solid fa-globe me-1"></i>{{ p.get_mode_display }}
+                                </span>
+                            {% else %}
+                                <span class="badge text-bg-secondary">
+                                    <i class="fa-solid fa-money-bill-wave me-1"></i>{{ p.get_mode_display }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-nowrap">
+                            {% if p.status == 'PAID' %}
+                                <span class="badge text-bg-success">
+                                    <i class="fa-solid fa-circle-check me-1"></i>Paid
+                                </span>
+                            {% else %}
+                                <span class="badge text-bg-warning">
+                                    <i class="fa-solid fa-clock me-1"></i>Pending
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if p.notes %}
+                                <div class="small text-muted" style="white-space:normal;">
+                                    <i class="fa-solid fa-note-sticky me-1 text-secondary"></i>{{ p.notes }}
+                                </div>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fa-solid fa-receipt fa-2x mb-2"></i>
+                                <div class="fw-semibold">No payment records found</div>
+                                <div class="small">Your payments will appear here once recorded by admin.</div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

@@ -1,74 +1,224 @@
 {% extends 'base.html' %}
+{% block title %}My Membership{% endblock %}
 
 {% block content %}
 
-<h2 class="mb-3">My Membership</h2>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h3 class="mb-0 fw-bold">
+            <i class="fa-solid fa-crown me-2 text-secondary"></i>My Membership
+        </h3>
+        <div class="text-muted small">Your current plan, validity dates and payment summary.</div>
+    </div>
+</div>
 
 {% if member.plan %}
-<table class="table table-bordered table-striped w-75">
-    <tr>
-        <th>Plan Name</th>
-        <td>{{ member.plan.name }}</td>
-    </tr>
-    <tr>
-        <th>Duration(months)</th>
-        <td>{{ member.plan.duration_months }}</td>
-    </tr>
-    <tr>
-        <th>Plan Fee</th>
-        <td>रु. {{ member.plan.fee|floatformat:2 }}</td>
-    </tr>
-    <tr>
-        <th>Total </th>
-        <td>रु. {{ total_paid|floatformat:2 }}</td>
-    </tr>
-    <tr>
-        <th>Remaining Amount</th>
-        <td>
-            {% if remaining is not None %}
-                रु. {{ remaining|floatformat:2 }}
-            {% else %}
-               -
-            {% endif %}
-        </td>
-    </tr>
-    <tr>
-        <th>Membership Start Date</th>
-        <td>{{ member.membership_start|default:"-" }}</td>
-    </tr>
-    <tr>
-        <th>Membership End days</th>
-        <td>{{ member.membership_end|default:'-' }}</td>
-    </tr>
-    <tr>
-        <th>Remaining Days</th>
-        <td>
-            {% if days_remaining is not None %}
-                {{ days_remaining }} days(s)
-                    {% if membership_status == 'Membership Ended' %}
-                        <span class="text-danger">Membership Ended</span>
-                    {% elif membership_status == 'Active' %}
-                        <span class="text-success">Active</span>
-                    {% endif %}
-            {% else %}
-                -
-            {% endif %}
-        </td>
-    </tr>
-    <tr>
-        <th>Trainer</th>
-        <td>{{ member.trainer.name|default:"Not Assigned" }}</td>
-    </tr>
-    <tr>
-        <th>Plan details</th>
-        <td>{{ member.plan.description|default:"No details available." }}</td>
-    </tr>
-</table>
+
+    <!-- Quick summary cards -->
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius:18px;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small">Plan</div>
+                            <div class="fw-bold fs-5">
+                                <i class="fa-solid fa-crown me-1 text-secondary"></i>{{ member.plan.name }}
+                            </div>
+                            <div class="small text-muted">
+                                Duration: {{ member.plan.duration_months }} month(s)
+                            </div>
+                        </div>
+                        <div class="d-inline-flex align-items-center justify-content-center"
+                             style="width:48px;height:48px;border-radius:16px;background:rgba(0,209,178,.10);border:1px solid rgba(0,209,178,.22);">
+                            <i class="fa-solid fa-id-card-clip text-secondary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius:18px;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small">Days Remaining</div>
+                            <div class="fw-bold fs-5">
+                                {% if days_remaining is not None %}
+                                    {{ days_remaining }} day(s)
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </div>
+
+                            <div class="small">
+                                {% if days_remaining is not None %}
+                                    {% if days_remaining > 0 %}
+                                        <span class="badge text-bg-success">
+                                            <i class="fa-solid fa-circle-check me-1"></i>Active
+                                        </span>
+                                    {% elif days_remaining == 0 %}
+                                        <span class="badge text-bg-warning">
+                                            <i class="fa-solid fa-triangle-exclamation me-1"></i>Expires Today
+                                        </span>
+                                    {% else %}
+                                        <span class="badge text-bg-danger">
+                                            <i class="fa-solid fa-circle-xmark me-1"></i>Expired
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge text-bg-secondary">
+                                        <i class="fa-solid fa-circle-info me-1"></i>Not Set
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="d-inline-flex align-items-center justify-content-center"
+                             style="width:48px;height:48px;border-radius:16px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.22);">
+                            <i class="fa-solid fa-hourglass-half text-secondary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius:18px;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small">Remaining Amount</div>
+                            <div class="fw-bold fs-5">
+                                {% if remaining is not None %}
+                                    <i class="fa-solid fa-indian-rupee-sign me-1 text-secondary"></i>{{ remaining }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </div>
+                            <div class="small text-muted">
+                                Paid: <i class="fa-solid fa-indian-rupee-sign me-1 text-secondary"></i>{{ total_paid }}
+                            </div>
+                        </div>
+                        <div class="d-inline-flex align-items-center justify-content-center"
+                             style="width:48px;height:48px;border-radius:16px;background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.22);">
+                            <i class="fa-solid fa-wallet text-secondary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details -->
+    <div class="card border-0 shadow-sm" style="border-radius:18px;">
+        <div class="card-header" style="background: rgba(15,23,42,.98); color:#fff;">
+            <div class="fw-bold">
+                <i class="fa-solid fa-circle-info me-2"></i>Membership Details
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table mb-0 align-middle">
+                    <tbody>
+                        <tr>
+                            <th class="ps-3" style="width:240px;">Plan Name</th>
+                            <td class="pe-3">{{ member.plan.name }}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3">Duration (months)</th>
+                            <td class="pe-3">{{ member.plan.duration_months }}</td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3">Plan Fee</th>
+                            <td class="pe-3">
+                                <i class="fa-solid fa-indian-rupee-sign me-1 text-secondary"></i>{{ member.plan.fee }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3">Total Paid</th>
+                            <td class="pe-3">
+                                <i class="fa-solid fa-indian-rupee-sign me-1 text-secondary"></i>{{ total_paid }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3">Remaining Amount</th>
+                            <td class="pe-3">
+                                {% if remaining is not None %}
+                                    <i class="fa-solid fa-indian-rupee-sign me-1 text-secondary"></i>{{ remaining }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3">Start Date</th>
+                            <td class="pe-3">
+                                {% if member.membership_start %}
+                                    <i class="fa-regular fa-calendar me-1 text-secondary"></i>{{ member.membership_start|date:"d M Y" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3">End Date</th>
+                            <td class="pe-3">
+                                {% if member.membership_end %}
+                                    <i class="fa-regular fa-calendar me-1 text-secondary"></i>{{ member.membership_end|date:"d M Y" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3">Days Remaining</th>
+                            <td class="pe-3">
+                                {% if days_remaining is not None %}
+                                    {{ days_remaining }} day(s)
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3">Trainer</th>
+                            <td class="pe-3">
+                                {% if member.trainer %}
+                                    <i class="fa-solid fa-user-tie me-1 text-secondary"></i>{{ member.trainer.name }}
+                                {% else %}
+                                    <span class="text-muted">Not Assigned</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="ps-3">Plan Details</th>
+                            <td class="pe-3">
+                                {% if member.plan.description %}
+                                    <div style="white-space:pre-line;">{{ member.plan.description }}</div>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
 {% else %}
-<div class="alert alert-warning">
-    You do not have an active membership plan assigned yet.
-</div>
+    <div class="card border-0 shadow-sm" style="border-radius:18px;">
+        <div class="card-body text-center py-5">
+            <div class="text-muted">
+                <i class="fa-solid fa-triangle-exclamation fa-2x mb-2"></i>
+                <div class="fw-semibold">No active membership assigned</div>
+                <div class="small">Please contact the gym admin to assign a membership plan.</div>
+            </div>
+        </div>
+    </div>
 {% endif %}
 
 {% endblock %}

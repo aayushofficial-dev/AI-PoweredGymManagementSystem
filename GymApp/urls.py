@@ -4,7 +4,6 @@ from .views import *
 
 urlpatterns = [
     path('', home, name='home'), #include gymapp URLs
-    path('about/', about, name='about'),
     path('admin-login/', admin_login_view, name='admin_login'),
     path('admin_dashboard/', admin_dashboard_view, name='admin_dashboard'),
     path('logout/', logout_view, name='logout'),
@@ -54,6 +53,13 @@ urlpatterns = [
     path("my-workout-plans/<int:plan_id>/", workout_plan_detail, name="workout_plan_detail"),
 
     path('member_membership/', member_membership, name='member_membership'),
-    path('member_payments/', member_payments, name='member_payments')
+    path('member_payments/', member_payments, name='member_payments'),
+
+    path('member_profile/', member_profile, name='member_profile'),
+    path('member_profile_edit/', member_profile_edit, name='member_profile_edit'),
+    path('member_change_password/', member_change_password, name='member_change_password'),
+
+    path('member_feedback/', member_feedback, name='member_feedback'),
+    path('admin_feedbacks_list/', admin_feedbacks_list, name='admin_feedbacks_list')
 
 ]

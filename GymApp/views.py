@@ -34,10 +34,6 @@ def home(request):
 
     return render(request, 'home.html')
 
-def about(request):
-    return render(request, 'about.html')
-
-
 from django.contrib.auth import authenticate, login, logout
 
 def admin_login_view(request):
@@ -90,7 +86,29 @@ def member_login_view(request):
 
 @member_required
 def member_dashboard_view(request):
-    return render(request, 'member_dashboard.html')
+    member = request.user.member_profile
+    total_attendance = member.attendances.count()
+    total_payments = member.payments.count()
+    return render(request, 'member_dashboard.html', {
+        'member':member,
+        'total_attendance':total_attendance,
+        'total_payments':total_payments,
+    })
+
+@member_required
+def member_feedback(request):
+    member = request.user.member_profile
+    if request.method == 'POST':
+        message = request.POST.get('message')
+        if message:
+            Feedback.objects.create(member=member, message=message)
+            messages.success(request, "Your Feedback has been submitted successfully!")
+            return redirect('member_feedback')
+        else:
+            messages.error(request, 'Please enter your feedback before submitting.')
+    feedbacks = member.feedbacks.all().order_by('-created_at')
+    return render(request, 'member_feedback.html', {'feedbacks':feedbacks})
+
 @admin_required
 def admin_dashboard_view(request):
     total_members = MemberProfile.objects.all().count()
@@ -772,3 +790,58 @@ def member_payments(request):
     member_profile = MemberProfile.objects.get(user=request.user)
     payments = Payment.objects.filter(member=member_profile).select_related('plan')
     return render(request, 'member_payments.html', {'payments':payments})
+
+@member_required
+def member_profile (request):
+    member = request.user.member_profile
+    return render(request, 'member_profile.html', {'member':member})
+
+@member_required
+def member_profile_edit(request):
+    member = request.user.member_profile
+    if request.method == 'POST':
+        member.full_name = request.POST.get('full_name')
+        member.mobile = request.POST.get('mobile')
+        member.age = request.POST.get('age')
+        member.gender = request.POST.get('gender')
+        member.address = request.POST.get('address')
+        member.save()
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('member_profile')
+    return render(request, 'member_profile_edit.html', {'member':member})
+
+@member_required
+def member_change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if not request.user.check_password(current_password):
+            messages.error(request, 'Current password is incorrect.')
+            return redirect('member_change_password')
+
+        if new_password != confirm_password:
+            messages.error(request, 'New password and confirm password do not match.')
+            return redirect('member_change_password')
+
+        request.user.set_password(new_password)
+        request.user.save()
+        messages.success(request, 'Password changed successfully! Please log in again.')
+        return redirect('member_login')
+    return render(request, 'member_change_password.html')
+
+@admin_required
+def admin_feedbacks_list(request):
+    member_id = request.GET.get('member')
+    feedbacks = Feedback.objects.select_related('member').all().order_by('-created_at')
+    members = MemberProfile.objects.all().order_by('full_name')
+    if member_id:
+        feedbacks = feedbacks.filter(member_id=member_id)
+
+    context = {
+        'feedbacks':feedbacks,
+        'members':members,
+        'selected_members': int(member_id) if member_id else None,
+    }
+    return render(request, 'admin_feedbacks_list.html', context)

@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h3 class="mb-0 fw-bold">
+            <i class="fa-solid fa-user-pen me-2 text-secondary"></i>Edit Profile
+        </h3>
+        <div class="text-muted small">Update your personal details. This information may be used for membership records.</div>
+    </div>
+
+    <a href="{% url 'member_profile' %}" class="btn btn-outline-dark" style="border-radius:14px;">
+        <i class="fa-solid fa-arrow-left me-2"></i>Back to Profile
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius:18px;">
+    <div class="card-body p-4">
+
+        <form method="post" class="row g-3" autocomplete="off">
+            {% csrf_token %}
+
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-user text-secondary"></i>
+                    </span>
+                    <input type="text" name="full_name" class="form-control"
+                           value="{{ member.full_name }}" placeholder="Enter full name" required>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Mobile</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-phone text-secondary"></i>
+                    </span>
+                    <input type="text" name="mobile" class="form-control"
+                           value="{{ member.mobile }}" placeholder="e.g. 9876543210">
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Age</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-hashtag text-secondary"></i>
+                    </span>
+                    <input type="number" name="age" class="form-control"
+                           value="{{ member.age }}" placeholder="e.g. 25" min="0">
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Gender</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-venus-mars text-secondary"></i>
+                    </span>
+                    <select name="gender" class="form-select">
+                        <option value="">Select</option>
+                        <option value="MALE" {% if member.gender == 'MALE' %}selected{% endif %}>Male</option>
+                        <option value="FEMALE" {% if member.gender == 'FEMALE' %}selected{% endif %}>Female</option>
+                        <option value="OTHER" {% if member.gender == 'OTHER' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label fw-semibold">Address</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white align-items-start pt-2">
+                        <i class="fa-solid fa-location-dot text-secondary"></i>
+                    </span>
+                    <textarea name="address" class="form-control" rows="3"
+                              placeholder="Enter address">{{ member.address }}</textarea>
+                </div>
+            </div>
+
+            <div class="col-12 mt-2">
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-dark fw-bold" style="border-radius:14px;">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Save Changes
+                    </button>
+
+                    <a href="{% url 'member_profile' %}" class="btn btn-outline-secondary" style="border-radius:14px;">
+                        <i class="fa-solid fa-xmark me-2"></i>Cancel
+                    </a>
+                </div>
+
+                <div class="small text-muted mt-2">
+                    Fields marked with <span class="text-danger">*</span> are mandatory.
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

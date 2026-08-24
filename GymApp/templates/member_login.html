@@ -1,29 +1,125 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block title %}Member Login{% endblock %}
 
 {% block content %}
 
 <div class="row justify-content-center">
-    <div class="col-md-4">
-        <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white">
-                Member Login
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label" for="username">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+    <div class="col-12 col-lg-10 col-xl-9">
+
+        <div class="card border-0 shadow-lg" style="border-radius:20px; overflow:hidden;">
+            <div class="row g-0">
+
+                <div class="col-md-5 d-none d-md-block position-relative"
+                     style="min-height: 440px;
+                            background-image: url('{% static 'images/member-login.png' %}');
+                            background-size: cover;
+                            background-position: center;">
+                    <div class="position-absolute top-0 start-0 w-100 h-100"
+                         style="background: linear-gradient(135deg, rgba(15,23,42,.70), rgba(59,130,246,.35));">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="password">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+
+                    <div class="position-absolute bottom-0 start-0 p-4 text-white" style="z-index:2;">
+                        <div class="fw-bold" style="font-size:1.25rem;">
+                            <i class="fa-solid fa-dumbbell me-2"></i>My.Gym Member Portal
+                        </div>
+                        <div class="small" style="opacity:.9;">
+                            Track attendance, payments, membership and workout plans in one place.
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Login</button>
-                </form>
+                </div>
+
+                <!-- Right Login Panel -->
+                <div class="col-12 col-md-7">
+                    <div class="p-4 p-lg-5">
+
+                        <!-- Heading -->
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                            <div>
+                                <div class="d-inline-flex align-items-center justify-content-center mb-2"
+                                     style="width:56px;height:56px;border-radius:18px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.22);">
+                                    <i class="fa-solid fa-user text-secondary"></i>
+                                </div>
+                                <h3 class="mb-0 fw-bold">Member Login</h3>
+                                <div class="text-muted small">Sign in to your dashboard and details.</div>
+                            </div>
+
+                            <a href="{% url 'home' %}" class="btn btn-sm btn-outline-dark" style="border-radius:12px;">
+                                <i class="fa-solid fa-house me-1"></i>Home
+                            </a>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <!-- Form -->
+                        <form method="post" autocomplete="off">
+                            {% csrf_token %}
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white">
+                                        <i class="fa-solid fa-id-badge text-secondary"></i>
+                                    </span>
+                                    <input type="text" name="username" class="form-control"
+                                           placeholder="Enter username" required
+                                           style="border-radius:12px;">
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label fw-semibold">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white">
+                                        <i class="fa-solid fa-lock text-secondary"></i>
+                                    </span>
+                                    <input type="password" name="password" class="form-control"
+                                           id="passwordField"
+                                           placeholder="Enter password" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword"
+                                            style="border-top-right-radius:12px;border-bottom-right-radius:12px;">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn fw-bold text-white"
+                                        style="border-radius:14px; padding:.75rem 1rem;
+                                               background: linear-gradient(90deg, #2563eb, #7c3aed); border:0;">
+                                    <i class="fa-solid fa-right-to-bracket me-2"></i>Login
+                                </button>
+                            </div>
+
+                            <div class="small text-muted mt-3">
+                                <i class="fa-solid fa-circle-info me-1"></i>
+                                If you face issues, contact the gym admin to reset your password.
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+
             </div>
         </div>
+
     </div>
 </div>
+
+<script>
+    (function () {
+        const btn = document.getElementById("togglePassword");
+        const input = document.getElementById("passwordField");
+        if (!btn || !input) return;
+
+        btn.addEventListener("click", function () {
+            const isHidden = input.type === "password";
+            input.type = isHidden ? "text" : "password";
+            btn.innerHTML = isHidden
+                ? '<i class="fa-regular fa-eye-slash"></i>'
+                : '<i class="fa-regular fa-eye"></i>';
+        });
+    })();
+</script>
 
 {% endblock %}

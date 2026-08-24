@@ -1,86 +1,224 @@
 {% extends 'base.html' %}
 
+{% block title %}
+    {% if mode == 'add' %}Add Member{% else %}Edit Member{% endif %}
+{% endblock %}
+
 {% block content %}
 
-<h2 class="mb-3">
-    {% if mode == 'add' %} Add Member {% else %} Edit Member {% endif %}
-</h2> 
-
-<form method="post" class="row g-3 w-75">
-    {% csrf_token %}
-
-    {% if mode == 'add' %}
-    <div class="col-md-6">
-        <label for="username" class="form-label">Username</label>
-        <input type="text" class="form-control" id="name" name="username"required>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h3 class="mb-0 fw-bold">
+            {% if mode == 'add' %}
+                <i class="fa-solid fa-user-plus me-2 text-secondary"></i>Add Member
+            {% else %}
+                <i class="fa-solid fa-user-pen me-2 text-secondary"></i>Edit Member
+            {% endif %}
+        </h3>
+        <div class="text-muted small">
+            {% if mode == 'add' %}
+                Create a new member profile and assign plan/trainer if needed.
+            {% else %}
+                Update member details, plan and trainer assignment.
+            {% endif %}
+        </div>
     </div>
-    <div class="col-md-6">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" class="form-control" id="password" name="password" required>
+
+    <a href="{% url 'admin_members_list' %}" class="btn btn-outline-dark" style="border-radius:14px;">
+        <i class="fa-solid fa-arrow-left me-2"></i>Back to Members
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius:18px;">
+    <div class="card-body p-4">
+
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+
+            <!-- Credentials (only on add) -->
+            {% if mode == 'add' %}
+                <div class="col-12">
+                    <div class="p-3 rounded-3 border" style="background:rgba(15,23,42,.03);">
+                        <div class="fw-bold mb-2">
+                            <i class="fa-solid fa-key me-2 text-secondary"></i>Login Credentials
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white">
+                                        <i class="fa-solid fa-user text-secondary"></i>
+                                    </span>
+                                    <input type="text" name="username" class="form-control"
+                                           placeholder="e.g. aayush123" required>
+                                </div>
+                                <div class="form-text">Username must be unique.</div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold">Password <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white">
+                                        <i class="fa-solid fa-lock text-secondary"></i>
+                                    </span>
+                                    <input type="password" name="password" class="form-control"
+                                           placeholder="Create a strong password" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Basic Info -->
+            <div class="col-12">
+                <div class="fw-bold mb-1">
+                    <i class="fa-solid fa-id-card me-2 text-secondary"></i>Basic Information
+                </div>
+                <div class="text-muted small mb-2">Personal details of the member.</div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-signature text-secondary"></i>
+                    </span>
+                    <input type="text" name="full_name" class="form-control"
+                           placeholder="e.g. Aayush Shah"
+                           value="{{ member.full_name|default:'' }}" required>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Mobile</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-phone text-secondary"></i>
+                    </span>
+                    <input type="text" name="mobile" class="form-control"
+                           placeholder="e.g. 1234******"
+                           value="{{ member.mobile|default:'' }}">
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Age</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-hashtag text-secondary"></i>
+                    </span>
+                    <input type="number" name="age" class="form-control"
+                           min="1" max="120"
+                           value="{{ member.age|default:'' }}">
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Gender</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-venus-mars text-secondary"></i>
+                    </span>
+                    <select name="gender" class="form-select">
+                        <option value="">Select</option>
+                        <option value="Male" {% if member.gender == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if member.gender == 'Female' %}selected{% endif %}>Female</option>
+                        <option value="Other" {% if member.gender == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Join Date</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-regular fa-calendar text-secondary"></i>
+                    </span>
+                    <input type="date" name="join_date" class="form-control"
+                           value="{{ member.join_date|date:'Y-m-d' }}">
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Address</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-location-dot text-secondary"></i>
+                    </span>
+                    <textarea name="address" class="form-control" rows="2"
+                              placeholder="House no, area, city...">{{ member.address|default:'' }}</textarea>
+                </div>
+            </div>
+
+            <!-- Assignments -->
+            <div class="col-12 mt-2">
+                <div class="fw-bold mb-1">
+                    <i class="fa-solid fa-sitemap me-2 text-secondary"></i>Membership & Trainer Assignment
+                </div>
+                <div class="text-muted small mb-2">Optional — you can assign later as well.</div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Membership Plan</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-crown text-secondary"></i>
+                    </span>
+                    <select name="plan_id" class="form-select">
+                        <option value="">No Plan</option>
+                        {% for p in plans %}
+                            <option value="{{ p.id }}"
+                                {% if member.plan and member.plan.id == p.id %}selected{% endif %}>
+                                {{ p.name }} ({{ p.duration_months }} month) - {{ p.fee }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Trainer</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-user-tie text-secondary"></i>
+                    </span>
+                    <select name="trainer_id" class="form-select">
+                        <option value="">No Trainer</option>
+                        {% for t in trainers %}
+                            <option value="{{ t.id }}"
+                                {% if member.trainer and member.trainer.id == t.id %}selected{% endif %}>
+                                {{ t.name }} - {{ t.specialization }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="col-12 mt-2">
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-dark fw-bold" style="border-radius:14px;">
+                        {% if mode == 'add' %}
+                            <i class="fa-solid fa-floppy-disk me-2"></i>Save Member
+                        {% else %}
+                            <i class="fa-solid fa-circle-check me-2"></i>Update Member
+                        {% endif %}
+                    </button>
+
+                    <a href="{% url 'admin_members_list' %}" class="btn btn-outline-secondary" style="border-radius:14px;">
+                        <i class="fa-solid fa-xmark me-2"></i>Cancel
+                    </a>
+                </div>
+
+                <div class="small text-muted mt-2">
+                    Fields marked with <span class="text-danger">*</span> are mandatory.
+                </div>
+            </div>
+
+        </form>
     </div>
-    {% endif %}
+</div>
 
-   <div class="col-md-6">
-    <label for="full_name" class="form-label">Full Name</label>
-    <input type="text" class="form-control" id="full_name" name="full_name" value="{{ member.full_name|default:'' }}" required>
-   </div>
-   <div class="col-md-3">
-    <label for="mobile" class="form-label">Mobile</label>
-    <input type="number" class="form-control" id="mobile" name="mobile" value="{{ member.mobile|default:'' }}" maxlength="10" required>
-   </div>
-   <div class="col-md-3">
-    <label for="age" class="form-label">Age</label>
-    <input type="number" class="form-control" id="age" name="age" value="{{ member.age|default:'' }}" required>
-   </div>
-   <div class="col-md-3">
-    <label for="gender" class="form-label">Gender</label>
-    <select class="form-select" id="gender" name="gender">
-        <option value="">Select Gender</option>
-        <option value="Male" {% if member.gender == 'Male' %}selected{% endif %}>Male</option>
-        <option value="Female" {% if member.gender == 'Female' %}selected{% endif %}>Female</option>
-        <option value="Other" {% if member.gender == 'Other' %}selected{% endif %}>Other</option>
-    </select>
-   </div>
-
-   <div class="col-md-3">
-    <label for="join_date" class="form-label">Join Date</label>
-    <input type="date" class="form-control" id="join_date" name="join_date" value="{{ member.join_date|date:'Y-m-d'}}" required>
-   </div>
-
-   <div class="col-md-6">
-    <label for="address" class="form-label">Address</label>
-    <textarea class="form-control" id="address" name="address" rows="2" required>{{ member.address|default:'' }}</textarea>
-   </div>
-
-   <div class="col-md-6">
-    <label for="plan" class="form-label">Membership Plan</label>
-    <select class="form-select" id="plan" name="plan_id">
-        <option value="">Select Plan</option>
-        {% for plan in plans %}
-        <option value="{{ plan.id }}" {% if member.plan and member.plan.id == plan.id  %}selected{% endif %}>
-            {{ plan.name }} ({{ plan.duration_months }} months) - रु{{ plan.fee }}
-        </option>
-        {% endfor %}
-    </select>
-   </div>
-
-    <div class="col-md-6">
-    <label class="form-label">Trainer</label>
-    <select class="form-select" id="trainer" name="trainer_id">
-        <option value="">No Trainer</option>
-        {% for trainer in trainers %}
-        <option value="{{ trainer.id }}" {% if member.trainer and member.trainer.id == trainer.id %}selected{% endif %}>
-            {{ trainer.name }} - {{ trainer.specialization }}
-        </option>
-        {% endfor %}
-    </select>
-   </div>
-
-    <div class="col-md-12">
-        <button type="submit" class="btn btn-primary">
-            {% if mode == 'add' %} Add Member {% else %} Update Member {% endif %}
-        </button>
-        <a href="{% url 'admin_members_list' %}" class="btn btn-secondary">Cancel</a>
-    </div>
-</form>
 {% endblock %}

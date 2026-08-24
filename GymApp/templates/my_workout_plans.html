@@ -1,89 +1,127 @@
-{% extends 'base.html'  %}
-{% block content  %}
-<body class="bg-light">
+{% extends 'base.html' %} 
+{% load static %}
+{% block title %}My Workout Plans{% endblock %} 
+{% block content %}
 
-<div class="container py-5">
+<div
+  class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"
+>
+  <div>
+    <h3 class="mb-0 fw-bold">
+      <i class="fa-solid fa-dumbbell me-2 text-secondary"></i>
+      My Workout Plans
+    </h3>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="text-muted small">
+      View and manage your AI-generated workout plans.
+    </div>
+  </div>
 
-        <div>
-            <h1 class="fw-bold">My Workout Plans</h1>
+  <a
+    href="{% url 'generate_workout_plan' %}"
+    class="btn btn-dark"
+    style="border-radius: 14px"
+  >
+    <i class="fa-solid fa-wand-magic-sparkles me-2"></i>
+    Generate New Plan
+  </a>
+</div>
 
-            <p class="text-muted mb-0">
-                Your AI-generated workout plans
-            </p>
+
+{% if workout_plans %}
+
+<div class="row g-4">
+  {% for plan in workout_plans %}
+
+  <div class="col-md-6 col-lg-4">
+    <div class="card border-0 shadow-sm h-100" style="border-radius: 18px">
+      <div class="card-body p-4">
+     
+        <div class="d-flex align-items-start mb-3">
+          <div
+            class="d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+            style="
+              width: 48px;
+              height: 48px;
+              border-radius: 14px;
+              background: rgba(59, 130, 246, 0.1);
+            "
+          >
+            <i class="fa-solid fa-dumbbell text-primary"></i>
+          </div>
+
+          <div>
+            <h5 class="fw-bold mb-1">{{ plan.title }}</h5>
+
+            <div class="small text-muted">
+              <i class="fa-regular fa-calendar me-1"></i>
+
+              Created {{ plan.created_at|date:"M d, Y" }}
+            </div>
+          </div>
         </div>
 
-        <a href="{% url 'generate_workout_plan' %}"
-           class="btn btn-primary">
-            + Generate New Plan
-        </a>
+        <hr />
 
+        <p class="text-muted small mb-4">
+          {{ plan.description|truncatewords:30 }}
+        </p>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="badge text-bg-light border">
+            <i class="fa-solid fa-robot me-1 text-secondary"></i>
+
+            AI Generated
+          </span>
+
+          <a
+            href="{% url 'workout_plan_detail' plan.id %}"
+            class="btn btn-sm btn-outline-dark"
+            style="border-radius: 12px"
+          >
+            <i class="fa-solid fa-eye me-1"></i>
+            View Plan
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="card border-0 shadow-sm text-center" style="border-radius: 18px">
+  <div class="card-body py-5 px-4">
+    <div
+      class="d-flex align-items-center justify-content-center mx-auto mb-3"
+      style="
+        width: 70px;
+        height: 70px;
+        border-radius: 20px;
+        background: rgba(59, 130, 246, 0.1);
+      "
+    >
+      <i class="fa-solid fa-dumbbell fa-2x text-primary"></i>
     </div>
 
+    <h5 class="fw-bold">No Workout Plans Yet</h5>
 
-    {% if workout_plans %}
+    <p class="text-muted mb-4">
+      You haven't created any AI workout plans yet. Generate your first
+      personalized workout plan based on your goals and experience.
+    </p>
 
-        <div class="row g-4">
+    <a
+      href="{% url 'generate_workout_plan' %}"
+      class="btn btn-dark"
+      style="border-radius: 14px"
+    >
+      <i class="fa-solid fa-wand-magic-sparkles me-2"></i>
 
-            {% for plan in workout_plans %}
-
-                <div class="col-md-6 col-lg-4">
-
-                    <div class="card shadow-sm h-100">
-
-                        <div class="card-body">
-
-                            <h4 class="card-title">
-                                {{ plan.title }}
-                            </h4>
-
-                            <p class="text-muted small">
-                                Created:
-                                {{ plan.created_at|date:"M d, Y" }}
-                            </p>
-
-                            <hr>
-
-                            <p class="card-text">
-                                {{ plan.description|truncatewords:30 }}
-                            </p>
-
-                            <a href="{% url 'workout_plan_detail' plan.id %}"
-                               class="btn btn-outline-primary">
-                                View Plan
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            {% endfor %}
-
-        </div>
-
-    {% else %}
-
-        <div class="card shadow-sm text-center p-5">
-
-            <h3>No workout plans yet</h3>
-
-            <p class="text-muted">
-                Generate your first personalized AI workout plan.
-            </p>
-
-            <div>
-                <a href="{% url 'generate_workout_plan' %}"
-                   class="btn btn-primary">
-                    Generate Workout Plan
-                </a>
-            </div>
-
-        </div>
-
-    {% endif %}
-
+      Generate Workout Plan
+    </a>
+  </div>
 </div>
-{% endblock  %}
+
+{% endif %} 
+{% endblock %}

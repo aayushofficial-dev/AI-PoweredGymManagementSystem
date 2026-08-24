@@ -1,43 +1,112 @@
 {% extends 'base.html' %}
+{% block title %}Trainers{% endblock %}
 
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Trainers</h2>
-    <a href="{% url 'admin_trainer_add' %}" class="btn btn-primary">Add New Trainer</a>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h3 class="mb-0 fw-bold">
+            <i class="fa-solid fa-user-tie me-2 text-secondary"></i>Trainers
+        </h3>
+        <div class="text-muted small">Manage trainers, specializations and shift timings.</div>
+    </div>
+
+    <a href="{% url 'admin_trainer_add' %}" class="btn btn-dark" style="border-radius:14px;">
+        <i class="fa-solid fa-plus me-2"></i>Add Trainer
+    </a>
 </div>
 
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Mobile</th>
-            <th>Specialization</th>
-            <th>Shift_timing</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for trainer in trainers %}
-        <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ trainer.name }}</td>
-            <td>{{ trainer.mobile }}</td>
-            <td>{{ trainer.specialization }}</td>
-            <td>{{ trainer.shift_timing }}</td>
-            <td>
-                <a href="{% url 'admin_trainer_edit' trainer.id %}" class="btn btn-sm btn-warning">Edit</a>
-                <form method="post" action="{% url 'admin_trainer_delete' trainer.id %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this trainer?');">Delete</button>
-                </form>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="6" class="text-center">No trainers available.</td>
-        </tr>
-        {% endfor %}
-</table>
+<div class="card border-0 shadow-sm" style="border-radius:18px;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: rgba(15,23,42,.98); color:#fff;">
+                <tr>
+                    <th class="ps-3" style="width:60px;">#</th>
+                    <th style="min-width:210px;">Name</th>
+                    <th style="min-width:160px;">Mobile</th>
+                    <th style="min-width:220px;">Specialization</th>
+                    <th style="min-width:190px;">Shift Timing</th>
+                    <th class="text-end pe-3" style="width:190px;">Actions</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for t in trainers %}
+                    <tr>
+                        <td class="ps-3 fw-semibold">{{ forloop.counter }}</td>
+
+                        <td>
+                            <div class="fw-semibold">
+                                <i class="fa-solid fa-user me-1 text-secondary"></i>{{ t.name }}
+                            </div>
+                            <div class="small text-muted">
+                                <i class="fa-solid fa-id-badge me-1"></i>Trainer
+                            </div>
+                        </td>
+
+                        <td class="text-nowrap">
+                            {% if t.mobile %}
+                                <i class="fa-solid fa-phone me-1 text-secondary"></i>{{ t.mobile }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if t.specialization %}
+                                <span class="badge text-bg-light border">
+                                    <i class="fa-solid fa-bullseye me-1 text-secondary"></i>{{ t.specialization }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-nowrap">
+                            {% if t.shift_timing %}
+                                <span class="badge text-bg-info">
+                                    <i class="fa-regular fa-clock me-1"></i>{{ t.shift_timing }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-end pe-3">
+                            <a href="{% url 'admin_trainer_edit' t.id %}"
+                               class="btn btn-sm btn-outline-warning"
+                               style="border-radius:12px;">
+                                <i class="fa-solid fa-pen-to-square me-1"></i>Edit
+                            </a>
+
+                            <form method="post" action="{% url 'admin_trainer_delete' t.id %}"
+                                  class="d-inline-block">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger"
+                                        style="border-radius:12px;"
+                                        onclick="return confirm('Delete this trainer?');">
+                                    <i class="fa-solid fa-trash me-1"></i>Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fa-solid fa-user-tie fa-2x mb-2"></i>
+                                <div class="fw-semibold">No trainers found</div>
+                                <div class="small">Click “Add Trainer” to create your first trainer profile.</div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

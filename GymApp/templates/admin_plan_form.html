@@ -1,35 +1,106 @@
 {% extends 'base.html' %}
 
+{% block title %}
+    {% if mode == 'add' %}Add Plan{% else %}Edit Plan{% endif %}
+{% endblock %}
+
 {% block content %}
 
-<h2 class="mb-3">
-    {% if mode == 'add' %} Add Plan {% else %} Edit Plan {% endif %}
-</h2> 
-
-<form method="post" class="row g-3 w-75">
-    {% csrf_token %}
-    <div class="col-md-6">
-        <label for="name" class="form-label">Plan Name</label>
-        <input type="text" class="form-control" id="name" name="name" value="{{ plan.name|default:'' }}" required>
-    </div>
-    <div class="col-md-3">
-        <label for="duration_months" class="form-label">Duration (in months)</label>
-        <input type="number" class="form-control" id="duration" name="duration_months" value="{{ plan.duration_months|default:'' }}" required>
-    </div>
-    <div class="col-md-3">
-        <label for="fee" class="form-label">Fee</label>
-        <input type="number" sclass="form-control" id="fee" name="fee" value="{{ plan.fee|default:'' }}" required>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h3 class="mb-0 fw-bold">
+            {% if mode == 'add' %}
+                <i class="fa-solid fa-plus me-2 text-secondary"></i>Add Plan
+            {% else %}
+                <i class="fa-solid fa-pen-to-square me-2 text-secondary"></i>Edit Plan
+            {% endif %}
+        </h3>
+        <div class="text-muted small">Define membership duration, fee and plan features.</div>
     </div>
 
-    <div class="col-md-12">
-        <label for="description" class="form-label">Description</label>
-        <textarea class="form-control" id="description" name="description" rows="3">{{ plan.description|default:'' }}</textarea>
+    <a href="{% url 'admin_plans_list' %}" class="btn btn-outline-dark" style="border-radius:14px;">
+        <i class="fa-solid fa-arrow-left me-2"></i>Back to Plans
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius:18px;">
+    <div class="card-body p-4">
+
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Plan Name <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-crown text-secondary"></i>
+                    </span>
+                    <input type="text" name="name" class="form-control"
+                           placeholder="e.g. Gold / Premium / Student Plan"
+                           value="{{ plan.name|default:'' }}" required>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Duration (months) <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-regular fa-clock text-secondary"></i>
+                    </span>
+                    <input type="number" name="duration_months" class="form-control"
+                           min="1" step="1"
+                           placeholder="e.g. 1, 3, 6, 12"
+                           value="{{ plan.duration_months|default:'' }}" required>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Fee <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-indian-rupee-sign text-secondary"></i>
+                    </span>
+                    <input type="number" step="0.01" name="fee" class="form-control"
+                           min="0"
+                           placeholder="e.g. 999"
+                           value="{{ plan.fee|default:'' }}" required>
+                </div>
+                <div class="form-text">Enter total plan fee (in INR).</div>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label fw-semibold">Description / Features</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white align-items-start pt-2">
+                        <i class="fa-solid fa-list-check text-secondary"></i>
+                    </span>
+                    <textarea name="description" class="form-control" rows="4"
+                              placeholder="Example: Access to gym + cardio, diet guidance, trainer support...">{{ plan.description|default:'' }}</textarea>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-dark fw-bold" style="border-radius:14px;">
+                        {% if mode == 'add' %}
+                            <i class="fa-solid fa-floppy-disk me-2"></i>Save Plan
+                        {% else %}
+                            <i class="fa-solid fa-circle-check me-2"></i>Update Plan
+                        {% endif %}
+                    </button>
+
+                    <a href="{% url 'admin_plans_list' %}" class="btn btn-outline-secondary" style="border-radius:14px;">
+                        <i class="fa-solid fa-xmark me-2"></i>Cancel
+                    </a>
+                </div>
+
+                <div class="small text-muted mt-2">
+                    Fields marked with <span class="text-danger">*</span> are mandatory.
+                </div>
+            </div>
+        </form>
+
     </div>
-    <div class="col-md-12">
-        <button type="submit" class="btn btn-primary">
-            {% if mode == 'add' %} Add Plan {% else %} Update Plan {% endif %}
-        </button>
-        <a href="{% url 'admin_plans_list' %}" class="btn btn-secondary">Cancel</a>
-    </div>
-</form>
+</div>
+
 {% endblock %}

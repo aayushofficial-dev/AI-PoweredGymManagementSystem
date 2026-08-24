@@ -1,41 +1,115 @@
 {% extends 'base.html' %}
+{% block title %}Mark Attendance{% endblock %}
 
 {% block content %}
 
-<h2 class="mb-3">
-    Add Attendance
-</h2> 
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h3 class="mb-0 fw-bold">
+            <i class="fa-solid fa-calendar-check me-2 text-secondary"></i>Mark Attendance
+        </h3>
+        <div class="text-muted small">Record member check-in details for a specific date and time.</div>
+    </div>
 
-<form method="post" class="row g-3 w-75">
-    {% csrf_token %}
+    <a href="{% url 'admin_attendance_list' %}" class="btn btn-outline-dark" style="border-radius:14px;">
+        <i class="fa-solid fa-arrow-left me-2"></i>Back to Attendance
+    </a>
+</div>
 
-   <div class="col-md-6">
-    <label for="member_id" class="form-label">Members</label>
-   <select name="member_id" class="form-select" required>
-    <option value="">Select Member</option>
-    {% for member in members %}
-        <option value="{{ member.id }}">
-            {{ member.full_name }} ({{ member.user.username }})
-        </option>
-    {% endfor %}
-   </select>
-   </div>
+<div class="card border-0 shadow-sm" style="border-radius:18px;">
+    <div class="card-body p-4">
 
-   <div class="col-md-3">
-    <label for="date" class="form-label">Date</label>
-    <input type="date" class="form-control" id="date" name="date" required>
-   </div>
-   
-   <div class="col-md-3">
-    <label for="time_in" class="form-label">Time In</label>
-    <input type="time" name="time_in" class="form-control" required>
-   </div>
+        <form method="post" class="row g-3">
+            {% csrf_token %}
 
-   <div class="col-md-12">
-    <button type="submit" class="btn btn-primary">
-        Add Attendance
-    </button>
-    <a href="{% url 'admin_attendance_list' %}" class="btn btn-secondary">Cancel</a>
-   </div>
-</form>
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Member <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-user text-secondary"></i>
+                    </span>
+                    <select name="member_id" class="form-select" required>
+                        <option value="">Select Member</option>
+                        {% for m in members %}
+                            <option value="{{ m.id }}">{{ m.full_name }} ({{ m.user.username }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-text">Choose the member who is checking in.</div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Date</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-regular fa-calendar text-secondary"></i>
+                    </span>
+                    <input type="date" name="date" class="form-control" id="attDate">
+                    <button class="btn btn-outline-secondary" type="button" id="setToday" style="border-radius:12px;">
+                        <i class="fa-solid fa-bolt"></i>
+                    </button>
+                </div>
+                <div class="form-text">Leave empty if your backend sets today by default.</div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Time In</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-regular fa-clock text-secondary"></i>
+                    </span>
+                    <input type="time" name="time_in" class="form-control" id="attTime">
+                    <button class="btn btn-outline-secondary" type="button" id="setNow" style="border-radius:12px;">
+                        <i class="fa-solid fa-bolt"></i>
+                    </button>
+                </div>
+                <div class="form-text">Leave empty if your backend sets current time by default.</div>
+            </div>
+
+            <div class="col-12 mt-2">
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-dark fw-bold" style="border-radius:14px;">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Save Attendance
+                    </button>
+
+                    <a href="{% url 'admin_attendance_list' %}" class="btn btn-outline-secondary" style="border-radius:14px;">
+                        <i class="fa-solid fa-xmark me-2"></i>Cancel
+                    </a>
+                </div>
+
+                <div class="small text-muted mt-2">
+                    <span class="text-danger">*</span> Required field.
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<!-- Quick fill: Today / Now (optional client-side helper) -->
+<script>
+    (function () {
+        const dateEl = document.getElementById("attDate");
+        const timeEl = document.getElementById("attTime");
+        const btnToday = document.getElementById("setToday");
+        const btnNow = document.getElementById("setNow");
+
+        function pad(n){ return String(n).padStart(2,'0'); }
+
+        if (btnToday && dateEl) {
+            btnToday.addEventListener("click", function () {
+                const d = new Date();
+                dateEl.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+            });
+        }
+
+        if (btnNow && timeEl) {
+            btnNow.addEventListener("click", function () {
+                const d = new Date();
+                timeEl.value = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            });
+        }
+    })();
+</script>
+
 {% endblock %}
