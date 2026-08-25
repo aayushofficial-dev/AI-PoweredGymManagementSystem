@@ -1,229 +1,204 @@
-{% extends 'base.html' %}
-
-{% load static %}
-
-{% block title %}Login{% endblock %}
-
+{% extends 'base.html' %} 
+{% load static %} {% block title %}Login{% endblock %}
 {% block content %}
 
 <div class="row justify-content-center align-items-stretch g-0">
+  <!-- LEFT: Login Card -->
+  <div class="col-12 col-md-6 col-lg-5">
+    <div
+      class="card border-0 shadow-lg h-100"
+      style="border-radius: 18px 0 0 18px; overflow: hidden" >
 
-    <!-- LEFT: Login Card -->
-    <div class="col-12 col-md-6 col-lg-5">
+      <!-- Header -->
+      <div
+        class="card-header border-0 text-white"
+        style="
+          background: linear-gradient(
+            180deg,
+            rgba(15, 23, 42, 0.98),
+            rgba(15, 23, 42, 0.92)
+          );">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <span
+              class="d-inline-flex align-items-center justify-content-center"
+              style="
+                width: 38px;
+                height: 38px;
+                border-radius: 12px;
+                background: rgba(0, 209, 178, 0.18);
+                border: 1px solid rgba(0, 209, 178, 0.3);
+              "
+            >
+              <i class="fa-solid fa-right-to-bracket"></i>
+            </span>
 
-        <div class="card border-0 shadow-lg h-100"
-             style="border-radius:18px 0 0 18px; overflow:hidden;">
+            <div>
+              <div
+                class="fw-bold"
+                style="font-size: 1.05rem; letter-spacing: 0.2px"
+              >
+                Login
+              </div>
 
-            <!-- Header -->
-            <div class="card-header border-0 text-white"
-                 style="background: linear-gradient(180deg, rgba(15,23,42,.98), rgba(15,23,42,.92));">
-
-                <div class="d-flex align-items-center justify-content-between">
-
-                    <div class="d-flex align-items-center gap-2">
-
-                        <span class="d-inline-flex align-items-center justify-content-center"
-                              style="width:38px;height:38px;border-radius:12px;background:rgba(0,209,178,.18);border:1px solid rgba(0,209,178,.30);">
-
-                            <i class="fa-solid fa-right-to-bracket"></i>
-
-                        </span>
-
-                        <div>
-                            <div class="fw-bold"
-                                 style="font-size:1.05rem; letter-spacing:.2px;">
-                                Login
-                            </div>
-
-                            <div class="small" style="opacity:.85;">
-                                Sign in to access your account
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <a href="{% url 'home' %}"
-                       class="btn btn-sm btn-outline-light"
-                       style="border-radius:12px;">
-
-                        <i class="fa-solid fa-house me-1"></i>Home
-
-                    </a>
-
-                </div>
-
+              <div class="small" style="opacity: 0.85">
+                Sign in to access your account
+              </div>
             </div>
+          </div>
 
-            <!-- Body -->
-            <div class="card-body p-4">
-
-                <form method="post" novalidate>
-
-                    {% csrf_token %}
-
-                    <!-- Username -->
-                    <div class="mb-3">
-
-                        <label class="form-label fw-semibold">
-                            Username
-                        </label>
-
-                        <div class="input-group">
-
-                            <span class="input-group-text bg-white">
-                                <i class="fa-solid fa-user text-secondary"></i>
-                            </span>
-
-                            <input type="text"
-                                   name="username"
-                                   class="form-control"
-                                   placeholder="Enter your username"
-                                   required>
-
-                        </div>
-
-                    </div>
-
-                    <!-- Password -->
-                    <div class="mb-3">
-
-                        <label class="form-label fw-semibold">
-                            Password
-                        </label>
-
-                        <div class="input-group">
-
-                            <span class="input-group-text bg-white">
-                                <i class="fa-solid fa-lock text-secondary"></i>
-                            </span>
-
-                            <input type="password"
-                                   name="password"
-                                   class="form-control"
-                                   placeholder="Enter your password"
-                                   required>
-
-                            <button class="btn btn-outline-secondary"
-                                    type="button"
-                                    id="togglePass"
-                                    style="border-top-right-radius:12px;border-bottom-right-radius:12px;">
-
-                                <i class="fa-solid fa-eye"></i>
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                    <!-- Login Button -->
-                    <button type="submit"
-                            class="btn w-100 fw-bold"
-                            style="background:rgba(0,209,178,.18);
-                                   border:1px solid rgba(0,209,178,.35);
-                                   color:#0b3b33;
-                                   border-radius:14px;
-                                   padding:.7rem 1rem;">
-
-                        <i class="fa-solid fa-right-to-bracket me-2"></i>
-                        Login
-
-                    </button>
-
-                    <div class="text-center mt-3 small text-muted">
-
-                        <i class="fa-solid fa-shield-halved me-1"></i>
-
-                        Admin and Member login
-
-                    </div>
-
-                </form>
-
-            </div>
-
+          <a
+            href="{% url 'home' %}"
+            class="btn btn-sm btn-outline-light"
+            style="border-radius: 12px"
+          >
+            <i class="fa-solid fa-house me-1"></i>Home
+          </a>
         </div>
+      </div>
 
-    </div>
+      <!-- Body -->
+      <div class="card-body p-4">
+        <form method="post" novalidate>
+          {% csrf_token %}
 
+          <!-- Username -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold"> Username </label>
 
-    <!-- RIGHT: Image Panel -->
-    <div class="col-12 col-md-6 col-lg-5 d-none d-md-block">
+            <div class="input-group">
+              <span class="input-group-text bg-white">
+                <i class="fa-solid fa-user text-secondary"></i>
+              </span>
 
-        <div class="h-100 position-relative shadow-lg"
-             style="border-radius:0 18px 18px 0; overflow:hidden;">
-
-            <!-- Background image -->
-            <img src="{% static 'images/admin-login.png' %}"
-                 alt="Gym Login"
-                 class="w-100 h-100"
-                 style="object-fit:cover;">
-
-            <!-- Dark overlay -->
-            <div class="position-absolute top-0 start-0 w-100 h-100"
-                 style="background:linear-gradient(135deg,
-                        rgba(15,23,42,.78),
-                        rgba(15,23,42,.35));">
+              <input
+                type="text"
+                name="username"
+                class="form-control"
+                placeholder="Enter your username"
+                required
+              />
             </div>
+          </div>
 
-            <!-- Text overlay -->
-            <div class="position-absolute top-0 start-0 w-100 h-100 p-4
-                        d-flex flex-column justify-content-end text-white">
+          <!-- Password -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold"> Password </label>
 
-                <div class="fw-bold" style="font-size:1.25rem;">
+            <div class="input-group">
+              <span class="input-group-text bg-white">
+                <i class="fa-solid fa-lock text-secondary"></i>
+              </span>
 
-                    <i class="fa-solid fa-dumbbell me-2"></i>
-                    Mero.Gym
+              <input
+                type="password"
+                name="password"
+                class="form-control"
+                placeholder="Enter your password"
+                required
+              />
 
-                </div>
-
-                <div style="opacity:.9;">
-
-                    Login to manage your gym account,
-                    workouts, membership and more.
-
-                </div>
-
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                id="togglePass"
+                style="
+                  border-top-right-radius: 12px;
+                  border-bottom-right-radius: 12px;
+                "
+              >
+                <i class="fa-solid fa-eye"></i>
+              </button>
             </div>
+          </div>
 
-        </div>
+          <!-- Login Button -->
+          <button
+            type="submit"
+            class="btn w-100 fw-bold"
+            style="
+              background: rgba(0, 209, 178, 0.18);
+              border: 1px solid rgba(0, 209, 178, 0.35);
+              color: #0b3b33;
+              border-radius: 14px;
+              padding: 0.7rem 1rem;
+            "
+          >
+            <i class="fa-solid fa-right-to-bracket me-2"></i>
+            Login
+          </button>
 
+          <div class="text-center mt-3 small text-muted">
+            <i class="fa-solid fa-shield-halved me-1"></i>
+
+            Admin and Member login
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 
+  <!-- RIGHT: Image Panel -->
+  <!-- <div class="col-12 col-md-6 col-lg-5 d-none d-md-block">
+    <div
+      class="h-100 position-relative shadow-lg"
+      style="border-radius: 0 18px 18px 0; overflow: hidden"
+    >  -->
+      <!-- Background image -->
+      <!-- <img
+        src="{% static 'images/merogym.png' %}"
+        alt="Gym Login"
+        class="w-100 h-100"
+        style="object-fit: cover"
+      /> -->
+
+      <!-- Dark overlay -->
+      <!-- <div
+        class="position-absolute top-0 start-0 w-100 h-100"
+        style="
+          background: linear-gradient(
+            135deg,
+            rgba(15, 23, 42, 0.78),
+            rgba(15, 23, 42, 0.35)
+          );
+        "></div> -->
+
+      <!-- Text overlay -->
+      <!-- <div class="position-absolute top-0 start-0 w-100 h-100 p-4 d-flex flex-column justify-content-end text-white">
+        <div class="fw-bold" style="font-size: 1.25rem">
+          <i class="fa-solid fa-dumbbell me-2"></i>
+          Mero.Gym
+        </div> -->
+
+        <!-- <div style="opacity: 0.9">
+          Login to manage your gym account, workouts, membership and more.
+        </div> -->
+      <!-- </div> -->
+    <!-- </div> -->
+  </div>
 </div>
-
 
 <!-- Password show/hide -->
 <script>
+  (function () {
+    const btn = document.getElementById("togglePass");
 
-    (function () {
+    if (!btn) return;
 
-        const btn = document.getElementById("togglePass");
+    btn.addEventListener("click", function () {
+      const input = this.parentElement.querySelector('input[name="password"]');
 
-        if (!btn) return;
+      const icon = this.querySelector("i");
 
-        btn.addEventListener("click", function () {
+      if (!input) return;
 
-            const input = this.parentElement.querySelector(
-                'input[name="password"]'
-            );
+      const isHidden = input.type === "password";
 
-            const icon = this.querySelector("i");
+      input.type = isHidden ? "text" : "password";
 
-            if (!input) return;
-
-            const isHidden = input.type === "password";
-
-            input.type = isHidden ? "text" : "password";
-
-            icon.className = isHidden
-                ? "fa-solid fa-eye-slash"
-                : "fa-solid fa-eye";
-
-        });
-
-    })();
-
+      icon.className = isHidden ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+    });
+  })();
 </script>
 
 {% endblock %}

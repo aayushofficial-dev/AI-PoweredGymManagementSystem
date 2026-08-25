@@ -436,7 +436,22 @@ def admin_equipment_list(request):
 
     if search:
         equipments = equipments.filter(name__icontains=search)
-    return render(request, 'admin_equipment_list.html', {'equipments' : equipments, 'search':search})
+
+    
+    total_units = equipments.aggregate(
+        total=Sum('units')
+    )['total'] or 0
+
+    total_investment = equipments.aggregate(
+        total=Sum('price')
+    )['total'] or 0
+
+    return render(request, 'admin_equipment_list.html', {
+        'equipments' : equipments, 
+        'search':search,
+        'total_units':total_units,
+        'total_investment': total_investment
+    })
 
 @admin_required
 def admin_equipment_add(request):
@@ -605,11 +620,13 @@ def generate_workout_plan(request):
 
     if request.method != "POST":
         return JsonResponse({
+            "success": False,
             "error": "Only POST requests are allowed."
         }, status=405)
 
     try:
-        print("API KEY EXISTS:", bool(settings.OPENROUTER_API_KEY))
+
+        # Get data from frontend
         data = json.loads(request.body)
 
         goal = data.get("goal")
@@ -618,26 +635,32 @@ def generate_workout_plan(request):
         duration = data.get("duration")
         equipment = data.get("equipment")
 
+        # Validate input
         if not goal:
             return JsonResponse({
+                "success": False,
                 "error": "Please select your workout goal."
             }, status=400)
 
         if not experience:
             return JsonResponse({
+                "success": False,
                 "error": "Please select your experience level."
             }, status=400)
 
         if not days:
             return JsonResponse({
+                "success": False,
                 "error": "Please select workout days."
             }, status=400)
 
         if not duration:
             return JsonResponse({
+                "success": False,
                 "error": "Please select workout duration."
             }, status=400)
 
+    #  prompt
         prompt = f"""
 Create a simple and easy-to-follow workout plan.
 
@@ -648,34 +671,35 @@ User information:
 - Workout duration: {duration} minutes
 - Equipment: {equipment}
 
-Create exactly a {days}-day workout plan.
+Create exactly {days} workout days.
 
 For each day provide:
+- Muscle groups
+- Maximum 4 exercises
 
-Day name
-Muscle groups
-4 to 6 exercises only
-
-For every exercise show:
+For each exercise provide:
 - Exercise name
 - Sets
 - Reps
 - Rest
 
-Also include a short warm-up and cool-down.
+Also include:
+- Warm-up: one short sentence
+- Cool-down: one short sentence
 
 IMPORTANT:
 - Keep the answer short and simple.
 - Do not write long explanations.
-- Do not include an overview section.
-- Do not include unnecessary fitness theory.
-- Do not use "---".
-- Do not use Markdown headings such as ## or ###.
+- Do not include fitness theory.
+- Do not include an overview.
+- Do not use Markdown headings.
 - Do not use bold text.
-- Use simple plain text.
-- Make the plan easy for a gym member to read.
+- Do not use "---".
+- Use plain text.
+- Make it easy for a gym member to read.
+- Do not provide medical diagnosis or treatment.
 
-Example format:
+Example:
 
 DAY 1 - FULL BODY
 
@@ -683,19 +707,14 @@ Muscle Groups:
 Chest, Back, Legs
 
 1. Dumbbell Squat
-   Sets: 3
-   Reps: 10
-   Rest: 60 sec
+Sets: 3
+Reps: 10
+Rest: 60 sec
 
 2. Dumbbell Bench Press
-   Sets: 3
-   Reps: 10
-   Rest: 60 sec
-
-3. Dumbbell Row
-   Sets: 3
-   Reps: 10
-   Rest: 60 sec
+Sets: 3
+Reps: 10
+Rest: 60 sec
 
 WARM-UP:
 5 minutes light cardio and dynamic stretching.
@@ -703,55 +722,120 @@ WARM-UP:
 COOL-DOWN:
 5 minutes light stretching.
 
-Repeat the same simple format for all workout days.
-
-Do not provide medical diagnosis or treatment.
+Repeat the same format for all workout days.
 """
+        if not settings.OPENROUTER_API_KEY:
+            return JsonResponse({
+                "success": False,
+                "error": "AI service is not configured."
+            }, status=500)
 
         client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=settings.OPENROUTER_API_KEY,
         )
-
         response = client.chat.completions.create(
             model="openai/gpt-5.1",
+
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a helpful fitness workout planning assistant."
+                    "content": (
+                        "You are a concise fitness workout "
+                        "planning assistant."
+                    )
                 },
                 {
                     "role": "user",
                     "content": prompt
                 }
             ],
+
             temperature=0.7,
-            max_tokens=1200,
+            max_tokens=900,
+        )
+        workout_text = response.choices[0].message.content
+
+        if not workout_text:
+            return JsonResponse({
+                "success": False,
+                "error": "The AI returned an empty workout plan."
+            }, status=500)
+        
+        member = get_object_or_404(
+            MemberProfile,
+            user=request.user
         )
 
-        workout_text = response.choices[0].message.content
-        member = MemberProfile.objects.get(user=request.user)
-
-        WorkoutPlan.objects.create(
+        workout_plan = WorkoutPlan.objects.create(
             member=member,
             title=f"{goal} Workout Plan",
             description=workout_text
         )
+
         return JsonResponse({
             "success": True,
-            "workout": workout_text
+            "workout": workout_text,
+            "plan_id": workout_plan.id
         })
-
+    
     except Exception as e:
         print("====================================")
         print("AI ERROR:", repr(e))
         print("====================================")
 
+        error_message = str(e).lower()
+
+        # OpenRouter credit/token error
+        if (
+            "more credits" in error_message
+            or "insufficient" in error_message
+            or "max_tokens" in error_message
+            or "can only afford" in error_message
+        ):
+
+            return JsonResponse({
+                "success": False,
+                "error": (
+                    "The AI service currently has insufficient "
+                    "credits. Please try again later."
+                )
+            }, status=402)
+
+        # API key error
+        if (
+            "api key" in error_message
+            or "authentication" in error_message
+            or "unauthorized" in error_message
+        ):
+
+            return JsonResponse({
+                "success": False,
+                "error": "The AI service authentication failed."
+            }, status=401)
+
+        # Rate limit
+        if (
+            "rate limit" in error_message
+            or "too many requests" in error_message
+        ):
+
+            return JsonResponse({
+                "success": False,
+                "error": (
+                    "Too many requests. Please wait a moment "
+                    "and try again."
+                )
+            }, status=429)
+        # Other errors
         return JsonResponse({
             "success": False,
-            "error": str(e)
+            "error": (
+                "Unable to generate the workout plan right now. "
+                "Please try again."
+            )
         }, status=500)
-
+    
 @member_required
 def my_workout_plans(request):
 
@@ -1023,14 +1107,30 @@ def admin_feedbacks_list(request):
 @member_required
 def food_analyzer(request):
 
-    if request.method == "POST":
+    if request.method != "POST":
+        return render(request, "food_analyzer.html")
 
-        image = request.FILES.get("food_image")
+    # Get uploaded image
+    image = request.FILES.get("food_image")
 
-        if not image:
-            return render(request, "food_analyzer.html", {
-                "error": "Please upload a food image."
-            })
+    if not image:
+        return render(request, "food_analyzer.html", {
+            "error": "Please upload a food image."
+        })
+
+    # Optional: check file type
+    allowed_types = [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    ]
+
+    if image.content_type not in allowed_types:
+        return render(request, "food_analyzer.html", {
+            "error": "Please upload a JPG, PNG or WEBP image."
+        })
+
+    try:
 
         # Convert image to Base64
         image_data = base64.b64encode(
@@ -1043,34 +1143,36 @@ def food_analyzer(request):
         )
 
         prompt = """
-        Analyze the food in this image.
+Analyze the food in this image.
 
-        Give an ESTIMATED nutritional analysis.
+Give an ESTIMATED nutritional analysis.
 
-        Identify:
-        1. Food name
-        2. Estimated calories
-        3. Protein in grams
-        4. Carbohydrates in grams
-        5. Fat in grams
+Identify:
 
-        Return ONLY valid JSON in this format:
+1. Food name
+2. Estimated calories
+3. Protein in grams
+4. Carbohydrates in grams
+5. Fat in grams
 
-        {
-            "food_name": "food name",
-            "calories": 0,
-            "protein": 0,
-            "carbohydrates": 0,
-            "fat": 0
-        }
+Return ONLY valid JSON.
 
-        Do not include markdown.
-        """
+Use exactly this format:
 
+{
+    "food_name": "food name",
+    "calories": 0,
+    "protein": 0,
+    "carbohydrates": 0,
+    "fat": 0
+}
+
+Do not include markdown.
+Do not include explanations.
+"""
+
+        # Call AI
         response = client.chat.completions.create(
-
-            # Replace this with your OpenRouter
-            # vision-capable model
             model="google/gemini-2.5-flash",
 
             messages=[
@@ -1093,24 +1195,97 @@ def food_analyzer(request):
                     ]
                 }
             ],
-            max_tokens=1000
+
+            temperature=0.2,
+            max_tokens=500
         )
+
+        # Get AI response
         result = response.choices[0].message.content
 
-        try:
-            result = result.replace(
-                "```json", ""
-            ).replace(
-                "```", ""
-            ).strip()
+        if not result:
+            return render(request, "food_analyzer.html", {
+                "error": "The AI did not return any result. Please try again."
+            })
 
+        # Remove markdown if AI accidentally adds it
+        result = result.replace("```json", "")
+        result = result.replace("```", "")
+        result = result.strip()
+
+        # Convert AI response to Python dictionary
+        try:
             nutrition = json.loads(result)
 
         except json.JSONDecodeError:
+            print("INVALID AI RESPONSE:")
+            print(result)
 
             return render(request, "food_analyzer.html", {
-                "error": "AI returned an invalid result. Please try again."
+                "error": "The AI returned an invalid result. Please try again."
             })
 
-        return render(request, "food_result.html", { "nutrition": nutrition })
-    return render(request, "food_analyzer.html")
+        # Make sure required fields exist
+        required_fields = [
+            "food_name",
+            "calories",
+            "protein",
+            "carbohydrates",
+            "fat"
+        ]
+
+        for field in required_fields:
+
+            if field not in nutrition:
+
+                return render(request, "food_analyzer.html", {
+                    "error": "The AI returned incomplete nutrition information. Please try again."
+                })
+
+        # Everything successful
+        return render(
+            request,
+            "food_result.html",
+            {
+                "nutrition": nutrition
+            }
+        )
+
+    except Exception as e:
+        # Print actual error in terminal
+        print("FOOD AI ERROR:")
+        print(repr(e))
+        error_message = str(e).lower()
+
+        # OpenRouter credit/token error
+        if (
+            "more credits" in error_message
+            or "insufficient" in error_message
+            or "max_tokens" in error_message
+            or "402" in error_message
+        ):
+            return render(request, "food_analyzer.html", {
+                "error": (
+                    "The AI service does not have enough credits "
+                    "for this request. Please try again later."
+                )
+            })
+        # API / connection error
+        if (
+            "connection" in error_message
+            or "timeout" in error_message
+            or "rate limit" in error_message
+        ):
+            return render(request, "food_analyzer.html", {
+                "error": (
+                    "The AI service is temporarily unavailable. "
+                    "Please try again."
+                )
+            })
+        # General error
+        return render(request, "food_analyzer.html", {
+            "error": (
+                "Unable to analyze the food image. "
+                "Please try again."
+            )
+        })
