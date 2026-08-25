@@ -1,32 +1,84 @@
-{% extends 'base.html'  %}
-{% block content  %}
-<body class="bg-light">
+{% extends 'base.html' %}
+
+{% block title %}{{ workout_plan.title }}{% endblock %}
+
+{% block content %}
 
 <div class="container py-5">
 
+    <!-- Back button -->
     <a href="{% url 'my_workout_plans' %}"
-       class="btn btn-outline-secondary mb-4">
-        ← Back to My Workout Plans
+       class="btn btn-outline-secondary mb-4"
+       style="border-radius:12px;">
+
+        <i class="fa-solid fa-arrow-left me-1"></i>
+        Back to My Workout Plans
+
     </a>
 
 
-    <div class="card shadow-sm">
+    <div class="card shadow-sm border-0"
+         style="border-radius:18px;">
 
         <div class="card-body p-4">
 
-            <h1 class="fw-bold">
-                {{ workout_plan.title }}
-            </h1>
+            <!-- Header -->
+            <div class="d-flex flex-wrap justify-content-between
+                        align-items-start gap-3">
 
-            <p class="text-muted">
-                Created on
-                {{ workout_plan.created_at|date:"F d, Y - h:i A" }}
-            </p>
+                <div>
 
-            <hr>
+                    <h1 class="fw-bold mb-2">
+                        <i class="fa-solid fa-dumbbell me-2 text-secondary"></i>
+                        {{ workout_plan.title }}
+                    </h1>
+
+                    <p class="text-muted mb-0">
+
+                        <i class="fa-regular fa-calendar me-1"></i>
+
+                        Created on
+                        {{ workout_plan.created_at|date:"F d, Y - h:i A" }}
+
+                    </p>
+
+                </div>
 
 
-            <div style="white-space: pre-line;">
+                <!-- Action buttons -->
+                <div class="d-flex gap-2">
+
+                    <!-- Download -->
+                    <a href="{% url 'download_workout_plan_pdf' workout_plan.id %}"
+                       class="btn btn-dark"
+                       style="border-radius:12px;">
+
+                        <i class="fa-solid fa-file-pdf me-1"></i>
+                        Download PDF
+
+                    </a>
+
+
+                    <!-- Delete -->
+                    <a href="{% url 'delete_workout_plan' workout_plan.id %}"
+                       class="btn btn-outline-danger"
+                       style="border-radius:12px;">
+
+                        <i class="fa-solid fa-trash me-1"></i>
+                        Delete
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <hr class="my-4">
+
+
+            <!-- Workout description -->
+            <div style="white-space:pre-line;">
 
                 {{ workout_plan.description }}
 
@@ -37,4 +89,5 @@
     </div>
 
 </div>
+
 {% endblock %}

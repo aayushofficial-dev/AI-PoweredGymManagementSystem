@@ -4,7 +4,7 @@ from .views import *
 
 urlpatterns = [
     path('', home, name='home'), #include gymapp URLs
-    path('admin-login/', admin_login_view, name='admin_login'),
+    path('login/', login_view, name='login'),
     path('admin_dashboard/', admin_dashboard_view, name='admin_dashboard'),
     path('logout/', logout_view, name='logout'),
 
@@ -41,7 +41,6 @@ urlpatterns = [
     path('admin_payment_add/', admin_payment_add, name='admin_payment_add'),
 
     # Members
-    path('member-login/', member_login_view, name='member_login'),
     path('member_dashboard/', member_dashboard_view, name='member_dashboard'),
 
     path('member_attendance/', member_attendance, name='member_attendance'),
@@ -51,6 +50,9 @@ urlpatterns = [
     path("ai-workout/", generate_workout_plan, name="generate_workout_plan"),
     path('my_workout_plans/', my_workout_plans, name='my_workout_plans'),
     path("my-workout-plans/<int:plan_id>/", workout_plan_detail, name="workout_plan_detail"),
+    path('workout-plans/<int:plan_id>/download/', download_workout_plan_pdf, name='download_workout_plan_pdf'),
+
+path('workout-plans/<int:plan_id>/delete/', delete_workout_plan, name='delete_workout_plan'),
 
     path('member_membership/', member_membership, name='member_membership'),
     path('member_payments/', member_payments, name='member_payments'),

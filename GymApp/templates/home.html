@@ -1,220 +1,416 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block title %}Home - Gym Management{% endblock %}
-
-{% block content %}
+{% extends 'base.html' %} {% load static %} {% block title %}Home - Gym
+Management{% endblock %} {% block content %}
 
 <!-- HERO -->
-<div class="p-4 p-md-5 mb-4 text-white shadow-sm"
-     style="border-radius:22px; background: linear-gradient(135deg, #0ea5e9 0%, #7c3aed 55%, #ef4444 100%);">
-    <div class="row align-items-center g-4">
-        <div class="col-lg-7">
-            <div class="small opacity-75 mb-2">
-                <i class="fa-solid fa-dumbbell me-2"></i>Gym Management System
-            </div>
 
-            <h1 class="fw-bold mb-2">Welcome to Mero Gym</h1>
-
-            <p class="mb-3 opacity-75">
-                Simple and professional Gym Management System built using Django, Bootstrap and SQLite.
-                Manage members, plans, trainers, attendance, equipment, payments and more.
-            </p>
-
-            <div class="d-flex flex-wrap gap-2">
-                {% if user.is_authenticated %}
-                    {% if user.role == 'ADMIN' %}
-                        <a href="{% url 'admin_dashboard' %}" class="btn btn-light fw-semibold" style="border-radius:14px;">
-                            <i class="fa-solid fa-chart-line me-2"></i>Open Dashboard
-                        </a>
-                    {% else %}
-                        <a href="{% url 'member_dashboard' %}" class="btn btn-light fw-semibold" style="border-radius:14px;">
-                            <i class="fa-solid fa-gauge-high me-2"></i>Open Dashboard
-                        </a>
-                    {% endif %}
-                {% else %}
-                    <a href="{% url 'member_login' %}" class="btn btn-light fw-semibold" style="border-radius:14px;">
-                        <i class="fa-solid fa-right-to-bracket me-2"></i>Member Login
-                    </a>
-                    <a href="{% url 'admin_login' %}" class="btn btn-outline-light fw-semibold" style="border-radius:14px;">
-                        <i class="fa-solid fa-user-shield me-2"></i>Admin Login
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-        <div class="col-lg-5">
-            <div class="bg-white p-2 shadow-sm"
-                 style="border-radius:18px; border:1px solid rgba(255,255,255,.35);">
-                <img src="{% static 'images/images.png' %}"
-                     class="img-fluid"
-                     alt="Gym"
-                     style="border-radius:14px; width:100%; height:260px; object-fit:cover;">
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- FEATURES -->
-<div class="row g-3 mb-4">
-    <div class="col-12 col-md-6 col-xl-3">
-        <div class="card border-0 shadow-sm h-100" style="border-radius:18px;
-             background: linear-gradient(135deg, rgba(59,130,246,.12) 0%, rgba(6,182,212,.10) 100%);">
-            <div class="card-body d-flex gap-3">
-                <div class="d-inline-flex align-items-center justify-content-center"
-                     style="width:46px;height:46px;border-radius:16px;background:#fff;border:1px solid rgba(0,0,0,.06);">
-                    <i class="fa-solid fa-users text-secondary"></i>
-                </div>
-                <div>
-                    <div class="fw-bold">Member Management</div>
-                    <div class="small text-muted">Add, edit, search members easily.</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12 col-md-6 col-xl-3">
-        <div class="card border-0 shadow-sm h-100" style="border-radius:18px;
-             background: linear-gradient(135deg, rgba(34,197,94,.10) 0%, rgba(16,185,129,.10) 100%);">
-            <div class="card-body d-flex gap-3">
-                <div class="d-inline-flex align-items-center justify-content-center"
-                     style="width:46px;height:46px;border-radius:16px;background:#fff;border:1px solid rgba(0,0,0,.06);">
-                    <i class="fa-solid fa-calendar-check text-secondary"></i>
-                </div>
-                <div>
-                    <div class="fw-bold">Attendance Tracking</div>
-                    <div class="small text-muted">Daily check-in records.</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12 col-md-6 col-xl-3">
-        <div class="card border-0 shadow-sm h-100" style="border-radius:18px;
-             background: linear-gradient(135deg, rgba(245,158,11,.12) 0%, rgba(239,68,68,.10) 100%);">
-            <div class="card-body d-flex gap-3">
-                <div class="d-inline-flex align-items-center justify-content-center"
-                     style="width:46px;height:46px;border-radius:16px;background:#fff;border:1px solid rgba(0,0,0,.06);">
-                    <i class="fa-solid fa-credit-card text-secondary"></i>
-                </div>
-                <div>
-                    <div class="fw-bold">Payments & Plans</div>
-                    <div class="small text-muted">Paid/pending and packages.</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12 col-md-6 col-xl-3">
-        <div class="card border-0 shadow-sm h-100" style="border-radius:18px;
-             background: linear-gradient(135deg, rgba(168,85,247,.10) 0%, rgba(99,102,241,.10) 100%);">
-            <div class="card-body d-flex gap-3">
-                <div class="d-inline-flex align-items-center justify-content-center"
-                     style="width:46px;height:46px;border-radius:16px;background:#fff;border:1px solid rgba(0,0,0,.06);">
-                    <i class="fa-solid fa-screwdriver-wrench text-secondary"></i>
-                </div>
-                <div>
-                    <div class="fw-bold">Equipment</div>
-                    <div class="small text-muted">Inventory and purchase records.</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ENQUIRY + INFO -->
-<div class="row g-4 align-items-stretch">
+<div
+  class="p-4 p-md-5 mb-4 text-white shadow-sm"
+  style="
+    border-radius: 22px;
+    background: linear-gradient(135deg, #0ea5e9 0%, #7c3aed 55%, #ef4444 100%);
+  "
+>
+  <div class="row align-items-center g-4">
     <div class="col-lg-7">
-        <div class="card border-0 shadow-sm h-100" style="border-radius:18px;">
-            <div class="card-body p-4">
-                <h4 class="fw-bold mb-2">
-                    <i class="fa-solid fa-circle-info me-2 text-secondary"></i>Why this system?
-                </h4>
-                <p class="text-muted mb-0" style="line-height:1.7;">
-                    This project helps gym owners manage day-to-day operations efficiently.
-                    Admin can handle members, plans, trainers, equipment, attendance and payments,
-                    while members can view profile, membership, attendance, payments and assigned workout plans.
-                </p>
+      <div class="small opacity-75 mb-2">
+        <i class="fa-solid fa-dumbbell me-2"></i>
+        Gym Management System
+      </div>
 
-                <hr class="my-3">
+      <h1 class="fw-bold mb-2">Welcome to Mero Gym</h1>
 
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-4" style="background: rgba(15,23,42,.04); border:1px solid rgba(15,23,42,.06);">
-                            <div class="fw-bold"><i class="fa-solid fa-shield-halved me-2 text-secondary"></i>Secure Access</div>
-                            <div class="small text-muted">Role-based access for Admin and Member.</div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-4" style="background: rgba(15,23,42,.04); border:1px solid rgba(15,23,42,.06);">
-                            <div class="fw-bold"><i class="fa-solid fa-bolt me-2 text-secondary"></i>Fast & Simple</div>
-                            <div class="small text-muted">Clean UI built with Bootstrap.</div>
-                        </div>
-                    </div>
-                </div>
+      <p class="mb-3 opacity-75">
+        Simple and professional Gym Management System built using Django,
+        Bootstrap and SQLite. Manage members, plans, trainers, attendance,
+        equipment, payments and more.
+      </p>
 
-            </div>
-        </div>
+      <div class="d-flex flex-wrap gap-2">
+        {% if user.is_authenticated %} {% if user.role == 'ADMIN' %}
+
+        <!-- ADMIN DASHBOARD -->
+        <a
+          href="{% url 'admin_dashboard' %}"
+          class="btn btn-light fw-semibold"
+          style="border-radius: 14px"
+        >
+          <i class="fa-solid fa-chart-line me-2"></i>
+          Open Admin Dashboard
+        </a>
+
+        {% elif user.role == 'MEMBER' %}
+
+        <!-- MEMBER DASHBOARD -->
+        <a
+          href="{% url 'member_dashboard' %}"
+          class="btn btn-light fw-semibold"
+          style="border-radius: 14px"
+        >
+          <i class="fa-solid fa-gauge-high me-2"></i>
+          Open Member Dashboard
+        </a>
+
+        {% endif %} {% else %}
+
+        <!-- COMMON LOGIN -->
+        <a
+          href="{% url 'login' %}"
+          class="btn btn-light fw-semibold"
+          style="border-radius: 14px"
+        >
+          <i class="fa-solid fa-right-to-bracket me-2"></i>
+          Login
+        </a>
+
+        {% endif %}
+      </div>
     </div>
 
     <div class="col-lg-5">
-        <div class="card border-0 shadow-sm h-100" style="border-radius:18px; overflow:hidden;">
-            <div class="card-header text-white"
-                 style="background: rgba(15,23,42,.98);">
-                <div class="fw-bold">
-                    <i class="fa-solid fa-envelope-open-text me-2"></i>Contact / Enquiry
-                </div>
-                <div class="small opacity-75">We will respond as soon as possible.</div>
-            </div>
-
-            <div class="card-body p-4">
-                <form method="post" autocomplete="off">
-                    {% csrf_token %}
-
-                    <div class="mb-2">
-                        <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white"><i class="fa-solid fa-user text-secondary"></i></span>
-                            <input type="text" name="name" class="form-control" placeholder="Enter your name" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-2">
-                        <label class="form-label fw-semibold">Email</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white"><i class="fa-solid fa-envelope text-secondary"></i></span>
-                            <input type="email" name="email" class="form-control" placeholder="abcd@example.com">
-                        </div>
-                    </div>
-
-                    <div class="mb-2">
-                        <label class="form-label fw-semibold">Mobile</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white"><i class="fa-solid fa-phone text-secondary"></i></span>
-                            <input type="text" name="mobile" class="form-control" placeholder="e.g. 4322******">
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Message <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white align-items-start pt-2">
-                                <i class="fa-solid fa-message text-secondary"></i>
-                            </span>
-                            <textarea name="message" class="form-control" rows="3"
-                                      placeholder="Write your message..." required></textarea>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-dark w-100 fw-bold" style="border-radius:14px;">
-                        <i class="fa-solid fa-paper-plane me-2"></i>Submit Enquiry
-                    </button>
-
-                    <div class="small text-muted mt-2">
-                        By submitting, you agree that we may contact you for follow-up.
-                    </div>
-                </form>
-            </div>
-        </div>
+      <div
+        class="bg-white p-2 shadow-sm"
+        style="border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.35)"
+      >
+        <img
+          src="{% static 'images/images.png' %}"
+          class="img-fluid"
+          alt="Gym"
+          style="
+            border-radius: 14px;
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+          "
+        />
+      </div>
     </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+
+<div class="row g-3 mb-4">
+  <!-- Member Management -->
+  <div class="col-12 col-md-6 col-xl-3">
+    <div
+      class="card border-0 shadow-sm h-100"
+      style="
+        border-radius: 18px;
+        background: linear-gradient(
+          135deg,
+          rgba(59, 130, 246, 0.12) 0%,
+          rgba(6, 182, 212, 0.1) 100%
+        );
+      "
+    >
+      <div class="card-body d-flex gap-3">
+        <div
+          class="d-inline-flex align-items-center justify-content-center"
+          style="
+            width: 46px;
+            height: 46px;
+            border-radius: 16px;
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+          "
+        >
+          <i class="fa-solid fa-users text-secondary"></i>
+        </div>
+
+        <div>
+          <div class="fw-bold">Member Management</div>
+
+          <div class="small text-muted">Add, edit, search members easily.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attendance -->
+  <div class="col-12 col-md-6 col-xl-3">
+    <div
+      class="card border-0 shadow-sm h-100"
+      style="
+        border-radius: 18px;
+        background: linear-gradient(
+          135deg,
+          rgba(34, 197, 94, 0.1) 0%,
+          rgba(16, 185, 129, 0.1) 100%
+        );
+      "
+    >
+      <div class="card-body d-flex gap-3">
+        <div
+          class="d-inline-flex align-items-center justify-content-center"
+          style="
+            width: 46px;
+            height: 46px;
+            border-radius: 16px;
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+          "
+        >
+          <i class="fa-solid fa-calendar-check text-secondary"></i>
+        </div>
+
+        <div>
+          <div class="fw-bold">Attendance Tracking</div>
+
+          <div class="small text-muted">Daily check-in records.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payments -->
+  <div class="col-12 col-md-6 col-xl-3">
+    <div
+      class="card border-0 shadow-sm h-100"
+      style="
+        border-radius: 18px;
+        background: linear-gradient(
+          135deg,
+          rgba(245, 158, 11, 0.12) 0%,
+          rgba(239, 68, 68, 0.1) 100%
+        );
+      "
+    >
+      <div class="card-body d-flex gap-3">
+        <div
+          class="d-inline-flex align-items-center justify-content-center"
+          style="
+            width: 46px;
+            height: 46px;
+            border-radius: 16px;
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+          "
+        >
+          <i class="fa-solid fa-credit-card text-secondary"></i>
+        </div>
+
+        <div>
+          <div class="fw-bold">Payments & Plans</div>
+
+          <div class="small text-muted">Paid/pending and packages.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Equipment -->
+  <div class="col-12 col-md-6 col-xl-3">
+    <div
+      class="card border-0 shadow-sm h-100"
+      style="
+        border-radius: 18px;
+        background: linear-gradient(
+          135deg,
+          rgba(168, 85, 247, 0.1) 0%,
+          rgba(99, 102, 241, 0.1) 100%
+        );
+      "
+    >
+      <div class="card-body d-flex gap-3">
+        <div
+          class="d-inline-flex align-items-center justify-content-center"
+          style="
+            width: 46px;
+            height: 46px;
+            border-radius: 16px;
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+          "
+        >
+          <i class="fa-solid fa-screwdriver-wrench text-secondary"></i>
+        </div>
+
+        <div>
+          <div class="fw-bold">Equipment</div>
+
+          <div class="small text-muted">Inventory and purchase records.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ENQUIRY + INFO -->
+
+<div class="row g-4 align-items-stretch">
+  <!-- WHY THIS SYSTEM -->
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm h-100" style="border-radius: 18px">
+      <div class="card-body p-4">
+        <h4 class="fw-bold mb-2">
+          <i class="fa-solid fa-circle-info me-2 text-secondary"></i>
+          Why this system?
+        </h4>
+
+        <p class="text-muted mb-0" style="line-height: 1.7">
+          This project helps gym owners manage day-to-day operations
+          efficiently. Admin can handle members, plans, trainers, equipment,
+          attendance and payments, while members can view profile, membership,
+          attendance, payments and assigned workout plans.
+        </p>
+
+        <hr class="my-3" />
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div
+              class="p-3 rounded-4"
+              style="
+                background: rgba(15, 23, 42, 0.04);
+                border: 1px solid rgba(15, 23, 42, 0.06);
+              "
+            >
+              <div class="fw-bold">
+                <i class="fa-solid fa-shield-halved me-2 text-secondary"></i>
+                Secure Access
+              </div>
+
+              <div class="small text-muted">
+                Role-based access for Admin and Member.
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div
+              class="p-3 rounded-4"
+              style="
+                background: rgba(15, 23, 42, 0.04);
+                border: 1px solid rgba(15, 23, 42, 0.06);
+              "
+            >
+              <div class="fw-bold">
+                <i class="fa-solid fa-bolt me-2 text-secondary"></i>
+                Fast & Simple
+              </div>
+
+              <div class="small text-muted">Clean UI built with Bootstrap.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT / ENQUIRY -->
+  <div class="col-lg-5">
+    <div
+      class="card border-0 shadow-sm h-100"
+      style="border-radius: 18px; overflow: hidden"
+    >
+      <div
+        class="card-header text-white"
+        style="background: rgba(15, 23, 42, 0.98)"
+      >
+        <div class="fw-bold">
+          <i class="fa-solid fa-envelope-open-text me-2"></i>
+          Contact / Enquiry
+        </div>
+
+        <div class="small opacity-75">We will respond as soon as possible.</div>
+      </div>
+
+      <div class="card-body p-4">
+        <form method="post" autocomplete="off">
+          {% csrf_token %}
+
+          <div class="mb-2">
+            <label class="form-label fw-semibold">
+              Name
+              <span class="text-danger">*</span>
+            </label>
+
+            <div class="input-group">
+              <span class="input-group-text bg-white">
+                <i class="fa-solid fa-user text-secondary"></i>
+              </span>
+
+              <input
+                type="text"
+                name="name"
+                class="form-control"
+                placeholder="Enter your name"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label fw-semibold"> Email </label>
+
+            <div class="input-group">
+              <span class="input-group-text bg-white">
+                <i class="fa-solid fa-envelope text-secondary"></i>
+              </span>
+
+              <input
+                type="email"
+                name="email"
+                class="form-control"
+                placeholder="abcd@example.com"
+              />
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label fw-semibold"> Mobile </label>
+
+            <div class="input-group">
+              <span class="input-group-text bg-white">
+                <i class="fa-solid fa-phone text-secondary"></i>
+              </span>
+
+              <input
+                type="text"
+                name="mobile"
+                class="form-control"
+                placeholder="e.g. 4322******"
+              />
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              Message
+              <span class="text-danger">*</span>
+            </label>
+
+            <div class="input-group">
+              <span class="input-group-text bg-white align-items-start pt-2">
+                <i class="fa-solid fa-message text-secondary"></i>
+              </span>
+
+              <textarea
+                name="message"
+                class="form-control"
+                rows="3"
+                placeholder="Write your message..."
+                required
+              ></textarea>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-dark w-100 fw-bold"
+            style="border-radius: 14px"
+          >
+            <i class="fa-solid fa-paper-plane me-2"></i>
+            Submit Enquiry
+          </button>
+
+          <div class="small text-muted mt-2">
+            By submitting, you agree that we may contact you for follow-up.
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}

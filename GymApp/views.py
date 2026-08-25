@@ -10,6 +10,11 @@ from django.conf import settings
 from django.http import JsonResponse
 from openai import OpenAI
 import base64
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import inch
+from reportlab.pdfbase.pdfmetrics import stringWidth
+from django.http import HttpResponse
 
 # Create your views here.
 def home(request):
@@ -38,18 +43,18 @@ def home(request):
 
 from django.contrib.auth import authenticate, login, logout
 
-def admin_login_view(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None and getattr(user, 'role', None) == 'ADMIN':  # Check if the user is an admin/staff
-            login(request, user) # log the user in using Django's built-in login function
-            messages.success(request, 'Logged in successfully!.')
-            return redirect('admin_dashboard')  # Redirect to the admin dashboard
-        else:
-            messages.error(request, 'Invalid credentials or not an admin')
-    return render(request, 'admin_login.html')
+# def admin_login_view(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         user = authenticate(request, username=username, password=password)
+#         if user is not None and getattr(user, 'role', None) == 'ADMIN':  # Check if the user is an admin/staff
+#             login(request, user) # log the user in using Django's built-in login function
+#             messages.success(request, 'Logged in successfully!.')
+#             return redirect('admin_dashboard')  # Redirect to the admin dashboard
+#         else:
+#             messages.error(request, 'Invalid credentials or not an admin')
+#     return render(request, 'admin_login.html')
 
 def admin_required(view_func):
     '''
@@ -73,18 +78,48 @@ def member_required(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
-def member_login_view(request):
+# def member_login_view(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         user = authenticate(request, username=username, password=password)
+#         if user is not None and getattr(user, 'role', None) == 'MEMBER':  # Check if the user is a member
+#             login(request, user) # log the user in using Django's built-in login function
+#             messages.success(request, 'Logged in successfully!.')
+#             return redirect('member_dashboard')  # Redirect to the admin dashboard
+#         else:
+#             messages.error(request, 'Invalid credentials or not a member')
+#     return render(request, 'member_login.html')
+
+def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None and getattr(user, 'role', None) == 'MEMBER':  # Check if the user is a member
-            login(request, user) # log the user in using Django's built-in login function
-            messages.success(request, 'Logged in successfully!.')
-            return redirect('member_dashboard')  # Redirect to the admin dashboard
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if user is not None:
+            login(request, user)
+
+            if getattr(user, 'role', None) == 'ADMIN':
+                messages.success(request, 'Admin logged in successfully!')
+                return redirect('admin_dashboard')
+
+            elif getattr(user, 'role', None) == 'MEMBER':
+                messages.success(request, 'Member logged in successfully!')
+                return redirect('member_dashboard')
+
+            else:
+                logout(request)
+                messages.error(request, 'Invalid user role.')
         else:
-            messages.error(request, 'Invalid credentials or not a member')
-    return render(request, 'member_login.html')
+            messages.error(request, 'Invalid username or password.')
+
+    return render(request, 'login.html')
 
 @member_required
 def member_dashboard_view(request):
@@ -719,17 +754,32 @@ Do not provide medical diagnosis or treatment.
 
 @member_required
 def my_workout_plans(request):
-    member = MemberProfile.objects.get(user=request.user)
+
+    member = get_object_or_404(
+        MemberProfile,
+        user=request.user
+    )
+
     workout_plans = WorkoutPlan.objects.filter(
         member=member
     ).order_by('-created_at')
 
-    return render(request, 'my_workout_plans.html', {'workout_plans':workout_plans})
+    return render(
+        request,
+        'my_workout_plans.html',
+        {
+            'workout_plans': workout_plans
+        }
+    )
+
 
 @member_required
 def workout_plan_detail(request, plan_id):
 
-    member = MemberProfile.objects.get(user=request.user)
+    member = get_object_or_404(
+        MemberProfile,
+        user=request.user
+    )
 
     workout_plan = get_object_or_404(
         WorkoutPlan,
@@ -739,11 +789,133 @@ def workout_plan_detail(request, plan_id):
 
     return render(
         request,
-        "workout_plan_detail.html",
+        'workout_plan_detail.html',
         {
-            "workout_plan": workout_plan
+            'workout_plan': workout_plan
         }
     )
+@member_required
+def download_workout_plan_pdf(request, plan_id):
+    member = get_object_or_404(
+        MemberProfile,
+        user=request.user
+    )
+
+    workout_plan = get_object_or_404(
+        WorkoutPlan,
+        id=plan_id,
+        member=member
+    )
+
+    response = HttpResponse(
+        content_type='application/pdf'
+    )
+
+    response['Content-Disposition'] = (
+        f'attachment; filename="{workout_plan.title}.pdf"'
+    )
+
+    pdf = canvas.Canvas(response, pagesize=A4)
+
+    width, height = A4
+
+    # Title
+    pdf.setFont("Helvetica-Bold", 20)
+    pdf.drawString(
+        50,
+        height - 60,
+        workout_plan.title
+    )
+
+    # Created date
+    pdf.setFont("Helvetica", 10)
+    pdf.drawString(
+        50,
+        height - 85,
+        f"Created on: {workout_plan.created_at.strftime('%B %d, %Y')}"
+    )
+
+    # Line
+    pdf.line(
+        50,
+        height - 100,
+        width - 50,
+        height - 100
+    )
+
+    # Description
+    pdf.setFont("Helvetica", 11)
+
+    text = pdf.beginText(
+        50,
+        height - 130
+    )
+
+    text.setLeading(16)
+
+    # Split description into lines
+    for paragraph in workout_plan.description.split('\n'):
+
+        words = paragraph.split()
+        line = ""
+
+        for word in words:
+            test_line = line + " " + word
+            if stringWidth(
+                test_line,
+                "Helvetica",
+                11
+            ) < width - 100:
+
+                line = test_line.strip()
+            else:
+
+                text.textLine(line)
+                line = word
+
+        if line:
+            text.textLine(line)
+
+        text.textLine("")
+
+        # New page if necessary
+        if text.getY() < 50:
+
+            pdf.drawText(text)
+            pdf.showPage()
+
+            pdf.setFont("Helvetica", 11)
+
+            text = pdf.beginText(
+                50,
+                height - 50
+            )
+
+            text.setLeading(16)
+    pdf.drawText(text)
+    pdf.save()
+    return response
+
+@member_required
+def delete_workout_plan(request, plan_id):
+
+    member = get_object_or_404(
+        MemberProfile,
+        user=request.user
+    )
+
+    workout_plan = get_object_or_404(
+        WorkoutPlan,
+        id=plan_id,
+        member=member
+    )
+
+    if request.method == 'POST':
+        workout_plan.delete()
+        messages.success(request,'Workout plan deleted successfully.')
+        return redirect('my_workout_plans')
+    return render(request, 'delete_workout_plan.html',{'workout_plan': workout_plan})
+
 from django.db.models import Sum
 @member_required
 def member_membership(request):
@@ -830,7 +1002,7 @@ def member_change_password(request):
         request.user.set_password(new_password)
         request.user.save()
         messages.success(request, 'Password changed successfully! Please log in again.')
-        return redirect('member_login')
+        return redirect('login')
     return render(request, 'member_change_password.html')
 
 @admin_required
@@ -923,11 +1095,9 @@ def food_analyzer(request):
             ],
             max_tokens=1000
         )
-
         result = response.choices[0].message.content
 
         try:
-
             result = result.replace(
                 "```json", ""
             ).replace(
@@ -942,12 +1112,5 @@ def food_analyzer(request):
                 "error": "AI returned an invalid result. Please try again."
             })
 
-        return render(
-            request,
-            "food_result.html",
-            {
-                "nutrition": nutrition
-            }
-        )
-
+        return render(request, "food_result.html", { "nutrition": nutrition })
     return render(request, "food_analyzer.html")

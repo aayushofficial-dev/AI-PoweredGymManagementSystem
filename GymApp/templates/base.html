@@ -526,29 +526,13 @@
 
             {% else %}
 <!-- guest navbar -->
-            <!-- Admin Login -->
-
             <li class="nav-item">
               <a
                 class="nav-link btn-nav btn-nav-primary"
-                href="{% url 'admin_login' %}"
+                href="{% url 'login' %}"
               >
                 <i class="fa-solid fa-user-shield me-2"></i>
-
-                Admin Login
-              </a>
-            </li>
-
-            <!-- Member Login -->
-
-            <li class="nav-item">
-              <a
-                class="nav-link btn-nav btn-nav-primary"
-                href="{% url 'member_login' %}"
-              >
-                <i class="fa-solid fa-user me-2"></i>
-
-                Member Login
+                Login
               </a>
             </li>
 
