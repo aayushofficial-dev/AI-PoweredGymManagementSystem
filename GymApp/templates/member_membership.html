@@ -92,7 +92,7 @@
                             <div class="text-muted small">Remaining Amount</div>
                             <div class="fw-bold fs-5">
                                 {% if remaining is not None %}
-                                    <i class="fa-solid fa-indian-rupee-sign me-1 text-secondary"></i>{{ remaining }}
+                                    <i class="fa-solid fa-rupee-sign me-1 text-secondary"></i>{{ remaining }}
                                 {% else %}
                                     -
                                 {% endif %}
@@ -134,20 +134,20 @@
                         <tr>
                             <th class="ps-3">Plan Fee</th>
                             <td class="pe-3">
-                                <i class="fa-solid fa-indian-rupee-sign me-1 text-secondary"></i>{{ member.plan.fee }}
+                                <i class="fa-solid fa-rupee-sign me-1 text-secondary"></i>{{ member.plan.fee }}
                             </td>
                         </tr>
                         <tr>
                             <th class="ps-3">Total Paid</th>
                             <td class="pe-3">
-                                <i class="fa-solid fa-indian-rupee-sign me-1 text-secondary"></i>{{ total_paid }}
+                                <i class="fa-solid fa-rupee-sign me-1 text-secondary"></i>{{ total_paid }}
                             </td>
                         </tr>
                         <tr>
                             <th class="ps-3">Remaining Amount</th>
                             <td class="pe-3">
                                 {% if remaining is not None %}
-                                    <i class="fa-solid fa-indian-rupee-sign me-1 text-secondary"></i>{{ remaining }}
+                                    <i class="fa-solid fa-rupee-sign me-1 text-secondary"></i>{{ remaining }}
                                 {% else %}
                                     -
                                 {% endif %}

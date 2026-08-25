@@ -541,10 +541,33 @@ def admin_payments_list(request):
         payments = payments.filter(status=status)
 
     members = MemberProfile.objects.all().order_by('full_name')
+
+     # Calculate remaining amount for EACH payment
+    for payment in payments:
+        if payment.plan and payment.plan.fee:
+            # Total paid for this member and this plan
+            total_paid = (
+                Payment.objects
+                .filter(
+                    member=payment.member,
+                    plan=payment.plan,
+                    status='PAID'
+                )
+                .aggregate(total=Sum('amount'))['total'] or 0
+            )
+            remaining = float(payment.plan.fee) - float(total_paid)
+            # Don't show negative remaining
+            if remaining < 0:
+                remaining = 0
+            # Add temporary value to this payment object
+            payment.remaining = remaining
+        else:
+            payment.remaining = None
     return render(request, 'admin_payments_list.html', {'payments':payments, 
                                                         'members':members, 
-                                                        'selected_member_id': member_id, 
-                                                        'selected_status': status
+                                                        # 'selected_member_id': member_id, 
+                                                        'selected_status': status,
+                                                        'selected_member': int(member_id) if member_id else None,
                                                         })
 
 @admin_required
@@ -884,25 +907,17 @@ def download_workout_plan_pdf(request, plan_id):
         MemberProfile,
         user=request.user
     )
-
     workout_plan = get_object_or_404(
         WorkoutPlan,
         id=plan_id,
         member=member
     )
-
-    response = HttpResponse(
-        content_type='application/pdf'
-    )
-
-    response['Content-Disposition'] = (
-        f'attachment; filename="{workout_plan.title}.pdf"'
-    )
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = (f'attachment; filename="{workout_plan.title}.pdf"')
 
     pdf = canvas.Canvas(response, pagesize=A4)
 
     width, height = A4
-
     # Title
     pdf.setFont("Helvetica-Bold", 20)
     pdf.drawString(
@@ -910,7 +925,6 @@ def download_workout_plan_pdf(request, plan_id):
         height - 60,
         workout_plan.title
     )
-
     # Created date
     pdf.setFont("Helvetica", 10)
     pdf.drawString(
@@ -918,7 +932,6 @@ def download_workout_plan_pdf(request, plan_id):
         height - 85,
         f"Created on: {workout_plan.created_at.strftime('%B %d, %Y')}"
     )
-
     # Line
     pdf.line(
         50,
@@ -929,17 +942,13 @@ def download_workout_plan_pdf(request, plan_id):
 
     # Description
     pdf.setFont("Helvetica", 11)
-
     text = pdf.beginText(
         50,
         height - 130
     )
-
     text.setLeading(16)
-
     # Split description into lines
     for paragraph in workout_plan.description.split('\n'):
-
         words = paragraph.split()
         line = ""
 
@@ -1131,7 +1140,6 @@ def food_analyzer(request):
         })
 
     try:
-
         # Convert image to Base64
         image_data = base64.b64encode(
             image.read()
@@ -1174,7 +1182,6 @@ Do not include explanations.
         # Call AI
         response = client.chat.completions.create(
             model="google/gemini-2.5-flash",
-
             messages=[
                 {
                     "role": "user",
@@ -1199,15 +1206,12 @@ Do not include explanations.
             temperature=0.2,
             max_tokens=500
         )
-
         # Get AI response
         result = response.choices[0].message.content
-
         if not result:
             return render(request, "food_analyzer.html", {
                 "error": "The AI did not return any result. Please try again."
             })
-
         # Remove markdown if AI accidentally adds it
         result = result.replace("```json", "")
         result = result.replace("```", "")

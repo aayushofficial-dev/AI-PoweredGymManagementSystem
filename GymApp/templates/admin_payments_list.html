@@ -77,7 +77,9 @@
                     <th class="ps-3" style="width:60px;">#</th>
                     <th style="min-width:220px;">Member</th>
                     <th style="min-width:180px;">Plan</th>
-                    <th style="min-width:130px;">Amount</th>
+                    <th style="min-width:180px;">Total fee</th>
+                    <th style="min-width:130px;">Paid amt</th>
+                    <th style="min-width:180px;">Remaining</th>
                     <th style="min-width:140px;">Date</th>
                     <th style="min-width:130px;">Mode</th>
                     <th style="min-width:120px;">Status</th>
@@ -111,7 +113,29 @@
 
                         <td class="text-nowrap">
                             <span class="fw-bold">
+                                <i class="fa-solid fa-rupee-sign me-1 text-secondary"></i>                
+                                {% if p.plan %}
+                                    {{ p.plan.fee|floatformat:2 }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </span>
+                        </td>
+
+                        <td class="text-nowrap">
+                            <span class="fw-bold">
                                 <i class="fa-solid fa-rupee-sign me-1 text-secondary"></i>{{ p.amount }}
+                            </span>
+                        </td>
+
+                        <td class="text-nowrap">
+                            <span class="fw-bold">
+                                <i class="fa-solid fa-rupee-sign me-1 text-secondary"></i>
+                                      {% if p.remaining is not None %}
+                                             {{ p.remaining|floatformat:2 }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
                             </span>
                         </td>
 
@@ -160,7 +184,7 @@
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="8" class="text-center py-5">
+                        <td colspan="10" class="text-center py-5">
                             <div class="text-muted">
                                 <i class="fa-solid fa-receipt fa-2x mb-2"></i>
                                 <div class="fw-semibold">No payments found</div>
