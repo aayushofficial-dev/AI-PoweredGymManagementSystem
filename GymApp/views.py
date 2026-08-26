@@ -694,7 +694,9 @@ User information:
 - Workout duration: {duration} minutes
 - Equipment: {equipment}
 
-Create exactly {days} workout days.
+You MUST create exactly {days} workout days.
+Do not stop early.
+Do not create fewer than {days} days.
 
 For each day provide:
 - Muscle groups
@@ -749,8 +751,9 @@ Repeat the same format for all workout days.
             api_key=settings.OPENROUTER_API_KEY,
         )
         response = client.chat.completions.create(
-            model="openai/gpt-5.1",
-
+            # model="openai/gpt-5.1",
+            # model="openrouter/free",
+            model="google/gemma-4-31b-it:free",
             messages=[
                 {
                     "role": "system",
@@ -765,8 +768,8 @@ Repeat the same format for all workout days.
                 }
             ],
 
-            temperature=0.7,
-            max_tokens=600,
+            temperature=0.2,
+            max_tokens=500,
         )
         workout_text = response.choices[0].message.content
 
@@ -849,7 +852,7 @@ Repeat the same format for all workout days.
                 "Please try again."
             )
         }, status=500)
-    
+
 @member_required
 def my_workout_plans(request):
 
