@@ -34,8 +34,9 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
-    "ai-powered-gym-management-system-ochre.vercel.app",
+    "ai-powered-gym-management-system-nu.vercel.app",
 ]
+
 # Application definition
 
 INSTALLED_APPS = [
