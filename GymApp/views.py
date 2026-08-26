@@ -699,27 +699,18 @@ Create exactly {days} workout days.
 For each day provide:
 - Muscle groups
 - Maximum 4 exercises
-
-For each exercise provide:
-- Exercise name
-- Sets
-- Reps
-- Rest
+- Each exercise: name, sets, reps, rest
 
 Also include:
 - Warm-up: one short sentence
 - Cool-down: one short sentence
 
 IMPORTANT:
-- Keep the answer short and simple.
-- Do not write long explanations.
-- Do not include fitness theory.
-- Do not include an overview.
-- Do not use Markdown headings.
-- Do not use bold text.
-- Do not use "---".
+- Keep it short and easy to read.
+- No long explanations or fitness theory.
+- No overview.
+- No Markdown headings, bold text, or "---".
 - Use plain text.
-- Make it easy for a gym member to read.
 - Do not provide medical diagnosis or treatment.
 
 Example:
@@ -775,7 +766,7 @@ Repeat the same format for all workout days.
             ],
 
             temperature=0.7,
-            max_tokens=900,
+            max_tokens=600,
         )
         workout_text = response.choices[0].message.content
 
