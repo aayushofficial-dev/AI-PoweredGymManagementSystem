@@ -31,7 +31,9 @@ SECRET_KEY = 'django-insecure-m)ruac(wbdp_et-^31l*6$2-^-zlghutc=3bi4gl2+qb$-+dh!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+       "ai-powered-gym-management-system-ochre.vercel.app",
+]
 # Application definition
 
 INSTALLED_APPS = [
