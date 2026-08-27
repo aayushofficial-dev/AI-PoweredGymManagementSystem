@@ -1,0 +1,37 @@
+git clone "name of your project" - to clone the project in our system.
+
+Step 1: Required git command:
+    1. git status 
+    2. git pull (if changes are made by other teammate.)
+    3. git add . 
+    4. git commit -m "your changes"
+    5. git push (if changes are made by you)
+    6. git push -u origin main
+
+Step 2: Virtual environment activation
+    1. source venv/bin/activate (mac)
+    2. .venv\Scripts\activate.bat (windows)
+
+Step 3: To run our project
+    python3 manage.py runserver (mac)
+    python manage.py runserver (windows)
+
+Step 4: To go inside the django admin panel
+    http://127.0.0.1:8000/admin/
+
+Step 5. Required models for our project
+    1. User
+    2. MemberProfile
+    3. MembershipPlan
+    4. Trainer
+    5. Attendance
+    6. Equipment
+    7. Enquiry
+    8. Payment
+    9. WorkoutPlan
+    10. Feedback
+
+while running:
+Step-1: "ollama serve" - to start the ollama server
+Step-2: after that - python3 manage.py runserver
+
