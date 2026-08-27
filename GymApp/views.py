@@ -9,6 +9,7 @@ import json
 from django.conf import settings
 from django.http import JsonResponse
 from openai import OpenAI
+import ollama
 import base64
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
@@ -638,6 +639,221 @@ def member_attendance(request):
 def ai_workout_plan(request):
     return render(request, "ai_workout.html")
 
+# @member_required
+# def generate_workout_plan(request):
+
+#     if request.method != "POST":
+#         return JsonResponse({
+#             "success": False,
+#             "error": "Only POST requests are allowed."
+#         }, status=405)
+
+#     try:
+
+#         # Get data from frontend
+#         data = json.loads(request.body)
+
+#         goal = data.get("goal")
+#         experience = data.get("experience")
+#         days = data.get("days")
+#         duration = data.get("duration")
+#         equipment = data.get("equipment")
+
+#         # Validate input
+#         if not goal:
+#             return JsonResponse({
+#                 "success": False,
+#                 "error": "Please select your workout goal."
+#             }, status=400)
+
+#         if not experience:
+#             return JsonResponse({
+#                 "success": False,
+#                 "error": "Please select your experience level."
+#             }, status=400)
+
+#         if not days:
+#             return JsonResponse({
+#                 "success": False,
+#                 "error": "Please select workout days."
+#             }, status=400)
+
+#         if not duration:
+#             return JsonResponse({
+#                 "success": False,
+#                 "error": "Please select workout duration."
+#             }, status=400)
+
+#     #  prompt
+#         prompt = f"""
+# Create a simple and easy-to-follow workout plan.
+
+# User information:
+# - Goal: {goal}
+# - Experience: {experience}
+# - Workout days per week: {days}
+# - Workout duration: {duration} minutes
+# - Equipment: {equipment}
+
+# You MUST create exactly {days} workout days.
+# Do not stop early.
+# Do not create fewer than {days} days.
+
+# For each day provide:
+# - Muscle groups
+# - Maximum 4 exercises
+# - Each exercise: name, sets, reps, rest
+
+# Also include:
+# - Warm-up: one short sentence
+# - Cool-down: one short sentence
+
+# IMPORTANT:
+# - Keep it short and easy to read.
+# - No long explanations or fitness theory.
+# - No overview.
+# - No Markdown headings, bold text, or "---".
+# - Use plain text.
+# - Do not provide medical diagnosis or treatment.
+
+# Example:
+
+# DAY 1 - FULL BODY
+
+# Muscle Groups:
+# Chest, Back, Legs
+
+# 1. Dumbbell Squat
+# Sets: 3
+# Reps: 10
+# Rest: 60 sec
+
+# 2. Dumbbell Bench Press
+# Sets: 3
+# Reps: 10
+# Rest: 60 sec
+
+# WARM-UP:
+# 5 minutes light cardio and dynamic stretching.
+
+# COOL-DOWN:
+# 5 minutes light stretching.
+
+# Repeat the same format for all workout days.
+# """
+#         if not settings.OPENROUTER_API_KEY:
+#             return JsonResponse({
+#                 "success": False,
+#                 "error": "AI service is not configured."
+#             }, status=500)
+
+#         client = OpenAI(
+#             base_url="https://openrouter.ai/api/v1",
+#             api_key=settings.OPENROUTER_API_KEY,
+#         )
+#         response = client.chat.completions.create(
+#             model="openai/gpt-5.1",
+#             # model="openrouter/free",
+#             # model="google/gemma-4-31b-it:free",
+#             messages=[
+#                 {
+#                     "role": "system",
+#                     "content": (
+#                         "You are a concise fitness workout "
+#                         "planning assistant."
+#                     )
+#                 },
+#                 {
+#                     "role": "user",
+#                     "content": prompt
+#                 }
+#             ],
+
+#             temperature=0.2,
+#             max_tokens=255,
+#         )
+#         workout_text = response.choices[0].message.content
+
+#         if not workout_text:
+#             return JsonResponse({
+#                 "success": False,
+#                 "error": "The AI returned an empty workout plan."
+#             }, status=500)
+        
+#         member = get_object_or_404(
+#             MemberProfile,
+#             user=request.user
+#         )
+
+#         workout_plan = WorkoutPlan.objects.create(
+#             member=member,
+#             title=f"{goal} Workout Plan",
+#             description=workout_text
+#         )
+
+#         return JsonResponse({
+#             "success": True,
+#             "workout": workout_text,
+#             "plan_id": workout_plan.id
+#         })
+    
+#     except Exception as e:
+#         print("====================================")
+#         print("AI ERROR:", repr(e))
+#         print("====================================")
+
+#         error_message = str(e).lower()
+
+#         # OpenRouter credit/token error
+#         if (
+#             "more credits" in error_message
+#             or "insufficient" in error_message
+#             or "max_tokens" in error_message
+#             or "can only afford" in error_message
+#         ):
+
+#             return JsonResponse({
+#                 "success": False,
+#                 "error": (
+#                     "The AI service currently has insufficient "
+#                     "credits. Please try again later."
+#                 )
+#             }, status=402)
+
+#         # API key error
+#         if (
+#             "api key" in error_message
+#             or "authentication" in error_message
+#             or "unauthorized" in error_message
+#         ):
+
+#             return JsonResponse({
+#                 "success": False,
+#                 "error": "The AI service authentication failed."
+#             }, status=401)
+
+#         # Rate limit
+#         if (
+#             "rate limit" in error_message
+#             or "too many requests" in error_message
+#         ):
+
+#             return JsonResponse({
+#                 "success": False,
+#                 "error": (
+#                     "Too many requests. Please wait a moment "
+#                     "and try again."
+#                 )
+#             }, status=429)
+#         # Other errors
+#         return JsonResponse({
+#             "success": False,
+#             "error": (
+#                 "Unable to generate the workout plan right now. "
+#                 "Please try again."
+#             )
+#         }, status=500)
+
 @member_required
 def generate_workout_plan(request):
 
@@ -683,7 +899,10 @@ def generate_workout_plan(request):
                 "error": "Please select workout duration."
             }, status=400)
 
-    #  prompt
+        # Convert days to integer
+        days = int(days)
+
+        # Workout prompt
         prompt = f"""
 Create a simple and easy-to-follow workout plan.
 
@@ -695,6 +914,7 @@ User information:
 - Equipment: {equipment}
 
 You MUST create exactly {days} workout days.
+
 Do not stop early.
 Do not create fewer than {days} days.
 
@@ -720,40 +940,33 @@ Example:
 DAY 1 - FULL BODY
 
 Muscle Groups:
+
 Chest, Back, Legs
 
 1. Dumbbell Squat
+
 Sets: 3
 Reps: 10
 Rest: 60 sec
 
 2. Dumbbell Bench Press
+
 Sets: 3
 Reps: 10
 Rest: 60 sec
 
 WARM-UP:
+
 5 minutes light cardio and dynamic stretching.
 
 COOL-DOWN:
+
 5 minutes light stretching.
 
 Repeat the same format for all workout days.
 """
-        if not settings.OPENROUTER_API_KEY:
-            return JsonResponse({
-                "success": False,
-                "error": "AI service is not configured."
-            }, status=500)
-
-        client = OpenAI(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=settings.OPENROUTER_API_KEY,
-        )
-        response = client.chat.completions.create(
-            # model="openai/gpt-5.1",
-            # model="openrouter/free",
-            model="google/gemma-4-31b-it:free",
+        response = ollama.chat(
+            model="llama3.2",
             messages=[
                 {
                     "role": "system",
@@ -767,89 +980,48 @@ Repeat the same format for all workout days.
                     "content": prompt
                 }
             ],
-
-            temperature=0.2,
-            max_tokens=500,
+            options={
+                "temperature": 0.2
+            }
         )
-        workout_text = response.choices[0].message.content
 
+        workout_text = response["message"]["content"]
+
+        # Check AI response
         if not workout_text:
             return JsonResponse({
                 "success": False,
                 "error": "The AI returned an empty workout plan."
             }, status=500)
-        
+
+        # Get logged-in member
         member = get_object_or_404(
             MemberProfile,
             user=request.user
         )
 
+        # Save workout plan
         workout_plan = WorkoutPlan.objects.create(
             member=member,
             title=f"{goal} Workout Plan",
             description=workout_text
         )
 
+        # Return response to frontend
         return JsonResponse({
             "success": True,
             "workout": workout_text,
             "plan_id": workout_plan.id
         })
-    
+
     except Exception as e:
-        print("====================================")
-        print("AI ERROR:", repr(e))
-        print("====================================")
+        print("OLLAMA ERROR:", repr(e))
 
-        error_message = str(e).lower()
-
-        # OpenRouter credit/token error
-        if (
-            "more credits" in error_message
-            or "insufficient" in error_message
-            or "max_tokens" in error_message
-            or "can only afford" in error_message
-        ):
-
-            return JsonResponse({
-                "success": False,
-                "error": (
-                    "The AI service currently has insufficient "
-                    "credits. Please try again later."
-                )
-            }, status=402)
-
-        # API key error
-        if (
-            "api key" in error_message
-            or "authentication" in error_message
-            or "unauthorized" in error_message
-        ):
-
-            return JsonResponse({
-                "success": False,
-                "error": "The AI service authentication failed."
-            }, status=401)
-
-        # Rate limit
-        if (
-            "rate limit" in error_message
-            or "too many requests" in error_message
-        ):
-
-            return JsonResponse({
-                "success": False,
-                "error": (
-                    "Too many requests. Please wait a moment "
-                    "and try again."
-                )
-            }, status=429)
-        # Other errors
         return JsonResponse({
             "success": False,
             "error": (
                 "Unable to generate the workout plan right now. "
-                "Please try again."
+                "Please make sure Ollama is running."
             )
         }, status=500)
 
