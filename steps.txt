@@ -30,6 +30,7 @@ Step 5. Required models for our project
     8. Payment
     9. WorkoutPlan
     10. Feedback
+    11. FoodAnalysis
 
 while running:
 Step-1: "ollama serve" - to start the ollama server
