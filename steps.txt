@@ -1,4 +1,4 @@
-git clone "name of your project" - to clone the project in our system.
+git clone "your repo link" - to clone the project in our system.
 
 Step 1: Required git command:
     1. git status 
