@@ -1,145 +1,261 @@
-{% extends 'base.html' %}
-{% block title %}Members - Admin{% endblock %}
-
+{% extends 'base.html' %} {% block title %}Members - Admin{% endblock %} 
 {% block content %}
 
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <div>
-        <h3 class="mb-0 fw-bold">
-            <i class="fa-solid fa-users me-2 text-secondary"></i>Members
-        </h3>
-        <div class="text-muted small">Manage gym members, plans, and profiles.</div>
-    </div>
-
-    <a href="{% url 'admin_member_add' %}" class="btn btn-dark" style="border-radius:14px;">
-        <i class="fa-solid fa-user-plus me-2"></i>Add Member
-    </a>
+<div
+  class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"
+>
+  <div>
+    <h3 class="mb-0 fw-bold">
+      <i class="fa-solid fa-users me-2 text-secondary"></i>Members
+    </h3>
+    <div class="text-muted small">Manage gym members, plans, and profiles.</div>
+  </div>
+  <a
+    href="{% url 'admin_member_add' %}"
+    class="btn btn-dark"
+    style="border-radius: 14px"
+  >
+    <i class="fa-solid fa-user-plus me-2"></i>Add Member
+  </a>
 </div>
 
 <!-- Search -->
-<form method="get" class="row g-2 align-items-center mb-3">
-    <div class="col-12 col-md-6 col-lg-5">
-        <div class="input-group">
-            <span class="input-group-text bg-white">
-                <i class="fa-solid fa-magnifying-glass text-secondary"></i>
-            </span>
-            <input type="text" name="search" value="{{ search }}" class="form-control"
-                   placeholder="Search by name or username...">
-        </div>
-    </div>
-    <div class="col-12 col-md-3 col-lg-2">
-        <button class="btn btn-outline-secondary w-100" style="border-radius:14px;">
-            <i class="fa-solid fa-filter me-2"></i>Search
-        </button>
-    </div>
 
-    {% if search %}
-    <div class="col-12 col-md-3 col-lg-2">
-        <a href="{% url 'admin_members_list' %}" class="btn btn-outline-dark w-100" style="border-radius:14px;">
-            <i class="fa-solid fa-rotate-left me-2"></i>Reset
-        </a>
+<form method="get" class="row g-2 align-items-center mb-3">
+  <div class="col-12 col-md-6 col-lg-5">
+    <div class="input-group">
+      <span class="input-group-text bg-white">
+        <i class="fa-solid fa-magnifying-glass text-secondary"></i>
+      </span>
+
+      <input
+        type="text"
+        name="search"
+        value="{{ search }}"
+        class="form-control"
+        placeholder="Search by name or username..."
+      />
     </div>
-    {% endif %}
+  </div>
+
+  <div class="col-12 col-md-3 col-lg-2">
+    <button class="btn btn-outline-secondary w-100" style="border-radius: 14px">
+      <i class="fa-solid fa-filter me-2"></i>Search
+    </button>
+  </div>
+
+  {% if search %}
+  <div class="col-12 col-md-3 col-lg-2">
+    <a
+      href="{% url 'admin_members_list' %}"
+      class="btn btn-outline-dark w-100"
+      style="border-radius: 14px"
+    >
+      <i class="fa-solid fa-rotate-left me-2"></i>Reset
+    </a>
+  </div>
+  {% endif %} 
 </form>
 
 <!-- Table Card -->
-<div class="card border-0 shadow-sm" style="border-radius:18px;">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead style="background: rgba(15,23,42,.98); color: #fff;">
-                <tr>
-                    <th class="ps-3" style="width:60px;">#</th>
-                    <th>Full Name</th>
-                    <th>Username</th>
-                    <th>Mobile</th>
-                    <th>Plan</th>
-                    <th>Join Date</th>
-                    <th class="text-end pe-3" style="width:190px;">Actions</th>
-                </tr>
-                </thead>
 
-                <tbody>
-                {% for m in members %}
-                    <tr>
-                        <td class="ps-3 fw-semibold">{{ forloop.counter }}</td>
+<div class="card border-0 shadow-sm" style="border-radius: 18px">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead style="background: rgba(15, 23, 42, 0.98); color: #fff">
+          <tr>
+            <th class="ps-3" style="width: 60px">#</th>
 
-                        <td>
-                            <div class="fw-semibold">{{ m.full_name }}</div>
-                            <div class="small text-muted">
-                                <i class="fa-solid fa-id-badge me-1"></i>Member
-                            </div>
-                        </td>
+            <th>Full Name</th>
 
-                        <td>
-                            <span class="badge text-bg-light border">
-                                <i class="fa-solid fa-user me-1 text-secondary"></i>{{ m.user.username }}
-                            </span>
-                        </td>
+            <th>Username</th>
 
-                        <td>
-                            {% if m.mobile %}
-                                <span class="text-nowrap">
-                                    <i class="fa-solid fa-phone me-1 text-secondary"></i>{{ m.mobile }}
-                                </span>
-                            {% else %}
-                                <span class="text-muted">-</span>
-                            {% endif %}
-                        </td>
+            <th>Mobile</th>
 
-                        <td>
-                            {% if m.plan %}
-                                <span class="badge text-bg-success">
-                                    <i class="fa-solid fa-crown me-1"></i>{{ m.plan.name }}
-                                </span>
-                            {% else %}
-                                <span class="text-muted">-</span>
-                            {% endif %}
-                        </td>
+            <th>Plan</th>
 
-                        <td class="text-nowrap">
-                            {% if m.join_date %}
-                                <i class="fa-regular fa-calendar me-1 text-secondary"></i>
-                                {{ m.join_date|date:"d M Y" }}
-                            {% else %}
-                                <span class="text-muted">-</span>
-                            {% endif %}
-                        </td>
+            <th>Join Date</th>
 
-                        <td class="text-end pe-3">
-                            <a href="{% url 'admin_member_edit' m.id %}"
-                               class="btn btn-sm btn-outline-warning"
-                               style="border-radius:12px;">
-                                <i class="fa-solid fa-pen-to-square me-1"></i>Edit
-                            </a>
+            <th>Membership End</th>
 
-                            <form action="{% url 'admin_member_delete' m.id %}" method="post"
-                                  class="d-inline-block">
-                                {% csrf_token %}
-                                <button type="submit"
-                                        class="btn btn-sm btn-outline-danger"
-                                        style="border-radius:12px;"
-                                        onclick="return confirm('Delete this member?')">
-                                    <i class="fa-solid fa-trash me-1"></i>Delete
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="7" class="text-center py-5">
-                            <div class="text-muted">
-                                <i class="fa-solid fa-user-slash fa-2x mb-2"></i>
-                                <div class="fw-semibold">No members found</div>
-                                <div class="small">Try changing the search keyword.</div>
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
+            <th>Status</th>
+
+            <th class="text-end pe-3" style="width: 190px">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for m in members %}
+
+          <tr>
+            <!-- Number -->
+            <td class="ps-3 fw-semibold">{{ forloop.counter }}</td>
+
+            <!-- Full Name -->
+            <td>
+              <div class="fw-semibold">{{ m.full_name }}</div>
+
+              <div class="small text-muted">
+                <i class="fa-solid fa-id-badge me-1"></i>
+                Member
+              </div>
+            </td>
+
+            <!-- Username -->
+            <td>
+              <span class="badge text-bg-light border">
+                <i class="fa-solid fa-user me-1 text-secondary"></i>
+
+                {{ m.user.username }}
+              </span>
+            </td>
+
+            <!-- Mobile -->
+            <td>
+              {% if m.mobile %}
+
+              <span class="text-nowrap">
+                <i class="fa-solid fa-phone me-1 text-secondary"></i>
+
+                {{ m.mobile }}
+              </span>
+
+              {% else %}
+
+              <span class="text-muted">-</span>
+
+              {% endif %}
+            </td>
+
+            <!-- Plan -->
+            <td>
+              {% if m.plan %}
+
+              <span class="badge text-bg-success">
+                <i class="fa-solid fa-crown me-1"></i>
+
+                {{ m.plan.name }}
+              </span>
+
+              {% else %}
+
+              <span class="text-muted">-</span>
+
+              {% endif %}
+            </td>
+
+            <!-- Join Date -->
+            <td class="text-nowrap">
+              {% if m.join_date %}
+
+              <i class="fa-regular fa-calendar me-1 text-secondary"></i>
+
+              {{ m.join_date|date:"d M Y" }} {% else %}
+
+              <span class="text-muted">-</span>
+
+              {% endif %}
+            </td>
+
+            <!-- Membership End -->
+            <td class="text-nowrap">
+              {% if m.membership_end %}
+
+              <i class="fa-regular fa-calendar-xmark me-1 text-secondary"></i>
+
+              {{ m.membership_end|date:"d M Y" }} {% else %}
+
+              <span class="text-muted"> No Plan </span>
+
+              {% endif %}
+            </td>
+
+            <!-- Membership Status -->
+            <td>
+              {% if m.membership_end %} {% if m.membership_end < today %}
+
+              <span class="badge text-bg-danger">
+                <i class="fa-solid fa-circle-xmark me-1"></i>
+
+                Expired
+              </span>
+
+              {% elif m.is_membership_active %}
+
+              <span class="badge text-bg-success">
+                <i class="fa-solid fa-circle-check me-1"></i>
+
+                Active
+              </span>
+
+              {% else %}
+
+              <span class="badge text-bg-secondary">
+                <i class="fa-solid fa-circle-pause me-1"></i>
+
+                Inactive
+              </span>
+
+              {% endif %} {% else %}
+
+              <span class="badge text-bg-secondary"> No Plan </span>
+
+              {% endif %}
+            </td>
+
+            <!-- Actions -->
+            <td class="text-end pe-3">
+              <a
+                href="{% url 'admin_member_edit' m.id %}"
+                class="btn btn-sm btn-outline-warning"
+                style="border-radius: 12px"
+              >
+                <i class="fa-solid fa-pen-to-square me-1"></i>
+
+                Edit
+              </a>
+
+              <form
+                action="{% url 'admin_member_delete' m.id %}"
+                method="post"
+                class="d-inline-block"
+              >
+                {% csrf_token %}
+
+                <button
+                  type="submit"
+                  class="btn btn-sm btn-outline-danger"
+                  style="border-radius: 12px"
+                  onclick="return confirm('Delete this member?');"
+                >
+                  <i class="fa-solid fa-trash me-1"></i>
+
+                  Delete
+                </button>
+              </form>
+            </td>
+          </tr>
+
+          {% empty %}
+
+          <tr>
+            <td colspan="9" class="text-center py-5">
+              <div class="text-muted">
+                <i class="fa-solid fa-user-slash fa-2x mb-2"></i>
+
+                <div class="fw-semibold">No members found</div>
+
+                <div class="small">Try changing the search keyword.</div>
+              </div>
+            </td>
+          </tr>
+
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+  </div>
 </div>
 
 {% endblock %}

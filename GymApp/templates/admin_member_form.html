@@ -525,37 +525,139 @@
 
             </div>
 
+            <!-- MEMBERSHIP STATUS -->
 
+<div class="mt-4">
+
+    <div class="p-3 p-md-4 rounded-4 border"
+         style="background: rgba(0, 209, 178, 0.08);
+                border-color: rgba(0, 209, 178, 0.22) !important;">
+
+        <div class="d-flex align-items-start justify-content-between flex-wrap gap-2">
+
+            <div>
+
+                <div class="fw-bold">
+
+                    <i class="fa-solid fa-toggle-on me-2 text-success"></i>
+
+                    Membership Status
+
+                </div>
+
+                <div class="small text-muted">
+
+                    Turn membership ON or OFF for this member.
+
+                </div>
+
+            </div>
+
+            {% if mode == 'edit' and member.membership_end %}
+
+            <span class="badge text-bg-light border">
+
+                <i class="fa-regular fa-calendar me-1 text-secondary"></i>
+
+                Ends:
+                {{ member.membership_end|date:"d M Y" }}
+
+            </span>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="form-check form-switch mt-3">
+
+            <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                name="membership_active"
+                id="membershipActive"
+
+                {% if mode == 'edit' %}
+
+                    {% if member.is_membership_active %}
+                        checked
+                    {% endif %}
+
+                {% else %}
+
+                    checked
+
+                {% endif %}
+            >
+
+            <label
+                class="form-check-label fw-semibold"
+                for="membershipActive">
+
+                Membership Active
+
+            </label>
+
+        </div>
+
+
+        <div class="small text-muted mt-2">
+
+            <i class="fa-solid fa-circle-info me-1"></i>
+
+            If this is turned OFF, the member will not be able to log in.
+
+        </div>
+
+    </div>
+
+</div>
             <!-- BUTTONS -->
 
             <div class="mt-4 pt-3 border-top">
 
                 {% if mode == 'edit' %}
+    <button
+        type="submit"
+        name="send_whatsapp"
+        value="1"
+        class="btn btn-success"
+        style="border-radius:12px;"
+    >
+        <i class="fa-brands fa-whatsapp me-2"></i>
+        Save & Send WhatsApp
+    </button>
 
-                    <button
-                        type="submit"
-                        class="btn btn-dark"
-                        style="border-radius:12px;">
+    <button
+        type="submit"
+        class="btn btn-dark"
+        style="border-radius:12px;"
+    >
+        <i class="fa-solid fa-check me-2"></i>
+        Update Member
+    </button>
+{% else %}
+    <button
+        type="submit"
+        name="send_whatsapp"
+        value="1"
+        class="btn btn-success"
+        style="border-radius:12px;"
+    >
+        <i class="fa-brands fa-whatsapp me-2"></i>
+        Create & Send WhatsApp
+    </button>
 
-                        <i class="fa-solid fa-check me-2"></i>
-                        Update Member
-
-                    </button>
-
-                {% else %}
-
-                    <button
-                        type="submit"
-                        class="btn btn-dark"
-                        style="border-radius:12px;">
-
-                        <i class="fa-solid fa-user-plus me-2"></i>
-                        Create Member
-
-                    </button>
-
-                {% endif %}
-
+    <button
+        type="submit"
+        class="btn btn-dark"
+        style="border-radius:12px;"
+    >
+        <i class="fa-solid fa-user-plus me-2"></i>
+        Create Member
+    </button>
+{% endif %}
 
                 <a
                     href="{% url 'admin_members_list' %}"
