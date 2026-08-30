@@ -61,6 +61,7 @@ urlpatterns = [
 
     path('member_feedback/', member_feedback, name='member_feedback'),
     path('admin_feedbacks_list/', admin_feedbacks_list, name='admin_feedbacks_list'),
+    path('admin_feedback_delete/<int:feedback_id>/', admin_feedback_delete, name='admin_feedback_delete'),
 
     path("food-analyzer/", food_analyzer, name="food_analyzer"),
 

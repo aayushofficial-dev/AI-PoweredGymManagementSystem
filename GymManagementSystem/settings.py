@@ -33,7 +33,7 @@ SECRET_KEY = 'django-insecure-m)ruac(wbdp_et-^31l*6$2-^-zlghutc=3bi4gl2+qb$-+dh!
 DEBUG = True
 # DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 # "ai-powered-gym-management-system-nu.vercel.app",
 
 # Application definition

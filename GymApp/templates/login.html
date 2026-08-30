@@ -1,5 +1,4 @@
-{% extends 'base.html' %} 
-{% load static %} {% block title %}Login{% endblock %}
+{% extends 'base.html' %} {% load static %} {% block title %}Login{% endblock %}
 {% block content %}
 
 <div class="row justify-content-center align-items-stretch g-0">
@@ -7,8 +6,8 @@
   <div class="col-12 col-md-6 col-lg-5">
     <div
       class="card border-0 shadow-lg h-100"
-      style="border-radius: 18px 0 0 18px; overflow: hidden" >
-
+      style="border-radius: 18px 0 0 18px; overflow: hidden"
+    >
       <!-- Header -->
       <div
         class="card-header border-0 text-white"
@@ -17,7 +16,9 @@
             180deg,
             rgba(15, 23, 42, 0.98),
             rgba(15, 23, 42, 0.92)
-          );">
+          );
+        "
+      >
         <div class="d-flex align-items-center justify-content-between">
           <div class="d-flex align-items-center gap-2">
             <span
@@ -52,13 +53,53 @@
             class="btn btn-sm btn-outline-light"
             style="border-radius: 12px"
           >
-            <i class="fa-solid fa-house me-1"></i>Home
+            <i class="fa-solid fa-house me-1"></i>
+            Home
           </a>
         </div>
       </div>
 
       <!-- Body -->
       <div class="card-body p-4">
+        <!-- ============================== -->
+        <!-- Django Messages -->
+        <!-- ============================== -->
+
+        {% if messages %} {% for message in messages %}
+
+        <div
+          class="alert {% if message.tags == 'error' %} alert-danger {% elif message.tags == 'success' %} alert-success {% elif message.tags == 'warning' %} alert-warning {% else %} alert-info {% endif %} alert-dismissible fade show mb-3"
+          role="alert"
+        >
+          {% if message.tags == 'error' %}
+
+          <i class="fa-solid fa-circle-exclamation me-2"></i>
+
+          {% elif message.tags == 'success' %}
+
+          <i class="fa-solid fa-circle-check me-2"></i>
+
+          {% elif message.tags == 'warning' %}
+
+          <i class="fa-solid fa-triangle-exclamation me-2"></i>
+
+          {% else %}
+
+          <i class="fa-solid fa-circle-info me-2"></i>
+
+          {% endif %} {{ message }}
+
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Close"
+          ></button>
+        </div>
+
+        {% endfor %} {% endif %}
+
+        <!-- Login Form -->
         <form method="post" novalidate>
           {% csrf_token %}
 
@@ -139,43 +180,55 @@
   </div>
 
   <!-- RIGHT: Image Panel -->
-  <!-- <div class="col-12 col-md-6 col-lg-5 d-none d-md-block">
-    <div
-      class="h-100 position-relative shadow-lg"
-      style="border-radius: 0 18px 18px 0; overflow: hidden"
-    >  -->
-      <!-- Background image -->
-      <!-- <img
-        src="{% static 'images/merogym.png' %}"
-        alt="Gym Login"
-        class="w-100 h-100"
-        style="object-fit: cover"
-      /> -->
+  <!--
+    <div class="col-12 col-md-6 col-lg-5 d-none d-md-block">
 
-      <!-- Dark overlay -->
-      <!-- <div
-        class="position-absolute top-0 start-0 w-100 h-100"
-        style="
-          background: linear-gradient(
-            135deg,
-            rgba(15, 23, 42, 0.78),
-            rgba(15, 23, 42, 0.35)
-          );
-        "></div> -->
+        <div
+            class="h-100 position-relative shadow-lg"
+            style="border-radius: 0 18px 18px 0; overflow: hidden"
+        >
 
-      <!-- Text overlay -->
-      <!-- <div class="position-absolute top-0 start-0 w-100 h-100 p-4 d-flex flex-column justify-content-end text-white">
-        <div class="fw-bold" style="font-size: 1.25rem">
-          <i class="fa-solid fa-dumbbell me-2"></i>
-          Mero.Gym
-        </div> -->
+            <img
+                src="{% static 'images/merogym.png' %}"
+                alt="Gym Login"
+                class="w-100 h-100"
+                style="object-fit: cover"
+            />
 
-        <!-- <div style="opacity: 0.9">
-          Login to manage your gym account, workouts, membership and more.
-        </div> -->
-      <!-- </div> -->
-    <!-- </div> -->
-  </div>
+            <div
+                class="position-absolute top-0 start-0 w-100 h-100"
+                style="
+                    background: linear-gradient(
+                        135deg,
+                        rgba(15, 23, 42, 0.78),
+                        rgba(15, 23, 42, 0.35)
+                    );
+                "
+            ></div>
+
+            <div
+                class="position-absolute top-0 start-0 w-100 h-100 p-4 d-flex flex-column justify-content-end text-white"
+            >
+
+                <div
+                    class="fw-bold"
+                    style="font-size: 1.25rem"
+                >
+                    <i class="fa-solid fa-dumbbell me-2"></i>
+                    Mero.Gym
+                </div>
+
+                <div style="opacity: 0.9">
+                    Login to manage your gym account,
+                    workouts, membership and more.
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    -->
 </div>
 
 <!-- Password show/hide -->

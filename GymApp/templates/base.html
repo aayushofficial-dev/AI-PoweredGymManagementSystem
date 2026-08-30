@@ -4,7 +4,6 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>{% block title %}Gym Management System{% endblock %}</title>
@@ -29,8 +28,18 @@
         --muted: #6b7280;
       }
 
-      body {
+      /* ==============================
+           REMOVE DEFAULT PAGE SPACING
+        ============================== */
+
+      html {
         margin: 0;
+        padding: 0;
+      }
+
+      body {
+        margin: 0 !important;
+        padding: 0 !important;
 
         background:
           radial-gradient(
@@ -48,8 +57,19 @@
         color: #111827;
       }
 
+      /* ==============================
+           NAVBAR
+        ============================== */
+
       .navbar {
         min-height: 72px;
+
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+
+        margin: 0 !important;
 
         background: linear-gradient(
           180deg,
@@ -58,37 +78,40 @@
         ) !important;
 
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+
+        z-index: 1030;
       }
+
+      body > nav:first-child {
+        margin-top: 0 !important;
+      }
+
+      /* ==============================
+           NAVBAR BRAND
+        ============================== */
 
       .navbar-brand {
         font-weight: 800;
-
         letter-spacing: 0.3px;
-
         white-space: nowrap;
       }
 
-      /* Navbar links */
+      /* ==============================
+           NAVBAR LINKS
+        ============================== */
 
       .navbar-nav {
         display: flex;
-
         align-items: center;
-
         gap: 4px;
       }
 
       .nav-link {
         font-weight: 600;
-
         opacity: 0.92;
-
         border-radius: 10px;
-
         padding: 0.55rem 0.65rem !important;
-
         margin: 0 !important;
-
         white-space: nowrap;
 
         transition:
@@ -99,55 +122,49 @@
       .nav-link:hover,
       .nav-link:focus {
         background: rgba(255, 255, 255, 0.08);
-
         opacity: 1;
       }
 
-      /* Navbar buttons */
+      /* ==============================
+           NAVBAR BUTTONS
+        ============================== */
 
       .btn-nav {
         border-radius: 12px;
-
         padding: 0.55rem 0.8rem !important;
-
         font-weight: 700;
       }
 
       .btn-nav-primary {
         background: rgba(0, 209, 178, 0.16);
-
         color: #e6fffb !important;
-
         border: 1px solid rgba(0, 209, 178, 0.3);
       }
 
       .btn-nav-primary:hover {
         background: rgba(0, 209, 178, 0.22);
-
         border-color: rgba(0, 209, 178, 0.45);
       }
 
       .btn-nav-danger {
         background: rgba(239, 68, 68, 0.14);
-
         color: #ffecec !important;
-
         border: 1px solid rgba(239, 68, 68, 0.28);
       }
 
       .btn-nav-danger:hover {
         background: rgba(239, 68, 68, 0.2);
-
         border-color: rgba(239, 68, 68, 0.4);
       }
-      
+
+      /* ==============================
+           DROPDOWN
+        ============================== */
+
       .dropdown-menu {
         border: 0;
-
         border-radius: 12px;
-
         padding: 8px;
-
         background: #0f172a;
 
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
@@ -155,54 +172,62 @@
 
       .dropdown-item {
         color: #e5e7eb;
-
         border-radius: 8px;
-
         padding: 0.65rem 0.8rem;
-
         font-weight: 600;
       }
 
       .dropdown-item:hover,
       .dropdown-item:focus {
         color: #ffffff;
-
         background: rgba(255, 255, 255, 0.08);
       }
 
       .dropdown-item i {
         width: 22px;
-
         text-align: center;
       }
 
+      /* ==============================
+           MAIN CONTENT
+        ============================== */
+
+      /*
+           Navbar is fixed, so content needs
+           space at the TOP.
+
+           This does NOT create a gap above
+           the navbar. It creates space BELOW it.
+        */
+
       .container-wrapper {
         width: 100%;
-
         padding-top: 105px;
-
         padding-bottom: 40px;
       }
 
       .page-shell {
         background: transparent;
-
         border: 0;
-
         border-radius: 0;
-
         padding: 0;
-
         box-shadow: none;
       }
 
+      /* ==============================
+           DJANGO MESSAGES
+        ============================== */
+
       .alert {
         border: 0;
-
         border-radius: 14px;
 
         box-shadow: 0 10px 25px rgba(17, 24, 39, 0.06);
       }
+
+      /* ==============================
+           LARGE SCREENS
+        ============================== */
 
       @media (min-width: 992px) {
         .navbar-nav {
@@ -214,6 +239,10 @@
         }
       }
 
+      /* ==============================
+           TABLET / MOBILE
+        ============================== */
+
       @media (max-width: 991.98px) {
         .navbar {
           min-height: 68px;
@@ -221,31 +250,24 @@
 
         .navbar-collapse {
           margin-top: 10px;
-
           padding-bottom: 10px;
         }
 
         .navbar-nav {
           align-items: stretch !important;
-
           gap: 2px;
-
           padding-top: 10px;
-
           padding-bottom: 10px;
         }
 
         .nav-link {
           margin: 0 !important;
-
           padding: 0.65rem 0.75rem !important;
         }
 
         .dropdown-menu {
           margin-left: 10px;
-
           margin-right: 10px;
-
           background: rgba(15, 23, 42, 0.98);
         }
 
@@ -254,12 +276,14 @@
         }
       }
 
+      /* ==============================
+           SMALL MOBILE
+        ============================== */
+
       @media (max-width: 575.98px) {
         .container-wrapper {
           padding-top: 82px;
-
           padding-left: 8px;
-
           padding-right: 8px;
         }
 
@@ -273,7 +297,10 @@
   <body
     class="{% if user.is_authenticated and user.role == 'ADMIN' %} role-admin {% elif user.is_authenticated and user.role == 'MEMBER' %} role-member {% else %} role-guest {% endif %}"
   >
-   
+    <!-- ==============================
+         NAVBAR
+    ============================== -->
+
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <div class="container-fluid px-3 px-lg-4">
         <!-- Logo -->
@@ -306,6 +333,10 @@
         <div class="collapse navbar-collapse" id="mainNavbar">
           <ul class="navbar-nav ms-auto">
             {% if user.is_authenticated %}
+
+            <!-- ==========================
+                             ADMIN NAVBAR
+                        =========================== -->
 
             {% if user.role == 'ADMIN' %}
 
@@ -401,6 +432,10 @@
 
             {% elif user.role == 'MEMBER' %}
 
+            <!-- ==========================
+                                 MEMBER NAVBAR
+                            =========================== -->
+
             <!-- Dashboard -->
 
             <li class="nav-item">
@@ -450,6 +485,8 @@
                 Payments
               </a>
             </li>
+
+            <!-- AI Fitness -->
 
             <li class="nav-item dropdown">
               <a
@@ -512,7 +549,11 @@
             </li>
 
             {% endif %}
-<!-- common logout -->
+
+            <!-- ==========================
+                             COMMON LOGOUT
+                        =========================== -->
+
             <li class="nav-item">
               <a
                 class="nav-link btn-nav btn-nav-danger"
@@ -525,13 +566,18 @@
             </li>
 
             {% else %}
-<!-- guest navbar -->
+
+            <!-- ==========================
+                             GUEST NAVBAR
+                        =========================== -->
+
             <li class="nav-item">
               <a
                 class="nav-link btn-nav btn-nav-primary"
                 href="{% url 'login' %}"
               >
                 <i class="fa-solid fa-user-shield me-2"></i>
+
                 Login
               </a>
             </li>
@@ -541,10 +587,16 @@
         </div>
       </div>
     </nav>
-<!-- main content -->
+
+    <!-- ==============================
+         MAIN CONTENT
+    ============================== -->
+
     <div class="container-wrapper">
       <div class="container">
-        <!-- Django Messages -->
+        <!-- ==========================
+                 DJANGO MESSAGES
+            =========================== -->
 
         {% if messages %}
 
@@ -574,13 +626,17 @@
 
         {% endif %}
 
-        <!-- Page Content -->
+        <!-- ==========================
+                 PAGE CONTENT
+            =========================== -->
 
         <div class="page-shell">{% block content %} {% endblock %}</div>
       </div>
     </div>
 
-    <!-- Bootstrap JS -->
+    <!-- ==============================
+         BOOTSTRAP JS
+    ============================== -->
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"

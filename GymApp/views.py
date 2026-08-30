@@ -3,7 +3,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from GymApp.models import *
 
 from django.contrib import messages
-from datetime import timedelta
+from datetime import timedelta, date
 from django.utils import timezone
 import json
 from django.conf import settings
@@ -16,6 +16,9 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from django.http import HttpResponse
+from calendar import monthrange
+from functools import wraps
+from urllib.parse import quote
 
 # Create your views here.
 def home(request):
@@ -68,14 +71,54 @@ def admin_required(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
+# def member_required(view_func):
+#     '''
+#     Decorator to ensure that the user is a member.
+#     ''' 
+#     def wrapper(request, *args, **kwargs):
+#         if not request.user.is_authenticated or getattr(request.user, 'role', None) != 'MEMBER':
+#             messages.error(request, 'You must be a member to access this page.')
+#             return redirect('member_login')
+#         return view_func(request, *args, **kwargs)
+#     return wrapper
 def member_required(view_func):
-    '''
-    Decorator to ensure that the user is a member.
-    ''' 
+    """
+    Decorator to ensure that the user is an active member
+    with a valid membership.
+    """
+    @wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        if not request.user.is_authenticated or getattr(request.user, 'role', None) != 'MEMBER':
-            messages.error(request, 'You must be a member to access this page.')
-            return redirect('member_login')
+        # Check login and role
+        if (
+            not request.user.is_authenticated
+            or getattr(request.user, 'role', None) != 'MEMBER'
+        ):
+            messages.error(request,'You must be a member to access this page.')
+            return redirect('login')
+        # Get member profile
+        try:
+            member = request.user.member_profile
+
+        except MemberProfile.DoesNotExist:
+            logout(request)
+            messages.error(request,'Member profile not found. Please contact the gym owner.')
+            return redirect('login')
+        # Check manual membership status
+        if not member.is_membership_active:
+            logout(request)
+            messages.error(request,'Your membership is inactive. Please contact the gym owner.'
+            )
+            return redirect('login')
+        # Check membership expiry
+        if (
+            member.membership_end
+            and member.membership_end < timezone.localdate()
+        ):
+            logout(request)
+            messages.error(request,'Your membership plan has ended. Please contact the gym owner.'
+            )
+            return redirect('login')
+        # Everything is valid
         return view_func(request, *args, **kwargs)
     return wrapper
 
@@ -92,8 +135,40 @@ def member_required(view_func):
 #             messages.error(request, 'Invalid credentials or not a member')
 #     return render(request, 'member_login.html')
 
+# def login_view(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         # save user to the database
+
+#         user = authenticate(
+#             request,
+#             username=username,
+#             password=password
+#         )
+
+#         if user is not None:
+#             login(request, user)
+
+#             if getattr(user, 'role', None) == 'ADMIN':
+#                 messages.success(request, 'Admin logged in successfully!')
+#                 return redirect('admin_dashboard')
+
+#             elif getattr(user, 'role', None) == 'MEMBER':
+#                 messages.success(request, 'Member logged in successfully!')
+#                 return redirect('member_dashboard')
+
+#             else:
+#                 logout(request)
+#                 messages.error(request, 'Invalid user role.')
+#         else:
+#             messages.error(request, 'Invalid username or password.')
+
+#     return render(request, 'login.html')
 def login_view(request):
+
     if request.method == 'POST':
+
         username = request.POST.get('username')
         password = request.POST.get('password')
 
@@ -104,24 +179,62 @@ def login_view(request):
         )
 
         if user is not None:
-            login(request, user)
 
+            # ADMIN
             if getattr(user, 'role', None) == 'ADMIN':
+
+                login(request, user)
+
                 messages.success(request, 'Admin logged in successfully!')
+
                 return redirect('admin_dashboard')
 
+
+            # MEMBER
             elif getattr(user, 'role', None) == 'MEMBER':
-                messages.success(request, 'Member logged in successfully!')
+
+                try:
+                    member = user.member_profile
+
+                except MemberProfile.DoesNotExist:
+
+                    messages.error(
+                        request,
+                        'Member profile not found. Please contact the gym owner.'
+                    )
+
+                    return render(request,'login.html')
+
+                # 1. Manual membership status check
+                if not member.is_membership_active:
+
+                    messages.error(request,'Your membership is inactive. Please contact the gym owner.')
+
+                    return render(request,'login.html')
+                # 2. Membership expiry check
+                if (
+                    member.membership_end
+                    and member.membership_end < timezone.localdate()
+                ):
+
+                    messages.error(request, 'Your membership plan has ended. Please contact the gym owner.')
+                    return render(request,'login.html')
+
+                # Everything is OK
+                login(request, user)
+
+                messages.success(request,'Member logged in successfully!'
+                )
                 return redirect('member_dashboard')
 
+            # INVALID ROLE
             else:
-                logout(request)
-                messages.error(request, 'Invalid user role.')
+                messages.error(request,'Invalid user role.')
+
         else:
-            messages.error(request, 'Invalid username or password.')
+            messages.error(request,'Invalid username or password.')
 
     return render(request, 'login.html')
-
 @member_required
 def member_dashboard_view(request):
     member = request.user.member_profile
@@ -295,68 +408,237 @@ def admin_members_list(request):
         members = members.filter(full_name__icontains=search)
     return render(request, 'admin_members_list.html', {'members': members, 'search' : search}) 
 
+# @admin_required
+# def admin_member_add(request):
+#     plans = MembershipPlan.objects.all().order_by('duration_months')  # Fetch all membership plans to display in the form
+#     trainers = Trainer.objects.all().order_by('name')  # Fetch all trainers to display in the form
+
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         full_name = request.POST.get('full_name')
+#         mobile = request.POST.get('mobile')
+#         age = request.POST.get('age')
+#         gender = request.POST.get('gender')
+#         address = request.POST.get('address')
+#         join_date = request.POST.get('join_date') or timezone.now().date()  # Default to today's date if not provided
+#         plan_id = request.POST.get('plan_id')
+#         trainer_id = request.POST.get('trainer_id')    
+
+#         if User.objects.filter(username=username).exists():
+#             messages.error(request, 'Username already exists. Please choose a different username.')
+#             return redirect('admin_member_add')
+
+#         user = User.objects.create_user(username=username, password=password, role='MEMBER')  # Create a new user with the role of MEMBER
+        
+#         plan = MembershipPlan.objects.get(id=plan_id) if plan_id else None
+#         trainer = Trainer.objects.get(id=trainer_id) if trainer_id else None
+
+#         MemberProfile.objects.create(
+#             user=user,
+#             full_name=full_name,
+#             mobile=mobile,
+#             age=age,
+#             gender=gender,
+#             address=address,    
+#             join_date=join_date,
+#             plan=plan,
+#             trainer=trainer,
+#             # membership_start=join_date  # Set membership_start to the join_date
+#         )
+#         messages.success(request, 'Member added successfully!')
+#         return redirect('admin_members_list')
+#     return render(request, 'admin_member_form.html', {'plans': plans, 'trainers': trainers, 'mode': 'add'})  # Pass mode to the template to indicate it's an add operation
+
 @admin_required
 def admin_member_add(request):
-    plans = MembershipPlan.objects.all().order_by('duration_months')  # Fetch all membership plans to display in the form
-    trainers = Trainer.objects.all().order_by('name')  # Fetch all trainers to display in the form
-
+    plans = MembershipPlan.objects.all().order_by('duration_months')
+    trainers = Trainer.objects.all().order_by('name')
     if request.method == 'POST':
+
         username = request.POST.get('username')
         password = request.POST.get('password')
+
         full_name = request.POST.get('full_name')
         mobile = request.POST.get('mobile')
         age = request.POST.get('age')
         gender = request.POST.get('gender')
         address = request.POST.get('address')
-        join_date = request.POST.get('join_date') or timezone.now().date()  # Default to today's date if not provided
+
+        join_date = request.POST.get('join_date') or timezone.now().date()
+
         plan_id = request.POST.get('plan_id')
-        trainer_id = request.POST.get('trainer_id')    
+        trainer_id = request.POST.get('trainer_id')
 
+        # Check username
         if User.objects.filter(username=username).exists():
-            messages.error(request, 'Username already exists. Please choose a different username.')
+            messages.error(
+                request,
+                'Username already exists. Please choose a different username.'
+            )
             return redirect('admin_member_add')
-
-        user = User.objects.create_user(username=username, password=password, role='MEMBER')  # Create a new user with the role of MEMBER
         
         plan = MembershipPlan.objects.get(id=plan_id) if plan_id else None
         trainer = Trainer.objects.get(id=trainer_id) if trainer_id else None
 
-        MemberProfile.objects.create(
+        # Create user
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            role='MEMBER'
+        )
+
+        member = MemberProfile.objects.create(
             user=user,
             full_name=full_name,
             mobile=mobile,
             age=age,
             gender=gender,
-            address=address,    
+            address=address,
             join_date=join_date,
             plan=plan,
-            trainer=trainer,
-            # membership_start=join_date  # Set membership_start to the join_date
+            trainer=trainer
         )
-        messages.success(request, 'Member added successfully!')
-        return redirect('admin_members_list')
-    return render(request, 'admin_member_form.html', {'plans': plans, 'trainers': trainers, 'mode': 'add'})  # Pass mode to the template to indicate it's an add operation
+        if mobile:
+            # Remove spaces, +, -, brackets etc.
+            whatsapp_number = ''.join(
+                character for character in mobile
+                if character.isdigit()
+            )
 
+            # Nepal mobile number
+            # Example:
+            # 9282881111
+            # becomes:
+            # 9779282881111
+
+            if whatsapp_number.startswith('0'):
+                whatsapp_number = '977' + whatsapp_number[1:]
+
+            elif len(whatsapp_number) == 10 and whatsapp_number.startswith('9'):
+                whatsapp_number = '977' + whatsapp_number
+
+            # Create WhatsApp message
+
+            whatsapp_message = f"""
+Hello {full_name} 👋
+
+Welcome to Mero.Gym!
+
+Your gym member account has been created successfully.
+
+Username: {username}
+Password: {password}
+
+Please keep your login credentials secure.
+
+You can now log in to your gym account.
+
+Thank you!
+Mero.Gym
+"""
+
+            # Encode message for URL
+            encoded_message = quote(whatsapp_message.strip())
+
+            # WhatsApp URL
+            whatsapp_url = (
+                f"https://wa.me/{whatsapp_number}"
+                f"?text={encoded_message}"
+            )
+
+            messages.success(
+                request,
+                'Member added successfully! Opening WhatsApp...'
+            )
+
+            return redirect(whatsapp_url)
+
+        # If no mobile number
+        messages.success(
+            request,
+            'Member added successfully!'
+        )
+
+        return redirect('admin_members_list')
+
+    return render(
+        request,
+        'admin_member_form.html',
+        {
+            'plans': plans,
+            'trainers': trainers,
+            'mode': 'add'
+        }
+    )
+# @admin_required
+# def admin_member_edit(request, member_id):
+#     member = MemberProfile.objects.get(id=member_id)
+#     plans = MembershipPlan.objects.all().order_by('duration_months')
+#     trainers = Trainer.objects.all().order_by('name')
+
+#     if request.method == 'POST':
+#         full_name = request.POST.get('full_name')
+#         mobile = request.POST.get('mobile')
+#         age = request.POST.get('age')
+#         gender = request.POST.get('gender')
+#         address = request.POST.get('address')
+#         join_date = request.POST.get('join_date') or member.join_date  # Default to existing join_date if not provided
+#         plan_id = request.POST.get('plan_id')
+#         trainer_id = request.POST.get('trainer_id') 
+#         membership_active = request.POST.get('membership_active') == 'on'    
+
+#         plan = MembershipPlan.objects.get(id=plan_id) if plan_id else None
+#         trainer = Trainer.objects.get(id=trainer_id) if trainer_id else None
+
+#         if full_name and mobile and age and gender and address and join_date and plan and trainer:
+#             member.full_name = full_name
+#             member.mobile = mobile
+#             member.age = age
+#             member.gender = gender
+#             member.address = address
+#             member.join_date = join_date
+#             member.plan = plan
+#             member.trainer = trainer
+#             member.is_membership_active = membership_active
+#             member.save()
+#             messages.success(request, 'Member updated successfully!')
+#             return redirect('admin_members_list')
+#         else:
+#             messages.error(request, 'Please fill in all the required fields.')
+
+#     return render(request, 'admin_member_form.html', {'member': member, 'plans': plans, 'trainers': trainers, 'mode': 'edit'})
 @admin_required
 def admin_member_edit(request, member_id):
-    member = MemberProfile.objects.get(id=member_id)
+
+    member = get_object_or_404(MemberProfile, id=member_id)
+
     plans = MembershipPlan.objects.all().order_by('duration_months')
     trainers = Trainer.objects.all().order_by('name')
 
     if request.method == 'POST':
+
         full_name = request.POST.get('full_name')
         mobile = request.POST.get('mobile')
         age = request.POST.get('age')
         gender = request.POST.get('gender')
         address = request.POST.get('address')
-        join_date = request.POST.get('join_date') or member.join_date  # Default to existing join_date if not provided
+
+        join_date = request.POST.get('join_date') or member.join_date
+
         plan_id = request.POST.get('plan_id')
-        trainer_id = request.POST.get('trainer_id')     
+        trainer_id = request.POST.get('trainer_id')
+
+        membership_active = request.POST.get('membership_active') == 'on'
+
+        # Check if admin clicked Send WhatsApp button
+        send_whatsapp = request.POST.get('send_whatsapp') == '1'
 
         plan = MembershipPlan.objects.get(id=plan_id) if plan_id else None
         trainer = Trainer.objects.get(id=trainer_id) if trainer_id else None
 
-        if full_name and mobile and age and gender and address and join_date and plan and trainer:
+        if full_name and mobile and age and gender and join_date:
+
             member.full_name = full_name
             member.mobile = mobile
             member.age = age
@@ -365,13 +647,122 @@ def admin_member_edit(request, member_id):
             member.join_date = join_date
             member.plan = plan
             member.trainer = trainer
-            member.save()
-            messages.success(request, 'Member updated successfully!')
-            return redirect('admin_members_list')
-        else:
-            messages.error(request, 'Please fill in all the required fields.')
 
-    return render(request, 'admin_member_form.html', {'member': member, 'plans': plans, 'trainers': trainers, 'mode': 'edit'})
+            # Membership active/inactive
+            member.is_membership_active = membership_active
+
+            # Calculate membership dates
+            if plan:
+
+                start_date = join_date
+
+                if isinstance(start_date, str):
+                    start_date = date.fromisoformat(start_date)
+
+                member.membership_start = start_date
+
+                # Add plan duration in months
+                month = start_date.month - 1 + plan.duration_months
+                year = start_date.year + month // 12
+                month = month % 12 + 1
+
+                day = min(
+                    start_date.day,
+                    monthrange(year, month)[1]
+                )
+
+                member.membership_end = date(
+                    year,
+                    month,
+                    day
+                )
+
+            else:
+
+                member.membership_start = None
+                member.membership_end = None
+
+            member.save()
+
+            # send whatsapp
+            if send_whatsapp:
+                whatsapp_number = member.mobile
+                # Remove spaces, +, -, brackets etc.
+                whatsapp_number = (
+                    whatsapp_number
+                    .replace(" ", "")
+                    .replace("-", "")
+                    .replace("(", "")
+                    .replace(")", "")
+                )
+                # Nepal number handling
+                if whatsapp_number.startswith("0"):
+                    whatsapp_number = "977" + whatsapp_number[1:]
+
+                elif whatsapp_number.startswith("+977"):
+                    whatsapp_number = whatsapp_number[1:]
+
+                elif not whatsapp_number.startswith("977"):
+                    whatsapp_number = "977" + whatsapp_number
+
+                membership_end = (
+                    member.membership_end.strftime("%d %B %Y")
+                    if member.membership_end
+                    else "Not assigned"
+                )
+                if member.is_membership_active:
+                    membership_status = "Active"
+                else:
+                    membership_status = "Inactive"
+
+                message = f"""
+Hello {member.full_name},
+
+Your gym membership information has been updated.
+
+Username: {member.user.username}
+
+Membership Plan: {member.plan.name if member.plan else "No Plan"}
+
+Membership Start: {
+    member.membership_start.strftime("%d %B %Y")
+    if member.membership_start
+    else "Not assigned"
+}
+
+Membership End: {membership_end}
+
+Membership Status: {membership_status}
+
+If you have any questions, please contact the gym owner.
+
+Thank you.
+"""
+
+                encoded_message = quote(message)
+
+                whatsapp_url = (
+                    f"https://wa.me/{whatsapp_number}"
+                    f"?text={encoded_message}"
+                )
+                messages.success(
+                    request,
+                    'Member updated successfully. WhatsApp is ready to send.'
+                )
+                return redirect(whatsapp_url)
+
+            messages.success(request,'Member updated successfully!')
+            return redirect('admin_members_list')
+
+        else:
+            messages.error(request,'Please fill in all the required fields.')
+
+    return render(request, 'admin_member_form.html', {
+            'member': member,
+            'plans': plans,
+            'trainers': trainers,
+            'mode': 'edit'
+        })
 
 @admin_required
 def admin_member_delete(request, member_id):
@@ -530,23 +921,40 @@ def admin_enquiry_update_status(request, enquiry_id):
 #     if member_id:
 #         workout_plans = workout_plans.filter(member__id=member_id)
 #     return render(request, 'admin_workout_plans_list.html', {'workout_plans': workout_plans, })
-
 @admin_required
 def admin_payments_list(request):
+
     member_id = request.GET.get('member_id')
     status = request.GET.get('status')
-    payments = Payment.objects.select_related('member', 'plan').all().order_by('-payment_date')
+
+    # Get all payments
+    payments = (
+        Payment.objects
+        .select_related('member', 'plan')
+        .all()
+        .order_by('-payment_date')
+    )
+
+    # Filter by member
     if member_id:
         payments = payments.filter(member__id=member_id)
+
+    # Filter by payment status
     if status in ['PENDING', 'PAID']:
         payments = payments.filter(status=status)
 
+    # Get all members for dropdown
     members = MemberProfile.objects.all().order_by('full_name')
 
-     # Calculate remaining amount for EACH payment
+    # Today's date
+    today = timezone.now().date()
+
+    # Calculate information for each payment
     for payment in payments:
+
+        # REMAINING PAYMENT AMOUNT
         if payment.plan and payment.plan.fee:
-            # Total paid for this member and this plan
+
             total_paid = (
                 Payment.objects
                 .filter(
@@ -556,21 +964,63 @@ def admin_payments_list(request):
                 )
                 .aggregate(total=Sum('amount'))['total'] or 0
             )
+
             remaining = float(payment.plan.fee) - float(total_paid)
-            # Don't show negative remaining
+
+            # Prevent negative remaining amount
             if remaining < 0:
                 remaining = 0
-            # Add temporary value to this payment object
+
+            # Temporary value for template
             payment.remaining = remaining
+
         else:
             payment.remaining = None
-    return render(request, 'admin_payments_list.html', {'payments':payments, 
-                                                        'members':members, 
-                                                        # 'selected_member_id': member_id, 
-                                                        'selected_status': status,
-                                                        'selected_member': int(member_id) if member_id else None,
-                                                        })
 
+        # MEMBERSHIP END DATE
+    
+        payment.membership_end = payment.member.membership_end
+
+        # MEMBERSHIP REMAINING DAYS
+        if payment.member.membership_end:
+
+            days_remaining = (
+                payment.member.membership_end - today
+            ).days
+
+            if days_remaining < 0:
+
+                payment.membership_days_remaining = 0
+                payment.membership_expired = True
+
+            else:
+
+                payment.membership_days_remaining = days_remaining
+                payment.membership_expired = False
+
+        else:
+
+            payment.membership_days_remaining = None
+            payment.membership_expired = False
+
+
+    return render(
+        request,
+        'admin_payments_list.html',
+        {
+            'payments': payments,
+            'members': members,
+
+            'selected_status': status,
+
+            'selected_member': (
+                int(member_id)
+                if member_id
+                else None
+            ),
+        }
+    )
+ 
 @admin_required
 def admin_payment_add(request):
     members = MemberProfile.objects.all().order_by('full_name')
@@ -1278,6 +1728,15 @@ def admin_feedbacks_list(request):
         'selected_members': int(member_id) if member_id else None,
     }
     return render(request, 'admin_feedbacks_list.html', context)
+
+@admin_required
+def admin_feedback_delete(request, feedback_id):
+    feedback = Feedback.objects.get(id=feedback_id)  # Fetch the specific feedback plan based on the provided ID
+    if request.method == 'POST':
+        feedback.delete()  # Delete the feedback from the database
+        messages.success(request, 'Feedback deleted successfully!')
+        return redirect('admin_feedbacks_list')  # Redirect to the feedback list after successful deletion
+    return redirect('admin_feedbacks_list')  # Render a confirmation page before deletion
 
 @member_required
 def food_analyzer(request):

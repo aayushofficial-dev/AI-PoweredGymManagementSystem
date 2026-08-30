@@ -61,6 +61,7 @@
                     <th style="min-width:220px;">Member</th>
                     <th style="min-width:320px;">Message</th>
                     <th style="min-width:170px;">Date</th>
+                    <th style="min-width:170px">Actions</th>
                 </tr>
                 </thead>
 
@@ -91,10 +92,23 @@
                                 <i class="fa-regular fa-clock me-1"></i>{{ fb.created_at|date:"H:i" }}
                             </div>
                         </td>
+
+                        <td class="text-center pe-3">
+                            <form method="post" action="{% url 'admin_feedback_delete' fb.id %}"
+                                  class="d-inline-block">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-danger"
+                                        style="border-radius:12px;"
+                                        onclick="return confirm('Delete this plan?');">
+                                    <i class="fa-solid fa-trash me-1"></i>Delete
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="4" class="text-center py-5">
+                        <td colspan="5" class="text-center py-5">
                             <div class="text-muted">
                                 <i class="fa-regular fa-star fa-2x mb-2"></i>
                                 <div class="fw-semibold">No feedbacks found</div>
