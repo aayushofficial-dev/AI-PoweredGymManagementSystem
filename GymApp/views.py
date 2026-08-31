@@ -1437,7 +1437,6 @@ def ai_workout_plan(request):
 
 @member_required
 def generate_workout_plan(request):
-
     if request.method != "POST":
         return JsonResponse({
             "success": False,
@@ -1445,10 +1444,8 @@ def generate_workout_plan(request):
         }, status=405)
 
     try:
-
         # Get data from frontend
         data = json.loads(request.body)
-
         goal = data.get("goal")
         experience = data.get("experience")
         days = data.get("days")
@@ -1461,19 +1458,16 @@ def generate_workout_plan(request):
                 "success": False,
                 "error": "Please select your workout goal."
             }, status=400)
-
         if not experience:
             return JsonResponse({
                 "success": False,
                 "error": "Please select your experience level."
             }, status=400)
-
         if not days:
             return JsonResponse({
                 "success": False,
                 "error": "Please select workout days."
             }, status=400)
-
         if not duration:
             return JsonResponse({
                 "success": False,
@@ -1565,7 +1559,6 @@ Repeat the same format for all workout days.
                 "temperature": 0.2
             }
         )
-
         workout_text = response["message"]["content"]
 
         # Check AI response
@@ -1574,13 +1567,11 @@ Repeat the same format for all workout days.
                 "success": False,
                 "error": "The AI returned an empty workout plan."
             }, status=500)
-
         # Get logged-in member
         member = get_object_or_404(
             MemberProfile,
             user=request.user
         )
-
         # Save workout plan
         workout_plan = WorkoutPlan.objects.create(
             member=member,
@@ -1937,7 +1928,7 @@ Do not include explanations.
 
         # Call AI
         response = client.chat.completions.create(
-            model="google/gemini-2.5-flash",
+            model="google/gemini-2.5-flash",  # google gemini model is used here.
             messages=[
                 {
                     "role": "user",
@@ -1995,21 +1986,13 @@ Do not include explanations.
         ]
 
         for field in required_fields:
-
             if field not in nutrition:
-
                 return render(request, "food_analyzer.html", {
                     "error": "The AI returned incomplete nutrition information. Please try again."
                 })
 
         # Everything successful
-        return render(
-            request,
-            "food_result.html",
-            {
-                "nutrition": nutrition
-            }
-        )
+        return render(request,"food_result.html", {"nutrition": nutrition})
 
     except Exception as e:
         # Print actual error in terminal
