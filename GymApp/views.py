@@ -452,12 +452,10 @@ def admin_members_list(request):
 
 @admin_required
 def admin_member_add(request):
-
     plans = MembershipPlan.objects.all().order_by('duration_months')
     trainers = Trainer.objects.all().order_by('name')
 
     if request.method == 'POST':
-
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
         full_name = request.POST.get('full_name', '').strip()
@@ -484,76 +482,47 @@ def admin_member_add(request):
             request.POST.get('send_whatsapp') == '1'
         )
 
-        # -----------------------------
         # Required fields
-        # -----------------------------
-
         if not username or not password or not full_name or not mobile:
-            messages.error(
-                request,
+            messages.error(request,
                 'Username, password, full name and mobile are required.'
             )
             return redirect('admin_member_add')
 
-        # -----------------------------
         # Check username
-        # -----------------------------
-
         if User.objects.filter(username=username).exists():
-
-            messages.error(
-                request,
+            messages.error(request,
                 'Username already exists. Please choose a different username.'
             )
-
             return redirect('admin_member_add')
 
-        # -----------------------------
         # Get plan
-        # -----------------------------
-
         plan = (
             MembershipPlan.objects.get(id=plan_id)
             if plan_id
             else None
         )
 
-        # -----------------------------
         # Get trainer
-        # -----------------------------
-
         trainer = (
             Trainer.objects.get(id=trainer_id)
             if trainer_id
             else None
         )
 
-        # -----------------------------
         # Convert join date
-        # -----------------------------
-
         if isinstance(join_date, str):
             join_date = date.fromisoformat(join_date)
-
-        # -----------------------------
         # Create User
-        # -----------------------------
-
         user = User.objects.create_user(
             username=username,
             password=password,
             role='MEMBER'
         )
-
-        # -----------------------------
-        # Calculate membership dates
-        # -----------------------------
-
         membership_start = None
         membership_end = None
 
         if plan:
-
             membership_start = join_date
 
             month = (
@@ -561,14 +530,11 @@ def admin_member_add(request):
                 - 1
                 + plan.duration_months
             )
-
             year = (
                 membership_start.year
                 + month // 12
             )
-
             month = month % 12 + 1
-
             day = min(
                 membership_start.day,
                 monthrange(year, month)[1]
@@ -579,82 +545,49 @@ def admin_member_add(request):
                 month,
                 day
             )
-
-        # -----------------------------
-        # Create Member
-        # -----------------------------
-
         member = MemberProfile.objects.create(
-
             user=user,
-
             full_name=full_name,
-
             mobile=mobile,
-
             age=age,
-
             gender=gender,
-
             address=address,
-
             join_date=join_date,
-
             plan=plan,
-
             trainer=trainer,
-
             is_membership_active=membership_active,
-
             membership_start=membership_start,
-
             membership_end=membership_end
         )
 
-        # -----------------------------
         # WhatsApp
-        # -----------------------------
-
         if send_whatsapp and mobile:
-
             whatsapp_number = ''.join(
                 character
                 for character in mobile
                 if character.isdigit()
             )
-
             # Nepal number
             if whatsapp_number.startswith('0'):
-
                 whatsapp_number = (
                     '977' + whatsapp_number[1:]
                 )
-
             elif (
                 len(whatsapp_number) == 10
                 and whatsapp_number.startswith('9')
             ):
-
                 whatsapp_number = (
                     '977' + whatsapp_number
                 )
-
             elif whatsapp_number.startswith('+977'):
-
                 whatsapp_number = (
                     whatsapp_number[1:]
                 )
-
             elif not whatsapp_number.startswith('977'):
-
                 whatsapp_number = (
                     '977' + whatsapp_number
                 )
-
-            # -----------------------------
             # Membership information
-            # -----------------------------
-
             membership_start_text = (
                 member.membership_start.strftime(
                     '%d %B %Y'
@@ -662,7 +595,6 @@ def admin_member_add(request):
                 if member.membership_start
                 else 'Not assigned'
             )
-
             membership_end_text = (
                 member.membership_end.strftime(
                     '%d %B %Y'
@@ -670,23 +602,17 @@ def admin_member_add(request):
                 if member.membership_end
                 else 'Not assigned'
             )
-
             membership_status = (
                 'Active'
                 if member.is_membership_active
                 else 'Inactive'
             )
-
             plan_name = (
                 member.plan.name
                 if member.plan
                 else 'No Plan'
             )
-
-            # -----------------------------
-            # WhatsApp message
-            # -----------------------------
-
+            # whatsapp message
             whatsapp_message = f"""Hello {member.full_name} 👋
 
 Welcome to Mero.Gym!
@@ -716,26 +642,17 @@ Mero.Gym"""
             )
 
             return redirect(whatsapp_url)
-
-        # -----------------------------
-        # Normal redirect
-        # -----------------------------
-
-        messages.success(
-            request,
-            'Member added successfully!'
-        )
+        
+        messages.success(request,'Member added successfully!')
         return redirect('admin_members_list')
 
-    return render(
-        request,
-        'admin_member_form.html',
+    return render(request,'admin_member_form.html',
         {
             'plans': plans,
             'trainers': trainers,
             'mode': 'add'
-        }
-    )
+        })
+
 # @admin_required
 # def admin_member_edit(request, member_id):
 #     member = MemberProfile.objects.get(id=member_id)
@@ -775,30 +692,19 @@ Mero.Gym"""
 #     return render(request, 'admin_member_form.html', {'member': member, 'plans': plans, 'trainers': trainers, 'mode': 'edit'})
 @admin_required
 def admin_member_edit(request, member_id):
-
     member = get_object_or_404(
         MemberProfile,
         id=member_id
     )
-
-    plans = MembershipPlan.objects.all().order_by(
-        'duration_months'
-    )
-
-    trainers = Trainer.objects.all().order_by(
-        'name'
-    )
+    plans = MembershipPlan.objects.all().order_by('duration_months')
+    trainers = Trainer.objects.all().order_by('name')
 
     if request.method == 'POST':
         full_name = request.POST.get('full_name','').strip()
-
         mobile = request.POST.get( 'mobile','').strip()
-
         age = request.POST.get('age')
         gender = request.POST.get('gender')
-
         address = request.POST.get('address','').strip()
-
         join_date = (
             request.POST.get('join_date')
             or member.join_date
@@ -819,62 +725,34 @@ def admin_member_edit(request, member_id):
             == '1'
         )
 
-        # -----------------------------
         # Get plan
-        # -----------------------------
-
-        plan = (
-            MembershipPlan.objects.get(
-                id=plan_id
-            )
+        plan = (MembershipPlan.objects.get(id=plan_id)
             if plan_id
             else None
         )
 
-        # -----------------------------
         # Get trainer
-        # -----------------------------
-
-        trainer = (
-            Trainer.objects.get(
-                id=trainer_id
-            )
+        trainer = (Trainer.objects.get(id=trainer_id)
             if trainer_id
             else None
         )
-
         if not full_name or not mobile or not age or not gender or not join_date:
-
-            messages.error(
-                request,
-                'Please fill in all the required fields.'
-            )
-
-            return render(
-                request,
-                'admin_member_form.html',
+            messages.error(request,'Please fill in all the required fields.')
+            return render(request,'admin_member_form.html',
                 {
                     'member': member,
                     'plans': plans,
                     'trainers': trainers,
                     'mode': 'edit'
-                }
-            )
-
-        # -----------------------------
+                })
         # Convert date
-        # -----------------------------
-
         if isinstance(join_date, str):
 
             join_date = date.fromisoformat(
                 join_date
             )
 
-        # -----------------------------
         # Update member
-        # -----------------------------
-
         member.full_name = full_name
         member.mobile = mobile
         member.age = age
@@ -885,71 +763,47 @@ def admin_member_edit(request, member_id):
         member.plan = plan
         member.trainer = trainer
 
-        # -----------------------------
         # Membership toggle
-        # -----------------------------
+        member.is_membership_active = (membership_active)
 
-        member.is_membership_active = (
-            membership_active
-        )
-
-        # -----------------------------
         # Membership dates
-        # -----------------------------
-
         if plan:
-
             member.membership_start = join_date
-
             month = (
                 join_date.month
                 - 1
                 + plan.duration_months
             )
-
             year = (
                 join_date.year
                 + month // 12
             )
-
             month = month % 12 + 1
-
             day = min(
                 join_date.day,
                 monthrange(year, month)[1]
             )
-
             member.membership_end = date(
                 year,
                 month,
                 day
             )
-
         else:
-
             member.membership_start = None
             member.membership_end = None
 
-        # -----------------------------
         # Automatically deactivate
         # expired membership
-        # -----------------------------
-
         if (
             member.membership_end
             and member.membership_end < timezone.now().date()
         ):
 
             member.is_membership_active = False
-
         member.save()
 
-        # -----------------------------
         # Send WhatsApp
-        # -----------------------------
-
         if send_whatsapp and member.mobile:
-
             whatsapp_number = ''.join(
                 character
                 for character in member.mobile
@@ -957,38 +811,28 @@ def admin_member_edit(request, member_id):
             )
 
             # Nepal number handling
-
             if whatsapp_number.startswith('0'):
 
                 whatsapp_number = (
                     '977' + whatsapp_number[1:]
                 )
-
             elif whatsapp_number.startswith('+977'):
-
                 whatsapp_number = (
                     whatsapp_number[1:]
                 )
-
             elif (
                 len(whatsapp_number) == 10
                 and whatsapp_number.startswith('9')
             ):
-
                 whatsapp_number = (
                     '977' + whatsapp_number
                 )
-
             elif not whatsapp_number.startswith('977'):
 
                 whatsapp_number = (
                     '977' + whatsapp_number
                 )
-
-            # -----------------------------
             # Membership information
-            # -----------------------------
-
             membership_start = (
                 member.membership_start.strftime(
                     '%d %B %Y'
@@ -996,7 +840,6 @@ def admin_member_edit(request, member_id):
                 if member.membership_start
                 else 'Not assigned'
             )
-
             membership_end = (
                 member.membership_end.strftime(
                     '%d %B %Y'
@@ -1004,19 +847,16 @@ def admin_member_edit(request, member_id):
                 if member.membership_end
                 else 'Not assigned'
             )
-
             membership_status = (
                 'Active'
                 if member.is_membership_active
                 else 'Inactive'
             )
-
             plan_name = (
                 member.plan.name
                 if member.plan
                 else 'No Plan'
             )
-
             # whatsapp message
             message = f"""Hello {member.full_name} 
 
@@ -1043,28 +883,17 @@ MeroGym"""
                 f"https://wa.me/{whatsapp_number}"
                 f"?text={encoded_message}"
             )
-
             return redirect(whatsapp_url)
+        messages.success(request,'Member updated successfully!')
 
-        messages.success(
-            request,
-            'Member updated successfully!'
-        )
-
-        return redirect(
-            'admin_members_list'
-        )
-
-    return render(
-        request,
-        'admin_member_form.html',
+        return redirect('admin_members_list')
+    return render(request, 'admin_member_form.html',
         {
             'member': member,
             'plans': plans,
             'trainers': trainers,
             'mode': 'edit'
-        }
-    )
+        })
 
 @admin_required
 def admin_member_delete(request, member_id):
