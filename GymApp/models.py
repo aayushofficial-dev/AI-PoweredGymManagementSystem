@@ -68,6 +68,7 @@ class MemberProfile(models.Model):
     membership_end = models.DateField(null=True, blank=True)
 
     is_membership_active = models.BooleanField(default=True)
+    
     def __str__ (self):
         return f"{self.full_name} - {self.user.username}"
     
