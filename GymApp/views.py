@@ -8,9 +8,9 @@ from django.utils import timezone
 import json
 from django.conf import settings
 from django.http import JsonResponse
-from openai import OpenAI
+# from openai import OpenAI
 import ollama
-import base64
+# import base64
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
@@ -1860,39 +1860,206 @@ def admin_feedback_delete(request, feedback_id):
         return redirect('admin_feedbacks_list')  # Redirect to the feedback list after successful deletion
     return redirect('admin_feedbacks_list')  # Render a confirmation page before deletion
 
+# @member_required
+# def food_analyzer(request):
+#     if request.method != "POST":
+#         return render(request, "food_analyzer.html")
+#     # Get uploaded image
+#     image = request.FILES.get("food_image")
+#     if not image:
+#         return render(request, "food_analyzer.html", {
+#             "error": "Please upload a food image."
+#         })
+
+#     # Optional: check file type
+#     allowed_types = [
+#         "image/jpeg",
+#         "image/png",
+#         "image/webp"
+#     ]
+
+#     if image.content_type not in allowed_types:
+#         return render(request, "food_analyzer.html", {
+#             "error": "Please upload a JPG, PNG or WEBP image."
+#         })
+
+#     try:
+#         # Convert image to Base64
+#         image_data = base64.b64encode(
+#             image.read()
+#         ).decode("utf-8")
+
+#         client = OpenAI(
+#             api_key=settings.OPENROUTER_API_KEY,
+#             base_url="https://openrouter.ai/api/v1"
+#         )
+
+#         prompt = """
+# Analyze the food in this image.
+
+# Give an ESTIMATED nutritional analysis.
+
+# Identify:
+
+# 1. Food name
+# 2. Estimated calories
+# 3. Protein in grams
+# 4. Carbohydrates in grams
+# 5. Fat in grams
+
+# Return ONLY valid JSON.
+
+# Use exactly this format:
+
+# {
+#     "food_name": "food name",
+#     "calories": 0,
+#     "protein": 0,
+#     "carbohydrates": 0,
+#     "fat": 0
+# }
+
+# Do not include markdown.
+# Do not include explanations.
+# """
+
+#         # Call AI
+#         response = client.chat.completions.create(
+#             model="google/gemini-2.5-flash",  # google gemini model is used here.
+#             # model="llama3.2",
+
+#             messages=[
+#                 {
+#                     "role": "user",
+#                     "content": [
+#                         {
+#                             "type": "text",
+#                             "text": prompt
+#                         },
+#                         {
+#                             "type": "image_url",
+#                             "image_url": {
+#                                 "url": (
+#                                     f"data:{image.content_type};"
+#                                     f"base64,{image_data}"
+#                                 )
+#                             }
+#                         }
+#                     ]
+#                 }
+#             ],
+
+#             temperature=0.2,
+#             max_tokens=300
+#         )
+#         # Get AI response
+#         result = response.choices[0].message.content
+#         if not result:
+#             return render(request, "food_analyzer.html", {
+#                 "error": "The AI did not return any result. Please try again."
+#             })
+#         # Remove markdown if AI accidentally adds it
+#         result = result.replace("```json", "")
+#         result = result.replace("```", "")
+#         result = result.strip()
+
+#         # Convert AI response to Python dictionary
+#         try:
+#             nutrition = json.loads(result)
+
+#         except json.JSONDecodeError:
+#             print("INVALID AI RESPONSE:")
+#             print(result)
+
+#             return render(request, "food_analyzer.html", {
+#                 "error": "The AI returned an invalid result. Please try again."
+#             })
+
+#         # Make sure required fields exist
+#         required_fields = [
+#             "food_name",
+#             "calories",
+#             "protein",
+#             "carbohydrates",
+#             "fat"
+#         ]
+
+#         for field in required_fields:
+#             if field not in nutrition:
+#                 return render(request, "food_analyzer.html", {
+#                     "error": "The AI returned incomplete nutrition information. Please try again."
+#                 })
+
+#         # Everything successful
+#         return render(request,"food_result.html", {"nutrition": nutrition})
+
+#     except Exception as e:
+#         # Print actual error in terminal
+#         print("FOOD AI ERROR:")
+#         print(repr(e))
+#         error_message = str(e).lower()
+
+#         # OpenRouter credit/token error
+#         if (
+#             "more credits" in error_message
+#             or "insufficient" in error_message
+#             or "max_tokens" in error_message
+#             or "402" in error_message
+#         ):
+#             return render(request, "food_analyzer.html", {
+#                 "error": (
+#                     "The AI service does not have enough credits "
+#                     "for this request. Please try again later."
+#                 )
+#             })
+#         # API / connection error
+#         if (
+#             "connection" in error_message
+#             or "timeout" in error_message
+#             or "rate limit" in error_message
+#         ):
+#             return render(request, "food_analyzer.html", {
+#                 "error": (
+#                     "The AI service is temporarily unavailable. "
+#                     "Please try again."
+#                 )
+#             })
+#         # General error
+#         return render(request, "food_analyzer.html", {
+#             "error": (
+#                 "Unable to analyze the food image. "
+#                 "Please try again."
+#             )
+#         })
+
+from ollama import chat
+
+
 @member_required
 def food_analyzer(request):
     if request.method != "POST":
         return render(request, "food_analyzer.html")
     # Get uploaded image
     image = request.FILES.get("food_image")
+
     if not image:
         return render(request, "food_analyzer.html", {
             "error": "Please upload a food image."
         })
-
-    # Optional: check file type
+    # Check file type
     allowed_types = [
         "image/jpeg",
         "image/png",
         "image/webp"
     ]
-
     if image.content_type not in allowed_types:
         return render(request, "food_analyzer.html", {
             "error": "Please upload a JPG, PNG or WEBP image."
         })
 
     try:
-        # Convert image to Base64
-        image_data = base64.b64encode(
-            image.read()
-        ).decode("utf-8")
-
-        client = OpenAI(
-            api_key=settings.OPENROUTER_API_KEY,
-            base_url="https://openrouter.ai/api/v1"
-        )
+        # Read uploaded image
+        image_bytes = image.read()
 
         prompt = """
 Analyze the food in this image.
@@ -1923,35 +2090,23 @@ Do not include markdown.
 Do not include explanations.
 """
 
-        # Call AI
-        response = client.chat.completions.create(
-            model="google/gemini-2.5-flash",  # google gemini model is used here.
+        # Call Llama 3.2 Vision through Ollama
+        response = chat(
+            model="qwen2.5vl:3b",
             messages=[
                 {
                     "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": prompt
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": (
-                                    f"data:{image.content_type};"
-                                    f"base64,{image_data}"
-                                )
-                            }
-                        }
-                    ]
+                    "content": prompt,
+                    "images": [image_bytes]
                 }
             ],
-
-            temperature=0.2,
-            max_tokens=500
+            options={
+                "temperature": 0.2
+            }
         )
+
         # Get AI response
-        result = response.choices[0].message.content
+        result = response.message.content
         if not result:
             return render(request, "food_analyzer.html", {
                 "error": "The AI did not return any result. Please try again."
@@ -1960,12 +2115,11 @@ Do not include explanations.
         result = result.replace("```json", "")
         result = result.replace("```", "")
         result = result.strip()
-
         # Convert AI response to Python dictionary
         try:
             nutrition = json.loads(result)
-
         except json.JSONDecodeError:
+
             print("INVALID AI RESPONSE:")
             print(result)
 
@@ -1985,43 +2139,51 @@ Do not include explanations.
         for field in required_fields:
             if field not in nutrition:
                 return render(request, "food_analyzer.html", {
-                    "error": "The AI returned incomplete nutrition information. Please try again."
+                    "error": (
+                        "The AI returned incomplete nutrition "
+                        "information. Please try again."
+                    )
                 })
 
         # Everything successful
-        return render(request,"food_result.html", {"nutrition": nutrition})
+        return render(request,"food_result.html",{
+                "nutrition": nutrition
+            })
 
     except Exception as e:
-        # Print actual error in terminal
-        print("FOOD AI ERROR:")
+
+        print("OLLAMA FOOD AI ERROR:")
         print(repr(e))
+
         error_message = str(e).lower()
 
-        # OpenRouter credit/token error
+        # Ollama connection error
         if (
-            "more credits" in error_message
-            or "insufficient" in error_message
-            or "max_tokens" in error_message
-            or "402" in error_message
+            "connection refused" in error_message
+            or "failed to connect" in error_message
+            or "connection" in error_message
         ):
+
             return render(request, "food_analyzer.html", {
                 "error": (
-                    "The AI service does not have enough credits "
-                    "for this request. Please try again later."
+                    "The local AI service is not running. "
+                    "Please start Ollama and try again."
                 )
             })
-        # API / connection error
+
+        # Model not found
         if (
-            "connection" in error_message
-            or "timeout" in error_message
-            or "rate limit" in error_message
+            "model" in error_message
+            and "not found" in error_message
         ):
+
             return render(request, "food_analyzer.html", {
                 "error": (
-                    "The AI service is temporarily unavailable. "
-                    "Please try again."
+                    "Llama 3.2 Vision is not installed. "
+                    "Please run: ollama pull llama3.2-vision"
                 )
             })
+
         # General error
         return render(request, "food_analyzer.html", {
             "error": (
