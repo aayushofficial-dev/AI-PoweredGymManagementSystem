@@ -18,7 +18,11 @@ Step 3: To run our project
 
 Step 4: To go inside the django admin panel
     http://127.0.0.1:8000/admin/
+    python manage.py runserver 0.0.0.0:8000
+    ipconfig getifaddr en0
 
+    http://192.168.254.3:8000/ something like this in our phone
+    
 Step 5. Required models for our project
     1. User
     2. MemberProfile

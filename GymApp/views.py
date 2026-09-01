@@ -1862,13 +1862,10 @@ def admin_feedback_delete(request, feedback_id):
 
 @member_required
 def food_analyzer(request):
-
     if request.method != "POST":
         return render(request, "food_analyzer.html")
-
     # Get uploaded image
     image = request.FILES.get("food_image")
-
     if not image:
         return render(request, "food_analyzer.html", {
             "error": "Please upload a food image."
