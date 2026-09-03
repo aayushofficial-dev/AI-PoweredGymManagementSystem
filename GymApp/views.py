@@ -166,9 +166,7 @@ def member_required(view_func):
 
 #     return render(request, 'login.html')
 def login_view(request):
-
     if request.method == 'POST':
-
         username = request.POST.get('username')
         password = request.POST.get('password')
 
@@ -177,18 +175,12 @@ def login_view(request):
             username=username,
             password=password
         )
-
         if user is not None:
-
             # ADMIN
             if getattr(user, 'role', None) == 'ADMIN':
-
                 login(request, user)
-
                 messages.success(request, 'Admin logged in successfully!')
-
                 return redirect('admin_dashboard')
-
 
             # MEMBER
             elif getattr(user, 'role', None) == 'MEMBER':
@@ -197,32 +189,23 @@ def login_view(request):
                     member = user.member_profile
 
                 except MemberProfile.DoesNotExist:
-
-                    messages.error(
-                        request,
-                        'Member profile not found. Please contact the gym owner.'
-                    )
-
+                    messages.error(request, 'Member profile not found. Please contact the gym owner.')
                     return render(request,'login.html')
 
                 # 1. Manual membership status check
                 if not member.is_membership_active:
-
                     messages.error(request,'Your membership is inactive. Please contact the gym owner.')
-
                     return render(request,'login.html')
                 # 2. Membership expiry check
                 if (
                     member.membership_end
                     and member.membership_end < timezone.localdate()
                 ):
-
                     messages.error(request, 'Your membership plan has ended. Please contact the gym owner.')
                     return render(request,'login.html')
 
                 # Everything is OK
                 login(request, user)
-
                 messages.success(request,'Member logged in successfully!'
                 )
                 return redirect('member_dashboard')
@@ -230,10 +213,8 @@ def login_view(request):
             # INVALID ROLE
             else:
                 messages.error(request,'Invalid user role.')
-
         else:
             messages.error(request,'Invalid username or password.')
-
     return render(request, 'login.html')
 @member_required
 def member_dashboard_view(request):
@@ -1599,46 +1580,33 @@ Repeat the same format for all workout days.
 
 @member_required
 def my_workout_plans(request):
-
     member = get_object_or_404(
         MemberProfile,
         user=request.user
     )
-
-    workout_plans = WorkoutPlan.objects.filter(
-        member=member
-    ).order_by('-created_at')
-
-    return render(
-        request,
-        'my_workout_plans.html',
+    workout_plans = WorkoutPlan.objects.filter(member=member).order_by('-created_at')
+    return render(request, 'my_workout_plans.html',
         {
             'workout_plans': workout_plans
-        }
-    )
+        })
 
 
 @member_required
 def workout_plan_detail(request, plan_id):
-
     member = get_object_or_404(
         MemberProfile,
         user=request.user
     )
-
     workout_plan = get_object_or_404(
         WorkoutPlan,
         id=plan_id,
         member=member
     )
-
-    return render(
-        request,
-        'workout_plan_detail.html',
+    return render(request, 'workout_plan_detail.html',
         {
             'workout_plan': workout_plan
-        }
-    )
+        })
+
 @member_required
 def download_workout_plan_pdf(request, plan_id):
     member = get_object_or_404(
@@ -1729,18 +1697,15 @@ def download_workout_plan_pdf(request, plan_id):
 
 @member_required
 def delete_workout_plan(request, plan_id):
-
     member = get_object_or_404(
         MemberProfile,
         user=request.user
     )
-
     workout_plan = get_object_or_404(
         WorkoutPlan,
         id=plan_id,
         member=member
     )
-
     if request.method == 'POST':
         workout_plan.delete()
         messages.success(request,'Workout plan deleted successfully.')
@@ -2104,7 +2069,6 @@ Do not include explanations.
                 "temperature": 0.2
             }
         )
-
         # Get AI response
         result = response.message.content
         if not result:
