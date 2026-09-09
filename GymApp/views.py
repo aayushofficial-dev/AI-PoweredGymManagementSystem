@@ -596,7 +596,7 @@ def admin_member_add(request):
             # whatsapp message
             whatsapp_message = f"""Hello {member.full_name} 👋
 
-Welcome to Mero.Gym!
+Welcome to Hamro.Gym!
 
 Your gym member account has been created successfully.
 
@@ -610,7 +610,7 @@ Please keep your login credentials secure.
 You are requested to change your password at least once.
 
 Thank you!
-Mero.Gym"""
+Hamro.Gym"""
 
             encoded_message = quote(
                 whatsapp_message.strip()
