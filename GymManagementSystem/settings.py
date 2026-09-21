@@ -35,7 +35,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 # "ai-powered-gym-management-system-nu.vercel.app",
-
+CSRF_TRUSTED_ORIGINS = [
+    "https://partner-collected-mario-items.trycloudflare.com",
+]
 # Application definition
 
 INSTALLED_APPS = [

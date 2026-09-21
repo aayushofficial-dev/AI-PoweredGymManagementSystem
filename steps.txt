@@ -40,3 +40,6 @@ while running:
 Step-1: "ollama serve" - to start the ollama server
 Step-2: after that - python3 manage.py runserver
 
+Cloudfare tunnel: 
+This help to run our project in every system.
+command: cloudflared tunnel --url http://127.0.0.1:8000
