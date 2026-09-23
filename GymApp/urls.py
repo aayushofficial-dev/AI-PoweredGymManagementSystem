@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from .views import *
 
@@ -65,4 +65,5 @@ urlpatterns = [
 
     path("food-analyzer/", food_analyzer, name="food_analyzer"),
 
+    path('gamification/',include('Gamification.urls')),
 ]

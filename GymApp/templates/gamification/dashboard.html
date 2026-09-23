@@ -1,0 +1,368 @@
+{% extends 'base.html' %} 
+{% block title %}Gamification{% endblock %} 
+{% block content %}
+
+<div class="container-fluid px-0">
+  <!-- Header -->
+  <div class="mb-4">
+    <h2 class="fw-bold mb-1">
+      <i class="fa-solid fa-trophy me-2 text-warning"></i>
+      Gamification
+    </h2>
+
+    <p class="text-muted mb-0">
+      Stay consistent, earn points, and reach your fitness goals.
+    </p>
+  </div>
+
+  <!-- Statistics -->
+  <div class="row g-3 mb-4">
+    <!-- Total Points -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="text-muted small mb-1">Total Points</p>
+
+              <h3 class="fw-bold mb-0">{{ stats.points }}</h3>
+            </div>
+
+            <i class="fa-solid fa-star fs-2 text-warning"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Current Streak -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="text-muted small mb-1">Current Streak</p>
+
+              <h3 class="fw-bold mb-0">
+                {{ stats.current_streak }}
+                <span class="fs-6 text-muted">days</span>
+              </h3>
+            </div>
+
+            <i class="fa-solid fa-fire fs-2 text-danger"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Longest Streak -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="text-muted small mb-1">Longest Streak</p>
+
+              <h3 class="fw-bold mb-0">
+                {{ stats.longest_streak }}
+                <span class="fs-6 text-muted">days</span>
+              </h3>
+            </div>
+
+            <i class="fa-solid fa-chart-line fs-2 text-primary"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Check-ins -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="text-muted small mb-1">Total Check-ins</p>
+
+              <h3 class="fw-bold mb-0">{{ stats.total_checkins }}</h3>
+            </div>
+
+            <i class="fa-solid fa-calendar-check fs-2 text-success"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Badges and Leaderboard -->
+  <div class="row g-4">
+    <!-- My Badges -->
+    <div class="col-12 col-lg-5">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-1">
+            <i class="fa-solid fa-medal me-2 text-warning"></i>
+            My Badges
+          </h5>
+
+          <p class="text-muted small mb-0">Achievements you have earned</p>
+        </div>
+
+        <div class="card-body px-4">
+          {% if badges %}
+
+          <div class="row g-3">
+            {% for member_badge in badges %}
+
+            <div class="col-12 col-sm-6">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="fs-2">{{ member_badge.badge.icon }}</div>
+
+                  <div>
+                    <h6 class="fw-bold mb-1">{{ member_badge.badge.name }}</h6>
+
+                    <p class="text-muted small mb-1">
+                      {{ member_badge.badge.description }}
+                    </p>
+
+                    <small class="text-muted">
+                      Earned {{ member_badge.earned_at|date:"M d, Y" }}
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {% endfor %}
+          </div>
+
+          {% else %}
+
+          <div class="text-center py-5">
+            <i class="fa-solid fa-medal fs-1 text-muted mb-3"></i>
+
+            <h6 class="fw-bold">No badges yet</h6>
+
+            <p class="text-muted small mb-0">
+              Keep checking in and completing challenges to earn your first
+              badge.
+            </p>
+          </div>
+
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="col-12 col-lg-7">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-1">
+            <i class="fa-solid fa-ranking-star me-2 text-warning"></i>
+            Leaderboard
+          </h5>
+
+          <p class="text-muted small mb-0">Top members by points</p>
+        </div>
+
+        <div class="card-body px-4">
+          {% if leaderboard %}
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Member</th>
+                  <th>Points</th>
+                  <th>Streak</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for member_stats in leaderboard %}
+
+                <tr>
+                  <td class="fw-bold">{{ forloop.counter }}</td>
+
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="fa-solid fa-circle-user text-secondary"></i>
+
+                      <span class="fw-semibold">
+                        {% if member_stats.member.get_full_name %} 
+                        {{ member_stats.member.get_full_name }} 
+                        {% else %} 
+                        {{ member_stats.member.username }} 
+                        {% endif %}
+                      </span>
+                    </div>
+                  </td>
+
+                  <td class="fw-bold">{{ member_stats.points }}</td>
+
+                  <td>
+                    <span class="text-danger">
+                      <i class="fa-solid fa-fire me-1"></i>
+                      {{ member_stats.current_streak }}
+                    </span>
+                  </td>
+                </tr>
+
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          {% else %}
+
+          <div class="text-center py-5">
+            <i class="fa-solid fa-ranking-star fs-1 text-muted mb-3"></i>
+
+            <p class="text-muted mb-0">No leaderboard data available yet.</p>
+          </div>
+
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Challenges -->
+  <div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-transparent border-0 pt-4 px-4">
+      <h5 class="fw-bold mb-1">
+        <i class="fa-solid fa-bullseye me-2 text-primary"></i>
+        Active Challenges
+      </h5>
+
+      <p class="text-muted small mb-0">
+        Complete challenges and earn extra points.
+      </p>
+    </div>
+
+    <div class="card-body px-4">
+      {% if challenge_data %}
+
+      <div class="row g-3">
+        {% for item in challenge_data %}
+
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="border rounded-3 p-3 h-100">
+            <!-- Challenge Header -->
+            <div
+              class="d-flex justify-content-between align-items-start gap-2 mb-3"
+            >
+              <div>
+                <h6 class="fw-bold mb-1">{{ item.challenge.name }}</h6>
+
+                <p class="text-muted small mb-0">
+                  {{ item.challenge.description }}
+                </p>
+              </div>
+
+              <span class="badge text-bg-warning">
+                +{{ item.challenge.points_reward }}
+              </span>
+            </div>
+
+            <!-- Progress -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between small mb-1">
+                <span class="text-muted"> Progress </span>
+
+                <span class="fw-semibold">
+                  {% if item.participation %} {{ item.participation.progress }}
+                  {% else %} 0 {% endif %} / {{ item.challenge.target }}
+                </span>
+              </div>
+
+              <div
+                class="progress"
+                role="progressbar"
+                aria-valuenow="{{ item.progress_percent }}"
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                <div
+                  class="progress-bar challenge-progress"
+                  data-progress="{{ item.progress_percent }}"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Challenge Footer -->
+            <div
+              class="d-flex justify-content-between align-items-center gap-2"
+            >
+              <small class="text-muted">
+                Ends {{ item.challenge.end_date|date:"M d, Y" }}
+              </small>
+
+              {% if item.participation %} {% if item.participation.completed %}
+
+              <span class="badge text-bg-success">
+                <i class="fa-solid fa-check me-1"></i>
+                Completed
+              </span>
+
+              {% else %}
+
+              <span class="badge text-bg-primary"> Joined </span>
+
+              {% endif %} {% else %}
+
+              <form
+                method="post"
+                action="{% url 'join_challenge' item.challenge.id %}"
+                class="m-0"
+              >
+                {% csrf_token %}
+
+                <button type="submit" class="btn btn-sm btn-primary">
+                  <i class="fa-solid fa-plus me-1"></i>
+                  Join
+                </button>
+              </form>
+
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        {% endfor %}
+      </div>
+
+      {% else %}
+
+      <div class="text-center py-5">
+        <i class="fa-solid fa-bullseye fs-1 text-muted mb-3"></i>
+
+        <h6 class="fw-bold">No active challenges</h6>
+
+        <p class="text-muted small mb-0">
+          New challenges will appear here when available.
+        </p>
+      </div>
+
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".challenge-progress").forEach(function (bar) {
+      let progress = Number(bar.dataset.progress);
+
+      if (Number.isNaN(progress)) {
+        progress = 0;
+      }
+
+      progress = Math.max(0, Math.min(progress, 100));
+      bar.style.width = progress + "%";
+    });
+  });
+</script>
+{% endblock %}

@@ -19,6 +19,8 @@ from django.http import HttpResponse
 from calendar import monthrange
 from functools import wraps
 from urllib.parse import quote
+from django.db import transaction
+from Gamification.services import process_checkin
 
 # Create your views here.
 def home(request):
@@ -70,17 +72,7 @@ def admin_required(view_func):
             return redirect('admin_login')  # Redirect to the admin login page
         return view_func(request, *args, **kwargs)
     return wrapper
-
-# def member_required(view_func):
-#     '''
-#     Decorator to ensure that the user is a member.
-#     ''' 
-#     def wrapper(request, *args, **kwargs):
-#         if not request.user.is_authenticated or getattr(request.user, 'role', None) != 'MEMBER':
-#             messages.error(request, 'You must be a member to access this page.')
-#             return redirect('member_login')
-#         return view_func(request, *args, **kwargs)
-#     return wrapper
+ 
 def member_required(view_func):
     """
     Decorator to ensure that the user is an active member
@@ -906,7 +898,33 @@ def admin_attendance_list(request):
                                                           'selected_date': date,
                                                           })
 
+# @admin_required
+# def admin_attendance_add(request):
+#     members = MemberProfile.objects.all().order_by('full_name')
+
+#     if request.method == 'POST':
+#         member_id = request.POST.get('member_id')
+#         date = request.POST.get('date')
+#         time_in = request.POST.get('time_in')
+
+#         if not member_id:
+#             messages.error(request, 'Please select a member.')
+#             return redirect('admin_attendance_add')
+
+#         member = MemberProfile.objects.get(id=member_id)
+
+#         attendance, created = Attendance.objects.get_or_create(
+#             member=member, date=date, time_in=time_in
+#         )
+
+#         if not created:
+#             attendance.time_in = time_in
+#             attendance.save()
+#             messages.info(request, "Attendance updated successfully.")
+#         messages.success(request, 'Attendance recorded succesfully.')
+#     return render(request, 'admin_attendance_form.html', {'members' : members})
 @admin_required
+@transaction.atomic
 def admin_attendance_add(request):
     members = MemberProfile.objects.all().order_by('full_name')
 
@@ -916,21 +934,39 @@ def admin_attendance_add(request):
         time_in = request.POST.get('time_in')
 
         if not member_id:
-            messages.error(request, 'Please select a member.')
+            messages.error(request,'Please select a member.')
             return redirect('admin_attendance_add')
 
-        member = MemberProfile.objects.get(id=member_id)
-
-        attendance, created = Attendance.objects.get_or_create(
-            member=member, date=date, time_in=time_in
+        member = get_object_or_404(
+            MemberProfile,
+            id=member_id
         )
 
-        if not created:
+        # Check whether this member already has attendance
+        # for this date.
+        attendance = Attendance.objects.filter(member=member,date=date).first()
+
+        if attendance:
+            # Existing attendance: update the time only.
             attendance.time_in = time_in
-            attendance.save()
-            messages.info(request, "Attendance updated successfully.")
-        messages.success(request, 'Attendance recorded succesfully.')
-    return render(request, 'admin_attendance_form.html', {'members' : members})
+            attendance.save(update_fields=['time_in'])
+
+            messages.info(request,'Attendance updated successfully.')
+        else:
+            # New attendance record.
+            Attendance.objects.create(
+                member=member,
+                date=date,
+                time_in=time_in
+            )
+            # Trigger gamification only once for this date.
+            process_checkin(member)
+            messages.success(request, 'Attendance recorded successfully.')
+
+    return render(request,'admin_attendance_form.html',
+        {
+            'members': members
+        })
 
 @admin_required
 def admin_equipment_list(request):

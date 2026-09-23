@@ -1,5 +1,5 @@
-from django.db import models
 from django.conf import settings
+from django.db import models
 
 
 class MemberStats(models.Model):
@@ -17,20 +17,22 @@ class MemberStats(models.Model):
     def __str__(self):
         return self.member.username
 
+
 class Badge(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
-    icon = models.CharField(max_length=50, default='🏆')
+    icon = models.CharField(max_length=20, default='🏆')
     points_required = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.name
 
+
 class MemberBadge(models.Model):
     member = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='badges'
+        related_name='gamification_badges'
     )
 
     badge = models.ForeignKey(
@@ -41,10 +43,16 @@ class MemberBadge(models.Model):
     earned_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('member', 'badge')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['member', 'badge'],
+                name='unique_member_badge'
+            )
+        ]
 
     def __str__(self):
-        return f"{self.member.username} - {self.badge.name}"
+        return f'{self.member.username} - {self.badge.name}'
+
 
 class Challenge(models.Model):
     name = models.CharField(max_length=150)
@@ -61,6 +69,7 @@ class Challenge(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class ChallengeParticipation(models.Model):
     member = models.ForeignKey(
@@ -80,4 +89,12 @@ class ChallengeParticipation(models.Model):
     completed = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('member', 'challenge')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['member', 'challenge'],
+                name='unique_challenge_participation'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.member.username} - {self.challenge.name}'
